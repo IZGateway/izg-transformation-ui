@@ -1,0 +1,61 @@
+# All node_modules directories
+node_modules
+**/node_modules
+
+database
+cypress
+.husky
+
+# All secrets
+**/.env.local
+**/.env.*.local
+
+# By default all git files
+.git
+.gitignore
+.gitattributes
+.github
+
+# Tools caches
+.cache/*
+tsconfig.tsbuildinfo
+.eslintcache
+
+# Yarn
+!.yarnrc.yml
+!.yarn/plugins
+!.yarn/releases
+.yarn/unplugged
+.yarn/cache
+.yarn/install-state.gz
+
+# Used when building with nextjs (next-eslint)
+!.eslintrc.base.json
+!.prettierignore
+!.prettierrc.js
+!.eslintignore
+
+# npm
+!.npmrc
+
+# Docker related
+.dockerignore
+Dockerfile
+Dockerfile.*
+docker-compose.*.yml
+docker-compose.yml
+docker
+
+# Log files
+logs
+*.log
+
+# Temp files
+tmp
+*.tmp
+
+# IDE related
+
+.idea
+.vscode
+.editorconfig

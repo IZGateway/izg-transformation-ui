@@ -23,41 +23,14 @@ NOTE: A certificate for connecting to an instance of IZ Gateway is not necessary
 NextJS will use values found in the .env.local file. Below is an example of the keys that require values custom to your environment
 
 ```
-NEXTAUTH_URL=http://localhost
-NEXTAUTH_URL_INTERNAL=http://localhost
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL_INTERNAL=http://localhost:3000
 NEXTAUTH_SECRET=<enter generated secret>
 OKTA_CLIENT_ID=<enter client id>
-OKTA_ISSUER=<the URL for the Okta service>
 OKTA_CLIENT_SECRET=<Okta secret>
-IZG_ENDPOINT_CRT_PATH=<path/to/your/certificate.crt>
-IZG_ENDPOINT_KEY_PATH=<path/to/your/key.key>
-IZG_ENDPOINT_PASSCODE=<your certificate passcode>
+NEXT_PUBLIC_OKTA_ISSUER=<the URL for the Okta service>
+NEXT_PUBLIC_GA_ID=<id>
 NEXTAUTH_DEBUG=true
-```
-
-NOTE: the IZG_STATUS_ENDPOINT_URL must be an array of objects
-
-For example:
-
-```
-[
- {
-   "typeId":5,
-   "desc":"dev",
-   "url":"https://dev.izgateway.org/rest/statushistory"
- },
- {
-   "typeId":2,
-   "desc":"test",
-   "url":"https://dev.izgateway.org:444/rest/statushistory"
-   }
- ]
-```
-
-the .env file is needed for Prisma to connect and inspect the database schema in order to generate a prisma.schema and prisma client. The .env file only needs to contain the database url connection string.
-
-```
-DATABASE_URL="mysql:<database connection URL>"
 ```
 
 ### **Step 2: Install Dependencies**
@@ -70,52 +43,8 @@ npm install
 
 ### **Step 3: Start local application**
 
-Prerequisite: Existing services running on port 3306, such as another database instance, must be stopped. Or, you can modify the port by creating a docker-compose.override.yml and setting a port value.
-
-In a terminal window at the root of the project directory, run
-
-```
-npm run start:local-dev
-```
-
-This script executes the following:
-
-```
-"docker-compose -f docker-compose.local.yml up -d && npm run dev",
-```
-
-- Create and start an Nginx image configured to listen to port 80 and route incoming requests to the application running on port 3000
-- Create and start a MySQL image loaded with dummy test data
 - Runs 'npm run dev' to start the node application on port 3000
-
-### **Step 4 (OPTIONAL): Create docker-compose.override.yml**
-
-This step is needed if you want to run the config console application in a docker container along with the mysql and nginx containers..
-The docker-compose.override.yml file must be created at the root of the project and configured with the following values:
-
-```
-version: '3'
-services:
-  config-console:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    environment:
-      - NEXTAUTH_URL=http://localhost
-      - NEXTAUTH_URL_INTERNAL=http://localhost
-      - NEXTAUTH_SECRET=<enter generated secret>
-      - OKTA_CLIENT_ID=<enter client id>
-      - OKTA_ISSUER=<the URL for the Okta service>
-      - OKTA_CLIENT_SECRET=<Okta secret>
-      - IZG_ENDPOINT_CRT_PATH=<path/to/your/certificate.crt>
-      - IZG_ENDPOINT_KEY_PATH=<path/to/your/key.key>
-      - IZG_ENDPOINT_PASSCODE=<your certificate passcode>
-      - NEXTAUTH_DEBUG=true
-    volumes:
-      - <full path to your certificate and key directory>:/usr/src/app/certs
-
-```
 
 ### **After start**
 
-Navigate to http://localhost in a browser and you should see the application prompt you for a keycloak login
+Navigate to http://localhost:3000 in a browser and you should see the application prompt you for a okta login

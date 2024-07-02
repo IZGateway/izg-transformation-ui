@@ -3,7 +3,6 @@ import ConnectionsTable from '../../components/ConnectionTable'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import Container from '../../components/Container'
 import { useEffect, useState, useContext } from 'react'
-import CustomSnackbar from '../../components/SnackBar'
 import CombinedContext from '../../contexts/app'
 import _ from 'lodash'
 import { InferGetServerSidePropsType } from 'next'
@@ -38,12 +37,6 @@ const Manage = (
       <AppHeaderBar open />
       <ErrorBoundary>
         <ConnectionsTable data={props.data} />
-        <CustomSnackbar
-          open={showSnackbar}
-          severity={alert.level}
-          message={alert.message}
-          onClose={handleClose}
-        />
       </ErrorBoundary>
     </Container>
   )

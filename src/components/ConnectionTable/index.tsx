@@ -1,22 +1,11 @@
 import React, { useContext } from 'react'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import MonitorHeartOutlinedIcon from '@mui/icons-material/MonitorHeartOutlined'
-import {
-  Box,
-  IconButton,
-  Typography,
-  Card,
-  Tooltip,
-  CardHeader,
-  CardContent,
-} from '@mui/material'
-
-import CheckIcon from '@mui/icons-material/Check'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import { Box, IconButton, Typography, Card } from '@mui/material'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
-import moment from 'moment'
-import _ from 'lodash'
+import EditIcon from '@mui/icons-material/Edit'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
 
 const dataGridCustom = {
   '&.MuiDataGrid-root.MuiDataGrid-autoHeight.MuiDataGrid-root--densityComfortable':
@@ -100,25 +89,25 @@ const ConnectionsTable = (props) => {
       minWidth: 50,
     },
     {
-      field: 'pipelines.pipelineName',
+      field: 'name',
       headerName: 'NAME',
       flex: 0.5,
       minWidth: 50,
     },
     {
-      field: 'pipelines.inboundEndpoint.endpointName',
+      field: 'inboundEndpoint',
       headerName: 'INBOUND ENDPOINT',
       flex: 0.5,
       minWidth: 50,
     },
     {
-      field: 'jurisdictionName',
+      field: 'outboundEndpoint',
       headerName: 'OUTBOUND ENDPOINT',
       flex: 0.5,
       minWidth: 25,
     },
     {
-      field: 'destUri',
+      field: 'description',
       headerName: 'DESCRIPTION',
       flex: 0.5,
       minWidth: 50,
@@ -130,7 +119,7 @@ const ConnectionsTable = (props) => {
       filterable: false,
       flex: 0.5,
       minWidth: 100,
-      renderCell: (params) => {
+      renderCell: () => {
         return (
           <div>
             <IconButton
@@ -138,21 +127,21 @@ const ConnectionsTable = (props) => {
               color="primary"
               sx={actionButtonStyle}
             >
-              <MonitorHeartOutlinedIcon fontSize="small" />
+              <EditIcon fontSize="small" />
             </IconButton>
             <IconButton
               aria-label="test"
               color="primary"
               sx={actionButtonStyle}
             >
-              <MonitorHeartOutlinedIcon fontSize="small" />
+              <SyncDisabledIcon fontSize="small" />
             </IconButton>
             <IconButton
               aria-label="test"
               color="primary"
               sx={actionButtonStyle}
             >
-              <MonitorHeartOutlinedIcon fontSize="small" />
+              <MoreVertIcon fontSize="small" />
             </IconButton>
           </div>
         )
@@ -193,21 +182,16 @@ const ConnectionsTable = (props) => {
         autoHeight
         initialState={{
           sorting: {
-            sortModel: [{ field: 'ORGANIZATION', sort: 'asc' }],
+            sortModel: [{ field: 'organizationName', sort: 'asc' }],
           },
           pagination: { paginationModel: { pageSize } },
-          columns: {
-            columnVisibilityModel: {
-              //destTypeId: false,
-            },
-          },
         }}
         disableRowSelectionOnClick
         disableColumnMenu
         disableColumnSelector
         disableDensitySelector
         onPaginationModelChange={(model) => setPageSize(model.pageSize)}
-        getRowId={(row) => row.destId + row.destTypeId}
+        getRowId={(row) => row.id}
         getRowClassName={(params) => {
           return params.row.hasActiveMaint === true ? 'highlight' : ''
         }}
@@ -220,9 +204,15 @@ const ConnectionsTable = (props) => {
             quickFilterProps: { debounceMs: 500 },
             printOptions: { disableToolbarButton: true },
             columns: { field: 'action', filterable: false },
-            // csvOptions: {
-            //   fields: ['destType', 'jurisdictionName', 'destUri', 'status'],
-            // },
+            csvOptions: {
+              fields: [
+                'organizationName',
+                'name',
+                'inboundEndpoint',
+                'outboundEndpoint',
+                'description',
+              ],
+            },
           },
           panel: {
             placement: 'bottom-end',

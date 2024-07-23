@@ -25,19 +25,17 @@ const Manage = (
 export default Manage
 
 export const getServerSideProps = async () => {
+  const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
   try {
     const organizationsResponse = await fetchDataFromEndpoint(
-      'https://dev.izgateway.org:446/api/v1/organizations?includeInactive=false&limit=10'
+      `${TS_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=10`
     )
     const organizationsData = organizationsResponse.data
-
     const pipelineResponse = await fetchDataFromEndpoint(
-      'https://dev.izgateway.org:446/api/v1/pipelines'
+      `${TS_ENDPOINT}/api/v1/pipelines`
     )
-
     const pipelineData = pipelineResponse.data
     const combinedData = combineData(organizationsData, pipelineData)
-
     return { props: { data: combinedData } }
   } catch (error) {
     console.error('Error fetching data:', error)
@@ -70,7 +68,7 @@ const fetchDataFromEndpoint = async (endpoint) => {
 const combineData = (organizationsData, pipeData) => {
   const organizationsMap = {}
   organizationsData.forEach((org) => {
-    organizationsMap[org.organizationId] = org
+    organizationsMap[org.id] = org
   })
 
   const combinedData = []

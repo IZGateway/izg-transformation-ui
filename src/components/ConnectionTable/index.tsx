@@ -89,7 +89,7 @@ const ConnectionsTable = (props) => {
       minWidth: 50,
     },
     {
-      field: 'name',
+      field: 'pipelineName',
       headerName: 'NAME',
       flex: 0.5,
       minWidth: 50,

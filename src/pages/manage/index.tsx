@@ -12,7 +12,6 @@ import https from 'https'
 const Manage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  console.log(props.data)
   return (
     <Container title="Manage Connections">
       <AppHeaderBar open />

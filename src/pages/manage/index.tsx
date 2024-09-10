@@ -13,7 +13,7 @@ const Manage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
   return (
-    <Container title="Manage Connections">
+    <Container title="Manage Pipelines">
       <AppHeaderBar open />
       <ErrorBoundary>
         <ConnectionsTable data={props.data} />

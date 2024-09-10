@@ -38,7 +38,7 @@ const Edit = (props) => {
 
 export default Edit
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (context) => {
   const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
   const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || ''
   const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || ''
@@ -52,7 +52,7 @@ export const getServerSideProps = async () => {
   }
   try {
     const pipeResponse = await axios.get(
-      `${TS_ENDPOINT}/api/v1/pipelines/7530d938-e03f-4524-b364-4a73efb11c5e`,
+      `${TS_ENDPOINT}/api/v1/pipelines/${context.params.id}`,
       {
         httpsAgent: new https.Agent(httpsAgentOptions),
         timeout: 30000,

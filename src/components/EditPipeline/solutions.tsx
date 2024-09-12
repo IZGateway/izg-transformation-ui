@@ -13,6 +13,23 @@ import {
 } from '@mui/material'
 
 const Solutions = (props) => {
+  const [selectedSolution, setSelectedSolution] = React.useState('Solutions')
+  const handleChange = (event) => {
+    setSelectedSolution(event.target.value)
+  }
+
+  const solArray = solutionsArray(props.solutionsData, props.pipeData)
+
+  const handleAddSolution = () => {
+    if (selectedSolution) {
+      const solutionToAdd = solArray.find((sol) => sol[0] === selectedSolution)
+      if (solutionToAdd) {
+        props.onAddSolution(solutionToAdd)
+        setSelectedSolution('Solutions')
+      }
+    }
+  }
+
   return (
     <Card sx={{ minWidth: 275, borderRadius: '0px 0px 30px 30px' }}>
       <CardHeader title="Search for Solutions" />
@@ -27,9 +44,9 @@ const Solutions = (props) => {
           <Select
             labelId="solutions-select-label"
             id="solutions-select"
-            // value={age}
+            value={selectedSolution}
             label="Solutions Endpoint"
-            // onChange={handleChange}
+            onChange={handleChange}
           >
             {Object.entries(solArray).length > 0 ? (
               Object.entries(solArray).map(([id]) => (
@@ -49,6 +66,8 @@ const Solutions = (props) => {
           sx={{
             borderRadius: '30px',
           }}
+          onClick={handleAddSolution}
+          disabled={!selectedSolution}
         >
           Add
         </Button>
@@ -58,3 +77,10 @@ const Solutions = (props) => {
 }
 
 export default Solutions
+
+const solutionsArray = (solutionsData, pipeData) => {
+  const pipeSolutionIds = new Set(pipeData.map((pipe) => pipe.solutionId))
+  return solutionsData.data
+    .filter((solution) => !pipeSolutionIds.has(solution.id))
+    .map((solution) => [solution.id, solution.solutionName])
+}

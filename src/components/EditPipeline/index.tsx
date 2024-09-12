@@ -1,25 +1,18 @@
 import * as React from 'react'
 import Container from '../../components/Container'
 import ErrorBoundary from '../../components/ErrorBoundary'
-import router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import Close from '../Close'
 import EditIcon from '@mui/icons-material/Edit'
-import {
-  Typography,
-  Tooltip,
-  Box,
-  IconButton,
-  TextField,
-  fabClasses,
-} from '@mui/material'
+import { Typography, Tooltip, Box, IconButton, TextField } from '@mui/material'
 import Settings from './settings'
 import Solutions from './solutions'
 import SolutionsAdded from './solutionsAdded'
 import CloseIcon from '@mui/icons-material/Close'
-import { stubFalse } from 'cypress/types/lodash'
+import SolutionsGrid from './solutionsGrid'
 
-const EditPipeline = ({ pipeData, orgData }) => {
+const EditPipeline = ({ pipeData, orgData, solutionsData }) => {
   const router = useRouter()
   const { isReady, query } = router
   const [description, setDescription] = React.useState(pipeData.description)
@@ -107,7 +100,17 @@ const EditPipeline = ({ pipeData, orgData }) => {
                 <Settings pipeData={pipeData} orgData={orgData} />
 
                 <Box sx={{ width: '70%' }}>
-                  <Solutions />
+                  <Solutions
+                    solutionsData={solutionsData}
+                    pipeData={pipeData.pipes}
+                    onAddSolution={(solution) => {
+                      console.log(solution)
+                    }}
+                  />
+                  <SolutionsGrid
+                    pipeData={pipeData.pipes}
+                    solutionsData={solutionsData}
+                  />
                   <SolutionsAdded />
                 </Box>
               </Box>

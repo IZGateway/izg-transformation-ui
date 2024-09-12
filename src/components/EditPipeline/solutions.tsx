@@ -31,9 +31,15 @@ const Solutions = (props) => {
             label="Solutions Endpoint"
             // onChange={handleChange}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            {Object.entries(solArray).length > 0 ? (
+              Object.entries(solArray).map(([id]) => (
+                <MenuItem key={id} value={solArray[id][0]}>
+                  {solArray[id][1]}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="">No solutions available</MenuItem>
+            )}
           </Select>
         </FormControl>
         <Button

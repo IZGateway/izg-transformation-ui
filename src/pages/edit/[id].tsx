@@ -6,10 +6,8 @@ import { Box } from '@mui/material'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import axios from 'axios'
-import * as fs from 'fs'
-import path from 'path'
-import https from 'https'
+import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
+
 
 const Edit = (props) => {
   const router = useRouter()
@@ -28,6 +26,7 @@ const Edit = (props) => {
               pipeId={router?.query?.id as string}
               pipeData={props.pipeData}
               orgData={props.orgData}
+              solutionsData={props.solutionsData}
             />
           </div>
         </Box>
@@ -40,35 +39,21 @@ export default Edit
 
 export const getServerSideProps = async (context) => {
   const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
-  const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || ''
-  const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || ''
-  const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || ''
-  const httpsAgentOptions = {
-    cert: fs.readFileSync(path.resolve(IZG_ENDPOINT_CRT_PATH), 'utf-8'),
-    key: fs.readFileSync(path.resolve(IZG_ENDPOINT_KEY_PATH), 'utf-8'),
-    passphrase: IZG_ENDPOINT_PASSCODE,
-    rejectUnauthorized: false,
-    keepAlive: true,
-  }
   try {
-    const pipeResponse = await axios.get(
-      `${TS_ENDPOINT}/api/v1/pipelines/${context.params.id}`,
-      {
-        httpsAgent: new https.Agent(httpsAgentOptions),
-        timeout: 30000,
-      }
+    const pipeData = await fetchDataFromEndpoint(
+      `${TS_ENDPOINT}/api/v1/pipelines/${context.params.id}`
     )
-    const organizationResponse = await axios.get(
-      `${TS_ENDPOINT}/api/v1/organizations/${pipeResponse.data.organizationId}`,
-      {
-        httpsAgent: new https.Agent(httpsAgentOptions),
-        timeout: 30000,
-      }
+    const organizationData = await fetchDataFromEndpoint(
+      `${TS_ENDPOINT}/api/v1/organizations/${pipeData.organizationId}`
+    )
+    const solutionsData = await fetchDataFromEndpoint(
+      `${TS_ENDPOINT}/api/v1/solutions`
     )
     return {
       props: {
-        pipeData: pipeResponse.data,
-        orgData: organizationResponse.data,
+        pipeData: pipeData,
+        orgData: organizationData,
+        solutionsData: solutionsData,
       },
     }
   } catch (error) {
@@ -76,3 +61,4 @@ export const getServerSideProps = async (context) => {
     throw new Error(error)
   }
 }
+

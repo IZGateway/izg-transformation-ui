@@ -2,7 +2,7 @@ import * as React from 'react'
 import Container from '../../components/Container'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Close from '../Close'
 import EditIcon from '@mui/icons-material/Edit'
 import { Typography, Tooltip, Box, IconButton, TextField } from '@mui/material'
@@ -15,9 +15,9 @@ import SolutionsGrid from './solutionsGrid'
 const EditPipeline = ({ pipeData, orgData, solutionsData }) => {
   const router = useRouter()
   const { isReady, query } = router
-  const [description, setDescription] = React.useState(pipeData.description)
-  const [open, setOpen] = React.useState(false)
-
+  const [description, setDescription] = useState(pipeData.description)
+  const [open, setOpen] = useState(false)
+  const [isReorder, setIsReorder] = useState(false)
   useEffect(() => {
     if (!isReady) return
   }, [isReady, query])
@@ -110,8 +110,12 @@ const EditPipeline = ({ pipeData, orgData, solutionsData }) => {
                   <SolutionsGrid
                     pipeData={pipeData.pipes}
                     solutionsData={solutionsData}
+                    isReorder={isReorder}
                   />
-                  <SolutionsAdded />
+                  <SolutionsAdded
+                    isReorder={isReorder}
+                    onReorderToggler={setIsReorder}
+                  />
                 </Box>
               </Box>
             </>

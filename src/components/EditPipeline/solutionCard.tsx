@@ -1,16 +1,52 @@
-import { Card, CardContent, Typography } from '@mui/material'
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+  Typography,
+} from '@mui/material'
+import React from 'react'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 const SolutionCard = (props) => {
-  //   console.log(props)
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: props.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
   return (
-    <Card
-      sx={{ marginTop: 4, borderRadius: '0px 0px 16px 16px', marginBottom: 0 }}
+    <Box
+      ref={setNodeRef}
+      style={style}
+      {...(props.isReorder ? { ...attributes, ...listeners } : {})}
     >
-      <CardContent>
-        <Typography variant="h6">{props.solution.solutionName}</Typography>
-        <Typography variant="body1">{props.solution.description}</Typography>
-      </CardContent>
-    </Card>
+      <Card
+        sx={{
+          height: '100%',
+          marginTop: 4,
+          borderRadius: '0px 0px 16px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <CardHeader
+          title={
+            props.isReorder
+              ? `${props.index}. ${props.solution.solutionName}`
+              : props.solution.solutionName
+          }
+        />
+        <Divider />
+        <CardContent>
+          <Typography variant="body1">{props.solution.description}</Typography>
+        </CardContent>
+      </Card>
+    </Box>
   )
 }
 

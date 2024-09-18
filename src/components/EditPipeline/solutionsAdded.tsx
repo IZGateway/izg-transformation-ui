@@ -21,6 +21,7 @@ const SolutionsAdded = (props) => {
             sx={{
               borderRadius: '30px',
             }}
+            onClick={() => props.onReorderToggler(true)}
           >
             Reorder
           </Button>
@@ -31,6 +32,7 @@ const SolutionsAdded = (props) => {
             sx={{
               borderRadius: '30px',
             }}
+            onClick={() => props.onReorderToggler(false)}
           >
             Save
           </Button>

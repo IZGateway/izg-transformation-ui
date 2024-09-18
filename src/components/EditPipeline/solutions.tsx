@@ -10,25 +10,24 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Drawer,
 } from '@mui/material'
+import SolutionsModal from './solutionsModal'
 
 const Solutions = (props) => {
-  const [selectedSolution, setSelectedSolution] = React.useState('Solutions')
+  const [selectedSolution, setSelectedSolution] = React.useState('')
+  const [refreshKey, setRefreshKey] = React.useState(0)
+  const [open, setOpen] = React.useState(false)
+
+  const toggleDrawer = (newOpen: boolean) => {
+    setOpen(newOpen)
+  }
+
   const handleChange = (event) => {
     setSelectedSolution(event.target.value)
   }
 
   const solArray = solutionsArray(props.solutionsData, props.pipeData)
-
-  const handleAddSolution = () => {
-    if (selectedSolution) {
-      const solutionToAdd = solArray.find((sol) => sol[0] === selectedSolution)
-      if (solutionToAdd) {
-        props.onAddSolution(solutionToAdd)
-        setSelectedSolution('Solutions')
-      }
-    }
-  }
 
   return (
     <Card sx={{ minWidth: 275, borderRadius: '0px 0px 30px 30px' }}>
@@ -40,7 +39,13 @@ const Solutions = (props) => {
           many you like, please note they are sequential.
         </Typography>
         <FormControl fullWidth>
-          <InputLabel id="solutions-select-label">Solutions</InputLabel>
+          <InputLabel
+            id="solutions-select-label"
+            key={refreshKey}
+            shrink={false}
+          >
+            {selectedSolution ? selectedSolution.name : 'Solutions'}
+          </InputLabel>
           <Select
             labelId="solutions-select-label"
             id="solutions-select"
@@ -48,10 +53,17 @@ const Solutions = (props) => {
             label="Solutions Endpoint"
             onChange={handleChange}
           >
-            {Object.entries(solArray).length > 0 ? (
-              Object.entries(solArray).map(([id]) => (
-                <MenuItem key={id} value={solArray[id][0]}>
-                  {solArray[id][1]}
+            {Object.keys(solArray).length > 0 ? (
+              Object.entries(solArray).map(([id, solution]) => (
+                <MenuItem
+                  key={id}
+                  value={{
+                    id: solution.id,
+                    name: solution.name,
+                    description: solution.description,
+                  }}
+                >
+                  {solution.name}
                 </MenuItem>
               ))
             ) : (
@@ -66,11 +78,29 @@ const Solutions = (props) => {
           sx={{
             borderRadius: '30px',
           }}
-          onClick={handleAddSolution}
+          onClick={() => toggleDrawer(true)}
           disabled={!selectedSolution}
         >
           Add
         </Button>
+        <Drawer
+          variant="temporary"
+          PaperProps={{
+            sx: {
+              borderRadius: '20px 0px 0px 20px',
+            },
+          }}
+          open={open}
+          onClose={() => toggleDrawer(false)}
+          anchor="right"
+        >
+          <SolutionsModal
+            selectedSolution={selectedSolution}
+            setSelectedSolution={setSelectedSolution}
+            setRefreshKey={setRefreshKey}
+            toggleDrawer={toggleDrawer}
+          />
+        </Drawer>
       </CardContent>
     </Card>
   )
@@ -79,8 +109,16 @@ const Solutions = (props) => {
 export default Solutions
 
 const solutionsArray = (solutionsData, pipeData) => {
+  console.log(solutionsData, pipeData)
   const pipeSolutionIds = new Set(pipeData.map((pipe) => pipe.solutionId))
   return solutionsData.data
     .filter((solution) => !pipeSolutionIds.has(solution.id))
-    .map((solution) => [solution.id, solution.solutionName])
+    .reduce((acc, solution) => {
+      acc[solution.id] = {
+        id: solution.id,
+        name: solution.solutionName,
+        description: solution.description,
+      }
+      return acc
+    }, {})
 }

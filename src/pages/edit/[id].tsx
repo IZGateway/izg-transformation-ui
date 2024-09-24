@@ -7,14 +7,29 @@ import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
-
+import pushDataToEndpoint from '../api/serverside/PushDataToEndpoint'
+import { updateData } from '../../components/EditPipeline/updatePipeline'
 
 const Edit = (props) => {
   const router = useRouter()
   const { isReady, query } = router
+
+  const [pipeData, setPipeData] = React.useState(props.pipeData)
+
   useEffect(() => {
     if (!isReady) return
-  }, [isReady, query])
+
+    if (pipeData !== props.pipeData) {
+      updateData(query.id as string, pipeData)
+        .then((updatedData) => {
+          console.log('Data updated successfully:', updatedData)
+        })
+        .catch((error) => {
+          console.error('Failed to update data:', error)
+        })
+    }
+  }, [isReady, query, pipeData, props.pipeData])
+
   return !isReady ? (
     <>Loading....</>
   ) : (
@@ -23,10 +38,12 @@ const Edit = (props) => {
         <Box sx={{ position: 'relative' }}>
           <div>
             <EditPipeline
-              pipeId={router?.query?.id as string}
-              pipeData={props.pipeData}
+              pipeData={pipeData}
               orgData={props.orgData}
               solutionsData={props.solutionsData}
+              setPipeData={setPipeData}
+              preconditionsData={props.preconditionsData}
+              preconditionMethodsData={props.preconditionMethodsData}
             />
           </div>
         </Box>
@@ -49,11 +66,19 @@ export const getServerSideProps = async (context) => {
     const solutionsData = await fetchDataFromEndpoint(
       `${TS_ENDPOINT}/api/v1/solutions`
     )
+    const preconditionsData = await fetchDataFromEndpoint(
+      `${TS_ENDPOINT}/api/v1/preconditions/fields`
+    )
+    const preconditionMethodsData = await fetchDataFromEndpoint(
+      `${TS_ENDPOINT}/api/v1/preconditions/available`
+    )
     return {
       props: {
         pipeData: pipeData,
         orgData: organizationData,
         solutionsData: solutionsData,
+        preconditionsData: preconditionsData,
+        preconditionMethodsData: preconditionMethodsData,
       },
     }
   } catch (error) {
@@ -61,4 +86,3 @@ export const getServerSideProps = async (context) => {
     throw new Error(error)
   }
 }
-

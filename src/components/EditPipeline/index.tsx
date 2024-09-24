@@ -169,9 +169,9 @@ const EditPipeline = ({
                         <Divider />
                         <CardContent>
                           <Typography variant="body1">
-                            Once you have adjusted your settings add a
-                            solutions. You can add as many you like, please note
-                            the order is sequential.
+                            Once you have adjusted your settings add a solution.
+                            You can add as many you like, please note the order
+                            is sequential.
                           </Typography>
                         </CardContent>
                       </Card>

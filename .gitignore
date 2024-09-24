@@ -32,3 +32,9 @@ yarn-error.log*
 
 # Docker override file
 docker-compose.override.yml
+
+# vscode
+.vscode
+
+# package-lock.json
+package-lock.json

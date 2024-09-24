@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import withMiddleware from '../api-middleware-helper'
 import logger from '../../../../logger'
-import { prismacontext } from '../../../lib/prismacontext'
 import * as fs from 'fs'
 import path from 'path'
 import https from 'https'
@@ -17,61 +16,7 @@ import axios from 'axios'
  */
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const deepHealthCheckResults = []
-  const checkConnections = ['DB', 'OKTA', 'JIRA', 'IZG']
-
-  // DATABASE
-  const databaseStatus = async () => {
-    let dbConnectionCheck = {}
-    try {
-      const query = await prismacontext.prisma.$queryRaw<any[]>`SELECT 1`
-
-      if (query.length >= 1) {
-        dbConnectionCheck = {
-          component: 'DB',
-          status: 'connected',
-          statusAt: new Date(Date.now()).toISOString(),
-          reason: 'connected to database',
-        }
-        return dbConnectionCheck
-      }
-    } catch (error) {
-      dbConnectionCheck = {
-        component: 'DB',
-        status: 'unable to connect',
-        statusAt: new Date(Date.now()).toISOString(),
-        reason: error.message,
-      }
-    }
-    return dbConnectionCheck
-  }
-
-  //JIRA
-  const jiraStatus = async () => {
-    let jiraHealthCheck = {}
-    const jiraEndpoint = process.env.JIRA_HEALTHCHECK_URL || 'unknown'
-    try {
-      const response = await fetch(jiraEndpoint)
-      const data = await response.json()
-      logger.debug('Jira health check response', { data })
-      jiraHealthCheck = {
-        component: 'JIRA',
-        status: 'connected',
-        statusAt: new Date(Date.now()).toISOString(),
-        reason: 'health check passed',
-        url: jiraEndpoint,
-      }
-      return jiraHealthCheck
-    } catch (error) {
-      jiraHealthCheck = {
-        component: 'JIRA',
-        status: 'unable to connect',
-        statusAt: new Date(Date.now()).toISOString(),
-        reason: error.message,
-        url: jiraEndpoint,
-      }
-      return jiraHealthCheck
-    }
-  }
+  const checkConnections = ['OKTA', 'IZG']
 
   // IZGATEWAY
   const izgwStatus = async () => {
@@ -164,14 +109,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     for (const component of checkConnections) {
-      if (component === 'DB') {
-        const dbConnectionCheck = await databaseStatus()
-        deepHealthCheckResults.push(dbConnectionCheck)
-      }
-      if (component === 'JIRA') {
-        const jiraHealthCheck = await jiraStatus()
-        deepHealthCheckResults.push(jiraHealthCheck)
-      }
       if (component === 'IZG') {
         const izgwHealthCheck = await izgwStatus()
         deepHealthCheckResults.push(izgwHealthCheck)

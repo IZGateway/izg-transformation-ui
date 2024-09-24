@@ -2,25 +2,72 @@ import * as React from 'react'
 import Container from '../../components/Container'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Close from '../Close'
 import EditIcon from '@mui/icons-material/Edit'
-import { Typography, Tooltip, Box, IconButton, TextField } from '@mui/material'
+import {
+  Typography,
+  Tooltip,
+  Box,
+  IconButton,
+  TextField,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+} from '@mui/material'
 import Settings from './settings'
-import Solutions from './solutions'
+import SolutionsList from './solutionsList'
 import SolutionsAdded from './solutionsAdded'
 import CloseIcon from '@mui/icons-material/Close'
 import SolutionsGrid from './solutionsGrid'
 
-const EditPipeline = ({ pipeData, orgData, solutionsData }) => {
+const EditPipeline = ({
+  pipeData,
+  orgData,
+  solutionsData,
+  setPipeData,
+  preconditionsData,
+  preconditionMethodsData,
+}) => {
   const router = useRouter()
   const { isReady, query } = router
   const [description, setDescription] = useState(pipeData.description)
   const [open, setOpen] = useState(false)
   const [isReorder, setIsReorder] = useState(false)
+  const [currentOrder, setCurrentOrder] = useState(pipeData.pipes)
+
   useEffect(() => {
     if (!isReady) return
   }, [isReady, query])
+
+  const updatePipelineData = useCallback(
+    (newOrder) => {
+      setCurrentOrder(newOrder)
+      setPipeData((prevPipeData) => ({
+        ...prevPipeData,
+        pipes: newOrder,
+      }))
+    },
+    [setPipeData]
+  )
+
+  const handleDelete = useCallback(
+    (id) => {
+      const newOrder = currentOrder.filter((pipe) => pipe.id !== id)
+      updatePipelineData(newOrder)
+    },
+    [currentOrder, updatePipelineData]
+  )
+
+  const handleSave = useCallback(async () => {
+    try {
+      updatePipelineData(currentOrder)
+      setIsReorder(false)
+    } catch (error) {
+      console.error('Error updating pipeline order:', error)
+    }
+  }, [currentOrder, updatePipelineData])
 
   return !isReady ? (
     <>Loading....</>
@@ -100,21 +147,48 @@ const EditPipeline = ({ pipeData, orgData, solutionsData }) => {
                 <Settings pipeData={pipeData} orgData={orgData} />
 
                 <Box sx={{ width: '70%' }}>
-                  <Solutions
+                  <SolutionsList
                     solutionsData={solutionsData}
-                    pipeData={pipeData.pipes}
-                    onAddSolution={(solution) => {
-                      console.log(solution)
-                    }}
+                    pipeData={currentOrder}
+                    onAddSolution={updatePipelineData}
+                    setIsReorder={setIsReorder}
+                    preconditionsData={preconditionsData}
+                    preconditionMethodsData={preconditionMethodsData}
                   />
-                  <SolutionsGrid
-                    pipeData={pipeData.pipes}
-                    solutionsData={solutionsData}
-                    isReorder={isReorder}
-                  />
+                  {currentOrder.length > 0 && (
+                    <>
+                      <Card
+                        sx={{
+                          minWidth: 275,
+
+                          borderRadius: '0px 0px 30px 30px',
+                          marginTop: 4,
+                        }}
+                      >
+                        <CardHeader title="Configured Solutions" />
+                        <Divider />
+                        <CardContent>
+                          <Typography variant="body1">
+                            Once you have adjusted your settings add a
+                            solutions. You can add as many you like, please note
+                            the order is sequential.
+                          </Typography>
+                        </CardContent>
+                      </Card>
+
+                      <SolutionsGrid
+                        pipeData={currentOrder}
+                        solutionsData={solutionsData}
+                        isReorder={isReorder}
+                        onOrderChange={updatePipelineData}
+                        handleDelete={handleDelete}
+                      />
+                    </>
+                  )}
                   <SolutionsAdded
                     isReorder={isReorder}
                     onReorderToggler={setIsReorder}
+                    onSave={handleSave}
                   />
                 </Box>
               </Box>

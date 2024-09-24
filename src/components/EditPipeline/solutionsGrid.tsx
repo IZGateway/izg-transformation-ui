@@ -1,12 +1,5 @@
-import React, { useState } from 'react'
-import {
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  Typography,
-} from '@mui/material'
+import React, { useCallback, useMemo } from 'react'
+import { Box, Card, CardContent, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import {
   DndContext,
@@ -15,6 +8,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragEndEvent,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -24,30 +18,43 @@ import {
 } from '@dnd-kit/sortable'
 import SolutionCard from './solutionCard'
 
-const SolutionsGrid = (props) => {
-  const [items, setItems] = useState(
-    combineData(props.pipeData, props.solutionsData.data)
-  )
-
+const SolutionsGrid = ({
+  pipeData,
+  solutionsData,
+  onOrderChange,
+  isReorder,
+  handleDelete,
+}) => {
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
 
-  function handleDragEnd(event) {
-    const { active, over } = event
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event
 
-    if (active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id)
-        const newIndex = items.findIndex((item) => item.id === over.id)
+      if (active.id !== over?.id) {
+        const oldIndex = pipeData.findIndex((item) => item.id === active.id)
+        const newIndex = pipeData.findIndex((item) => item.id === over?.id)
 
-        return arrayMove(items, oldIndex, newIndex)
-      })
-    }
-  }
+        const newPipeData = arrayMove(pipeData, oldIndex, newIndex)
+        onOrderChange(newPipeData)
+      }
+    },
+    [pipeData, onOrderChange]
+  )
+
+  const sortableItems = useMemo(
+    () => pipeData.map((item) => item.id),
+    [pipeData]
+  )
 
   return (
     <DndContext
@@ -55,37 +62,43 @@ const SolutionsGrid = (props) => {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext
-        items={items.map((item) => item.id)}
-        strategy={rectSortingStrategy}
-      >
+      <SortableContext items={sortableItems} strategy={rectSortingStrategy}>
         <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
             gap: 2,
             '& > *': {
-              height: 200, // Fixed height for all cards
+              height: 200,
             },
             marginBottom: 8,
+            marginTop: 4,
           }}
         >
-          {items.map((solution, index) => (
-            <SolutionCard
-              key={solution.id}
-              solution={solution.solutionData}
-              id={solution.id}
-              index={index + 1}
-              isReorder={props.isReorder}
-            />
-          ))}
+          {pipeData.map((pipe, index) => {
+            const solution = solutionsData.data.find(
+              (s) => s.id === pipe.solutionId
+            )
+            return (
+              <SolutionCard
+                key={pipe.id}
+                solution={solution}
+                id={pipe.id}
+                index={index + 1}
+                isReorder={isReorder}
+                handleDelete={handleDelete}
+              />
+            )
+          })}
           <Card
             sx={{
-              height: '100%',
-              marginTop: 4,
-              borderRadius: '0px 0px 16px 16px',
+              height: 200,
+              borderRadius: '16px 16px 16px 16px',
+              backgroundColor: '#f9f9f9',
               display: 'flex',
               alignItems: 'center',
+              boxShadow: 'none',
+              outline: '1px solid #aaaaaa',
               justifyContent: 'center',
               flexDirection: 'column, row',
             }}
@@ -108,16 +121,4 @@ const SolutionsGrid = (props) => {
   )
 }
 
-export default SolutionsGrid
-
-const combineData = (pipeData, solutionsData) => {
-  return pipeData.map((pipe) => {
-    const solutionData = solutionsData.find(
-      (solution) => solution.id === pipe.solutionId
-    )
-    return {
-      ...pipe,
-      solutionData,
-    }
-  })
-}
+export default React.memo(SolutionsGrid)

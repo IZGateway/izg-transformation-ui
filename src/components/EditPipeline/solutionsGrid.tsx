@@ -71,7 +71,6 @@ const SolutionsGrid = ({
             '& > *': {
               height: 200,
             },
-            marginBottom: 8,
             marginTop: 4,
           }}
         >

@@ -24,7 +24,7 @@ const Settings = (props: { pipeData; orgData }) => {
             Please select a source. At moment the destination will be IZ Gateway
             Production or Onboarding
           </Typography>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
             <InputLabel id="organization-select-label">Organization</InputLabel>
             <Select
               labelId="organization-select-label"
@@ -38,7 +38,7 @@ const Settings = (props: { pipeData; orgData }) => {
               </MenuItem>
             </Select>
           </FormControl>
-          <FormControl fullWidth>
+          <FormControl fullWidth sx={{ marginBottom: 2 }}>
             <InputLabel id="input-endpoint-select-label">
               Input End Point
             </InputLabel>

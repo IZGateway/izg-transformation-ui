@@ -12,11 +12,10 @@ import {
   Select,
   Drawer,
 } from '@mui/material'
-import SolutionsModal from './solutionsModal'
+import SolutionsModal from './Modal/solutionsModal'
 
-const Solutions = (props) => {
+const SolutionsList = (props) => {
   const [selectedSolution, setSelectedSolution] = React.useState('')
-  const [refreshKey, setRefreshKey] = React.useState(0)
   const [open, setOpen] = React.useState(false)
 
   const toggleDrawer = (newOpen: boolean) => {
@@ -29,6 +28,10 @@ const Solutions = (props) => {
 
   const solArray = solutionsArray(props.solutionsData, props.pipeData)
 
+  const handleAddSolution = (newPipeData) => {
+    props.onAddSolution(newPipeData)
+  }
+
   return (
     <Card sx={{ minWidth: 275, borderRadius: '0px 0px 30px 30px' }}>
       <CardHeader title="Search for Solutions" />
@@ -38,19 +41,14 @@ const Solutions = (props) => {
           Once you have adjusted your settings add a solutions. You can add as
           many you like, please note they are sequential.
         </Typography>
-        <FormControl fullWidth>
-          <InputLabel
-            id="solutions-select-label"
-            key={refreshKey}
-            shrink={false}
-          >
+        <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
+          <InputLabel id="solutions-select-label" shrink={false}>
             {selectedSolution ? selectedSolution.name : 'Solutions'}
           </InputLabel>
           <Select
             labelId="solutions-select-label"
             id="solutions-select"
             value={selectedSolution}
-            label="Solutions Endpoint"
             onChange={handleChange}
           >
             {Object.keys(solArray).length > 0 ? (
@@ -95,10 +93,14 @@ const Solutions = (props) => {
           anchor="right"
         >
           <SolutionsModal
+            preconditionsData={props.preconditionsData}
+            preconditionMethodsData={props.preconditionMethodsData}
             selectedSolution={selectedSolution}
             setSelectedSolution={setSelectedSolution}
-            setRefreshKey={setRefreshKey}
             toggleDrawer={toggleDrawer}
+            onClickSave={handleAddSolution}
+            pipeData={props.pipeData}
+            setIsReorder={props.setIsReorder}
           />
         </Drawer>
       </CardContent>
@@ -106,10 +108,9 @@ const Solutions = (props) => {
   )
 }
 
-export default Solutions
+export default SolutionsList
 
 const solutionsArray = (solutionsData, pipeData) => {
-  console.log(solutionsData, pipeData)
   const pipeSolutionIds = new Set(pipeData.map((pipe) => pipe.solutionId))
   return solutionsData.data
     .filter((solution) => !pipeSolutionIds.has(solution.id))

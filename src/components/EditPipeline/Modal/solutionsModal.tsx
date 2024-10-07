@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import {
   Box,
   Button,
@@ -8,131 +8,165 @@ import {
   Switch,
   Typography,
   IconButton,
+  Drawer,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { v4 as uuidv4 } from 'uuid'
-import PreconditionsSection from './preconditionsSection'
-import { transformPreconditions } from './utils'
 import styles from './styles'
+import PreconditionsSection from './preconditionsSection'
+import { transformPreconditions, useFormattedPreconditions } from './utils'
+import { usePreconditionContext } from '../../../contexts/EditPipeline/preconditionContext'
+import { useReorderContext } from '../../../contexts/EditPipeline/reorderContext'
+import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updatePipeDataContext'
 
-const SolutionsModal = (props) => {
-  const [hasPreconditions, setHasPreconditions] = useState(false)
-  const [preconditions, setPreconditions] = useState([
-    { id: '', method: '', value: '' },
-  ])
+const SolutionsModal = ({
+  selectedSolution,
+  isNewSolution,
+  existingPreconditions = [],
+  setOpen,
+  open,
+}) => {
+  const { preconditionsData, preconditionMethodsData } =
+    usePreconditionContext()
+  const { pipeData, setPipeData, setTempPipeData } = useUpdatePipeDataContext()
+  const { setIsReorder } = useReorderContext()
+  const [hasPreconditions, setHasPreconditions] = useState(!isNewSolution)
+  const [preconditions, setPreconditions] = useState(existingPreconditions)
 
-  const handleAddPrecondition = () => {
-    setPreconditions([...preconditions, { id: '', method: '', value: '' }])
-  }
+  const formattedPreconditions = useFormattedPreconditions(
+    hasPreconditions,
+    hasPreconditions ? preconditions : []
+  )
+
+  const handleAddPrecondition = useCallback(() => {
+    setHasPreconditions(true)
+    setPreconditions((prev) => [...prev, { id: '', method: '', value: '' }])
+  }, [setHasPreconditions, setPreconditions])
 
   const handleSave = () => {
-    const transformedPreconditions = hasPreconditions
-      ? transformPreconditions(
-          props.preconditionsData,
-          props.preconditionMethodsData,
-          preconditions
+    const transformedPreconditions = !hasPreconditions
+      ? []
+      : transformPreconditions(
+          preconditionsData,
+          preconditionMethodsData,
+          formattedPreconditions
         )
-      : []
 
-    const newUUID = uuidv4()
     const newPipeData = [
-      ...props.pipeData,
+      ...pipeData,
       {
-        id: newUUID,
-        solutionId: props.selectedSolution.id,
+        id: uuidv4(),
+        solutionId: selectedSolution.id,
         solutionVersion: '1.0',
         preconditions: transformedPreconditions,
       },
     ]
-    console.log(props.pipeData)
-    props.setSelectedSolution('')
-    props.toggleDrawer(false)
-    props.onClickSave(newPipeData)
-    props.setIsReorder(true)
+    setOpen(false)
+    setPipeData(newPipeData)
+    setTempPipeData(pipeData)
+    setIsReorder(true)
   }
 
   const handleClose = () => {
-    props.setSelectedSolution('')
-    props.toggleDrawer(false)
+    setOpen(false)
+    if (isNewSolution) {
+      setHasPreconditions(false)
+      setPreconditions([])
+    }
   }
 
   return (
-    <Box sx={styles.modalContainer}>
-      <Box sx={styles.contentContainer}>
-        <Box sx={styles.headerContainer}>
-          <Typography variant="h1" sx={styles.title}>
-            Make some additional configurations to save your solution.
-          </Typography>
-          <IconButton onClick={handleClose}>
-            <CloseIcon fontSize="large" />
-          </IconButton>
-        </Box>
-
-        <Typography variant="h5" sx={styles.solutionName}>
-          {props.selectedSolution.name} Details
-        </Typography>
-        <Typography variant="body1" sx={styles.solutionDescription}>
-          {props.selectedSolution.description}
-        </Typography>
-
-        <FormControl sx={styles.formControl}>
-          <Box sx={styles.preconditionToggle}>
-            <Typography variant="h6">
-              Does this solution have any preconditions?
+    <Drawer
+      variant="temporary"
+      PaperProps={{
+        sx: {
+          borderRadius: '20px 0px 0px 20px',
+          boxShadow: 'none',
+        },
+      }}
+      open={open}
+      onClose={handleClose}
+      anchor="right"
+    >
+      <Box sx={styles.modalContainer}>
+        <Box sx={styles.contentContainer}>
+          <Box sx={styles.headerContainer}>
+            <Typography variant="h1" sx={styles.title}>
+              Make some additional configurations to save your solution.
             </Typography>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={hasPreconditions}
-                  onChange={() => setHasPreconditions(!hasPreconditions)}
-                />
-              }
-              label={hasPreconditions ? 'Yes' : 'No'}
-            />
+            <IconButton onClick={handleClose}>
+              <CloseIcon fontSize="large" />
+            </IconButton>
           </Box>
-          <Divider sx={styles.divider} />
-          {hasPreconditions && (
-            <PreconditionsSection
-              preconditions={preconditions}
-              setPreconditions={setPreconditions}
-              preconditionMethodsData={props.preconditionMethodsData}
-              preconditionsData={props.preconditionsData}
-            />
-          )}
-        </FormControl>
 
-        <Box sx={styles.saveButtonContainer}>
-          {hasPreconditions && (
-            <>
-              <Divider sx={styles.divider} />
-              <Button
-                sx={{
-                  marginBottom: 3,
-                  display: 'inline-flex',
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                  alignSelf: 'flex-start',
+          <Typography variant="h5" sx={styles.solutionName}>
+            {selectedSolution.solutionName} Details
+          </Typography>
+          <Typography variant="body1" sx={styles.solutionDescription}>
+            {selectedSolution.description}
+          </Typography>
+
+          <FormControl sx={styles.formControl}>
+            <Box sx={styles.preconditionToggle}>
+              <Typography variant="h6">
+                Does this solution have any preconditions?
+              </Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={hasPreconditions}
+                    onChange={() => setHasPreconditions((prev) => !prev)}
+                  />
+                }
+                label={hasPreconditions ? 'Yes' : 'No'}
+              />
+            </Box>
+            <Divider sx={styles.divider} />
+            {hasPreconditions && (
+              <PreconditionsSection
+                preconditions={formattedPreconditions}
+                setPreconditions={(newPreconditions) => {
+                  setPreconditions(newPreconditions)
                 }}
-                onClick={handleAddPrecondition}
-                variant="outlined"
-              >
-                Add More
-              </Button>
-            </>
-          )}
+                preconditionMethodsData={preconditionMethodsData}
+                preconditionsData={preconditionsData}
+              />
+            )}
+          </FormControl>
 
-          <Button
-            id="save-solution-preconditions"
-            color="secondary"
-            variant="contained"
-            onClick={handleSave}
-            sx={styles.saveButton}
-          >
-            Save
-          </Button>
+          <Box sx={styles.saveButtonContainer}>
+            {hasPreconditions && (
+              <>
+                <Divider sx={styles.divider} />
+                <Button
+                  sx={{
+                    marginBottom: 3,
+                    display: 'inline-flex',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    alignSelf: 'flex-start',
+                  }}
+                  onClick={handleAddPrecondition}
+                  variant="outlined"
+                >
+                  Add More
+                </Button>
+              </>
+            )}
+
+            <Button
+              id="save-solution-preconditions"
+              color="secondary"
+              variant="contained"
+              onClick={handleSave}
+              sx={styles.saveButton}
+            >
+              Save
+            </Button>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </Drawer>
   )
 }
 

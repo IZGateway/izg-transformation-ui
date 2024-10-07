@@ -1,20 +1,29 @@
 import * as React from 'react'
 import { Card, CardContent, Button, Box } from '@mui/material'
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
+import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 
-const SolutionsModified = ({ handleSave, handleCancel, handleReorder }) => {
+const SolutionsModified = ({ handleSave }) => {
   const { isReorder, setIsReorder } = useReorderContext()
+  const { pipeData, setPipeData, tempPipeData, setTempPipeData } =
+    useUpdatePipeDataContext()
+
+  const onReorder = () => {
+    setTempPipeData(pipeData)
+    setIsReorder(true)
+  }
+
+  const onCancel = () => {
+    if (tempPipeData) {
+      setPipeData(tempPipeData)
+      setTempPipeData(null)
+    }
+    setIsReorder(false)
+  }
+
   const onSave = async () => {
     await handleSave()
     setIsReorder(false)
-  }
-  const onCancel = () => {
-    handleCancel()
-    setIsReorder(false)
-  }
-  const onReorder = () => {
-    handleReorder()
-    setIsReorder(true)
   }
 
   return (

@@ -3,7 +3,7 @@ import path from 'path'
 import axios from 'axios'
 import https from 'https'
 
-const pushDataToEndpoint = async (endpoint: string, data: any) => {
+const pushDataToEndpoint = async (endpoint, data) => {
   const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || ''
   const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || ''
   const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || ''

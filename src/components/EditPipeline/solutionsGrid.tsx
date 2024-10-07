@@ -4,31 +4,39 @@ import AddIcon from '@mui/icons-material/Add'
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
   DragEndEvent,
+  PointerSensor,
+  useSensors,
+  useSensor,
+  KeyboardSensor,
 } from '@dnd-kit/core'
+import { restrictToWindowEdges } from '@dnd-kit/modifiers'
 import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
+  arrayMove,
   rectSortingStrategy,
+  sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 import SolutionCard from './solutionCard'
+import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
+import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 
-const SolutionsGrid = ({
-  pipeData,
-  solutionsData,
-  onOrderChange,
-  isReorder,
-  handleDelete,
-}) => {
+interface Precondition {
+  method: string
+  id: string
+  dataPath: string
+  regex: string
+  comparisonValue: string
+}
+
+const SolutionsGrid = () => {
+  const { solutionsData } = useSolutionsDataContext()
+  const { pipeData, setPipeData } = useUpdatePipeDataContext()
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 4,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -43,17 +51,11 @@ const SolutionsGrid = ({
       if (active.id !== over?.id) {
         const oldIndex = pipeData.findIndex((item) => item.id === active.id)
         const newIndex = pipeData.findIndex((item) => item.id === over?.id)
-
-        const newPipeData = arrayMove(pipeData, oldIndex, newIndex)
-        onOrderChange(newPipeData)
+        const newOrder = arrayMove(pipeData, oldIndex, newIndex)
+        setPipeData(newOrder)
       }
     },
-    [pipeData, onOrderChange]
-  )
-
-  const sortableItems = useMemo(
-    () => pipeData.map((item) => item.id),
-    [pipeData]
+    [pipeData, setPipeData]
   )
 
   return (
@@ -61,59 +63,61 @@ const SolutionsGrid = ({
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
+      modifiers={[restrictToWindowEdges]}
     >
-      <SortableContext items={sortableItems} strategy={rectSortingStrategy}>
+      <SortableContext
+        items={useMemo(() => pipeData.map((item) => item.id), [pipeData])}
+        strategy={rectSortingStrategy}
+      >
         <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridAutoRows: 'minmax(201px, 1fr)',
             gap: 2,
-            '& > *': {
-              height: 200,
-            },
             marginTop: 4,
           }}
         >
           {pipeData.map((pipe, index) => {
-            const solution = solutionsData.data.find(
-              (s) => s.id === pipe.solutionId
-            )
+            const solution = solutionsData.find((s) => s.id === pipe.solutionId)
             return (
               <SolutionCard
                 key={pipe.id}
                 solution={solution}
                 id={pipe.id}
                 index={index + 1}
-                isReorder={isReorder}
-                handleDelete={handleDelete}
+                preconditions={pipe.preconditions as Precondition[]}
               />
             )
           })}
-          <Card
-            sx={{
-              height: 200,
-              borderRadius: '16px 16px 16px 16px',
-              backgroundColor: '#f9f9f9',
-              display: 'flex',
-              alignItems: 'center',
-              boxShadow: 'none',
-              outline: '1px solid #aaaaaa',
-              justifyContent: 'center',
-              flexDirection: 'column, row',
-            }}
-          >
-            <CardContent
+          {solutionsData.length > 0 && (
+            <Card
               sx={{
+                height: '100%',
+                width: '100%',
+                borderRadius: 4,
+                backgroundColor: '#f9f9f9',
                 display: 'flex',
                 alignItems: 'center',
+                boxShadow: 'none',
+                outline: '1px solid #aaaaaa',
                 justifyContent: 'center',
                 flexDirection: 'column',
               }}
             >
-              <AddIcon fontSize="large" color="disabled" />
-              <Typography variant="body1">Add more above</Typography>
-            </CardContent>
-          </Card>
+              <CardContent
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                }}
+              >
+                <AddIcon fontSize="large" color="disabled" />
+                <Typography variant="body1">Add more above</Typography>
+              </CardContent>
+            </Card>
+          )}
         </Box>
       </SortableContext>
     </DndContext>

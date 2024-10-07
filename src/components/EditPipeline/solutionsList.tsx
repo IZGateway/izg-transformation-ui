@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { memo, useMemo, useState } from 'react'
 import {
   Typography,
   CardHeader,
@@ -10,26 +10,28 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Drawer,
 } from '@mui/material'
 import SolutionsModal from './Modal/solutionsModal'
+import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
+import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 
-const SolutionsList = (props) => {
-  const [selectedSolution, setSelectedSolution] = React.useState('')
-  const [open, setOpen] = React.useState(false)
-
-  const toggleDrawer = (newOpen: boolean) => {
-    setOpen(newOpen)
+const SolutionsList = () => {
+  const [selectItem, setSelectItem] = useState<string>('')
+  const { solutionsData } = useSolutionsDataContext()
+  const { pipeData } = useUpdatePipeDataContext()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const solutionsArray = CreateSolutionsArray(solutionsData, pipeData)
+  const selectedSolution = solutionsArray[selectItem] || {
+    description: '',
+    id: '',
+    solutionName: '',
   }
 
-  const handleChange = (event) => {
-    setSelectedSolution(event.target.value)
-  }
-
-  const solArray = solutionsArray(props.solutionsData, props.pipeData)
-
-  const handleAddSolution = (newPipeData) => {
-    props.onAddSolution(newPipeData)
+  const handleModalOpen = (open: boolean) => {
+    setIsModalOpen(open)
+    if (!open) {
+      setSelectItem('')
+    }
   }
 
   return (
@@ -38,32 +40,33 @@ const SolutionsList = (props) => {
       <Divider />
       <CardContent>
         <Typography variant="body1" component="div">
-          Once you have adjusted your settings add a solutions. You can add as
-          many you like, please note they are sequential.
+          Pick a solution from the dropdown menu.
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
-          <InputLabel id="solutions-select-label" shrink={false}>
-            {selectedSolution ? selectedSolution.name : 'Solutions'}
-          </InputLabel>
+          {Object.keys(solutionsArray).length > 0 ? (
+            <InputLabel id="solutions-select-label" shrink={false}>
+              {selectedSolution.solutionName || 'Solutions'}
+            </InputLabel>
+          ) : (
+            <InputLabel id="solutions-select-label" shrink={false}>
+              No solutions available
+            </InputLabel>
+          )}
           <Select
             labelId="solutions-select-label"
             id="solutions-select"
-            value={selectedSolution}
-            onChange={handleChange}
+            value={selectItem}
+            onChange={(event) => setSelectItem(event.target.value as string)}
+            displayEmpty
           >
-            {Object.keys(solArray).length > 0 ? (
-              Object.entries(solArray).map(([id, solution]) => (
-                <MenuItem
-                  key={id}
-                  value={{
-                    id: solution.id,
-                    name: solution.name,
-                    description: solution.description,
-                  }}
-                >
-                  {solution.name}
-                </MenuItem>
-              ))
+            {Object.keys(solutionsArray).length > 0 ? (
+              Object.entries(solutionsArray).map(([id, solution]) => {
+                return (
+                  <MenuItem key={id} value={id}>
+                    {(solution as { solutionName: string }).solutionName}
+                  </MenuItem>
+                )
+              })
             ) : (
               <MenuItem value="">No solutions available</MenuItem>
             )}
@@ -76,50 +79,47 @@ const SolutionsList = (props) => {
           sx={{
             borderRadius: '30px',
           }}
-          onClick={() => toggleDrawer(true)}
-          disabled={!selectedSolution}
+          onClick={() => {
+            setIsModalOpen(true)
+          }}
+          disabled={!selectedSolution.id}
         >
           Add
         </Button>
-        <Drawer
-          variant="temporary"
-          PaperProps={{
-            sx: {
-              borderRadius: '20px 0px 0px 20px',
-            },
-          }}
-          open={open}
-          onClose={() => toggleDrawer(false)}
-          anchor="right"
-        >
+
+        {isModalOpen && (
           <SolutionsModal
-            preconditionsData={props.preconditionsData}
-            preconditionMethodsData={props.preconditionMethodsData}
             selectedSolution={selectedSolution}
-            setSelectedSolution={setSelectedSolution}
-            toggleDrawer={toggleDrawer}
-            onClickSave={handleAddSolution}
-            pipeData={props.pipeData}
-            setIsReorder={props.setIsReorder}
+            isNewSolution={true}
+            setOpen={handleModalOpen}
+            open={isModalOpen}
           />
-        </Drawer>
+        )}
       </CardContent>
     </Card>
   )
 }
 
-export default SolutionsList
+export default memo(SolutionsList)
 
-const solutionsArray = (solutionsData, pipeData) => {
-  const pipeSolutionIds = new Set(pipeData.map((pipe) => pipe.solutionId))
-  return solutionsData.data
-    .filter((solution) => !pipeSolutionIds.has(solution.id))
-    .reduce((acc, solution) => {
-      acc[solution.id] = {
-        id: solution.id,
-        name: solution.solutionName,
-        description: solution.description,
-      }
-      return acc
-    }, {})
+const CreateSolutionsArray = (solutionsData, pipeData) => {
+  return useMemo(() => {
+    if (!solutionsData || !pipeData) {
+      return {}
+    }
+
+    const pipeSolutionIds = new Set(
+      pipeData?.map((pipe) => pipe.solutionId) || []
+    )
+    return solutionsData
+      .filter((solution) => !pipeSolutionIds.has(solution.id))
+      .reduce((acc, solution) => {
+        acc[solution.id] = {
+          id: solution.id,
+          solutionName: solution.solutionName,
+          description: solution.description,
+        }
+        return acc
+      }, {})
+  }, [solutionsData, pipeData])
 }

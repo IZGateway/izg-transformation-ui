@@ -11,7 +11,7 @@ const styles = {
     margin: 4,
     display: 'flex',
     flexDirection: 'column',
-    flexGrow: 1, // Allow it to grow to take up remaining space
+    flexGrow: 1,
   },
   headerContainer: {
     display: 'flex',
@@ -32,7 +32,7 @@ const styles = {
   formControl: {
     display: 'flex',
     flexDirection: 'column',
-    flexGrow: 1, // Allow it to grow to take up remaining space
+    flexGrow: 1,
   },
   preconditionToggle: {
     display: 'flex',
@@ -41,10 +41,10 @@ const styles = {
     flexDirection: 'row',
   },
   preconditionsContainer: {
-    flexGrow: 1, // Allow it to grow to take up remaining space
+    flexGrow: 1,
     overflowY: 'auto',
     overflowX: 'hidden',
-    maxHeight: 'calc(100vh - 459px)', // Adjust this value based on the actual height of the bottom section
+    maxHeight: 'calc(100vh - 459px)',
   },
   preconditionRow: {
     display: 'flex',
@@ -57,7 +57,7 @@ const styles = {
   saveButtonContainer: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: 'auto', // Push it to the bottom of the flex container
+    marginTop: 'auto',
   },
   saveButton: {
     borderRadius: '30px',

@@ -10,7 +10,7 @@ export async function updateData(id, data) {
     })
     return response.data
   } catch (error) {
-    console.error('Error updating data:', error)
+    console.error('Error updating pipeline data:', error)
     throw error
   }
 }

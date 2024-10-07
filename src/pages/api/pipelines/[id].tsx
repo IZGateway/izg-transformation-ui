@@ -1,10 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import pushDataToEndpoint from '../serverside/PushDataToEndpoint'
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'PUT') {
     return res.status(405).json({ message: 'Method not allowed' })
   }
@@ -27,3 +24,5 @@ export default async function handler(
       .json({ message: 'Error updating data', error: error.message })
   }
 }
+
+export default handler

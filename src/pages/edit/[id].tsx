@@ -1,34 +1,22 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import * as React from 'react'
-import EditPipeline from '../../components/EditPipeline/index'
+import EditPipeline from '../../components/EditPipeline'
 import Container from '../../components/Container'
 import { Box } from '@mui/material'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
-import pushDataToEndpoint from '../api/serverside/PushDataToEndpoint'
-import { updateData } from '../../components/EditPipeline/updatePipeline'
-
+import PipelineDataProvider from '../../contexts/EditPipeline/pipelineDataContext'
+import PreconditionProvider from '../../contexts/EditPipeline/preconditionContext'
+import SolutionsDataProvider from '../../contexts/EditPipeline/solutionsDataContext'
+import UpdatePipelineDataProvider from '../../contexts/EditPipeline/updatePipeDataContext'
 const Edit = (props) => {
   const router = useRouter()
   const { isReady, query } = router
 
-  const [pipeData, setPipeData] = React.useState(props.pipeData)
-
   useEffect(() => {
     if (!isReady) return
-
-    if (pipeData !== props.pipeData) {
-      updateData(query.id as string, pipeData)
-        .then((updatedData) => {
-          console.log('Data updated successfully:', updatedData)
-        })
-        .catch((error) => {
-          console.error('Failed to update data:', error)
-        })
-    }
-  }, [isReady, query, pipeData, props.pipeData])
+  }),
+    [isReady, query]
 
   return !isReady ? (
     <>Loading....</>
@@ -37,14 +25,20 @@ const Edit = (props) => {
       <ErrorBoundary>
         <Box sx={{ position: 'relative' }}>
           <div>
-            <EditPipeline
-              pipeData={pipeData}
-              orgData={props.orgData}
-              solutionsData={props.solutionsData}
-              setPipeData={setPipeData}
+            <PreconditionProvider
               preconditionsData={props.preconditionsData}
               preconditionMethodsData={props.preconditionMethodsData}
-            />
+            >
+              <SolutionsDataProvider solutionsData={props.solutionsData.data}>
+                <PipelineDataProvider pipelineData={props.pipelineData}>
+                  <UpdatePipelineDataProvider
+                    currentOrder={props.pipelineData.pipes}
+                  >
+                    <EditPipeline orgData={props.orgData} />
+                  </UpdatePipelineDataProvider>
+                </PipelineDataProvider>
+              </SolutionsDataProvider>
+            </PreconditionProvider>
           </div>
         </Box>
       </ErrorBoundary>
@@ -57,11 +51,11 @@ export default Edit
 export const getServerSideProps = async (context) => {
   const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
   try {
-    const pipeData = await fetchDataFromEndpoint(
+    const pipelineData = await fetchDataFromEndpoint(
       `${TS_ENDPOINT}/api/v1/pipelines/${context.params.id}`
     )
     const organizationData = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/organizations/${pipeData.organizationId}`
+      `${TS_ENDPOINT}/api/v1/organizations/${pipelineData.organizationId}`
     )
     const solutionsData = await fetchDataFromEndpoint(
       `${TS_ENDPOINT}/api/v1/solutions`
@@ -74,7 +68,7 @@ export const getServerSideProps = async (context) => {
     )
     return {
       props: {
-        pipeData: pipeData,
+        pipelineData: pipelineData,
         orgData: organizationData,
         solutionsData: solutionsData,
         preconditionsData: preconditionsData,

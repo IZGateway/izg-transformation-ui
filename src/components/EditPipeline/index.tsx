@@ -66,6 +66,7 @@ const EditPipeline = ({ orgData }) => {
                   {open ? (
                     <Box display={'flex'} flexDirection={'row'}>
                       <TextField
+                        data-testid="pipeline-description"
                         id="pipeline-description"
                         label="Pipeline Description"
                         variant="standard"

@@ -40,6 +40,7 @@ const SolutionsModified = ({ handleSave }) => {
           {isReorder ? (
             <Button
               id="cancel"
+              data-testid="cancel-button"
               color="error"
               variant="outlined"
               sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
@@ -50,6 +51,7 @@ const SolutionsModified = ({ handleSave }) => {
           ) : (
             <Button
               id="reorder"
+              data-testid="reorder-button"
               color="primary"
               variant="outlined"
               sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
@@ -60,6 +62,7 @@ const SolutionsModified = ({ handleSave }) => {
           )}
           <Button
             id="save"
+            data-testid="save-button"
             color="secondary"
             variant="contained"
             sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}

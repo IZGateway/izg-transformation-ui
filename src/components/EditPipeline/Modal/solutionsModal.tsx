@@ -77,6 +77,7 @@ const SolutionsModal = ({
 
   return (
     <Drawer
+      data-testid="solutions-modal-drawer"
       variant="temporary"
       PaperProps={{
         sx: {

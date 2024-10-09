@@ -29,9 +29,10 @@ const Settings = (props: { pipeData; orgData }) => {
             <Select
               labelId="organization-select-label"
               id="organization-select"
-              disabled
-              label="Organization"
               defaultValue={props.orgData.organizationName}
+              label="Organization"
+              inputProps={{ 'data-testid': 'organization-select' }}
+              disabled
             >
               <MenuItem value={props.orgData.organizationName}>
                 {props.orgData.organizationName}
@@ -40,13 +41,14 @@ const Settings = (props: { pipeData; orgData }) => {
           </FormControl>
           <FormControl fullWidth sx={{ marginBottom: 2 }}>
             <InputLabel id="input-endpoint-select-label">
-              Input End Point
+              Input Endpoint
             </InputLabel>
             <Select
               labelId="input-endpoint-select-label"
               id="input-endpoint-select"
               defaultValue={props.pipeData.inboundEndpoint}
-              label="Input End Point"
+              label="Input Endpoint"
+              inputProps={{ 'data-testid': 'input-endpoint-select' }}
               disabled
             >
               <MenuItem value={props.pipeData.inboundEndpoint}>
@@ -63,6 +65,7 @@ const Settings = (props: { pipeData; orgData }) => {
               id="output-endpoint-select"
               defaultValue={props.pipeData.outboundEndpoint}
               label="Output Endpoint"
+              inputProps={{ 'data-testid': 'output-endpoint-select' }}
               disabled
             >
               <MenuItem value={props.pipeData.outboundEndpoint}>

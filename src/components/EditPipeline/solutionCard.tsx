@@ -29,8 +29,8 @@ interface SolutionCardProps {
     method: string
     id: string
     dataPath: string
-    regex: string
-    comparisonValue: string
+    regex?: string
+    comparisonValue?: string
   }>
 }
 
@@ -75,6 +75,7 @@ const SolutionCard = memo(
           <CardHeader
             title={
               <Typography
+                data-testid="solution-name"
                 variant="h5"
                 noWrap
                 sx={{ fontSize: '1.4em', whiteSpace: 'nowrap' }}
@@ -85,11 +86,16 @@ const SolutionCard = memo(
             action={
               <>
                 {isReorder && (
-                  <IconButton aria-label="delete" onClick={handleDelete}>
+                  <IconButton
+                    data-testid="delete-button"
+                    aria-label="delete"
+                    onClick={handleDelete}
+                  >
                     <DeleteOutlinedIcon />
                   </IconButton>
                 )}
                 <IconButton
+                  data-testid="edit-button"
                   aria-label="edit"
                   onClick={() => {
                     setIsModalOpen(true)
@@ -102,7 +108,9 @@ const SolutionCard = memo(
           />
           <Divider />
           <CardContent>
-            <Typography variant="body1">{solution.description}</Typography>
+            <Typography data-testid="solution-description" variant="body1">
+              {solution.description}
+            </Typography>
           </CardContent>
         </Card>
         {isModalOpen && (

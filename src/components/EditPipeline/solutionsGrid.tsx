@@ -21,14 +21,6 @@ import SolutionCard from './solutionCard'
 import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 
-interface Precondition {
-  method: string
-  id: string
-  dataPath: string
-  regex: string
-  comparisonValue: string
-}
-
 const SolutionsGrid = () => {
   const { solutionsData } = useSolutionsDataContext()
   const { pipeData, setPipeData } = useUpdatePipeDataContext()
@@ -70,6 +62,7 @@ const SolutionsGrid = () => {
         strategy={rectSortingStrategy}
       >
         <Box
+          data-testid="solutions-grid"
           sx={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -82,11 +75,12 @@ const SolutionsGrid = () => {
             const solution = solutionsData.find((s) => s.id === pipe.solutionId)
             return (
               <SolutionCard
+                data-testid={`solution-card-${index + 1}`}
                 key={pipe.id}
                 solution={solution}
                 id={pipe.id}
                 index={index + 1}
-                preconditions={pipe.preconditions as Precondition[]}
+                preconditions={pipe.preconditions}
               />
             )
           })}

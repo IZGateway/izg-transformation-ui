@@ -145,13 +145,6 @@ describe('SolutionCard Component', () => {
     )
   })
 
-  it('opens the modal when the edit button is clicked', () => {
-    renderSolutionCard()
-    const editButton = screen.getByTestId('edit-button')
-    fireEvent.click(editButton)
-    expect(screen.getByTestId('mocked-solutions-modal')).toBeInTheDocument()
-  })
-
   it('renders the SolutionsModal when isModalOpen is true', () => {
     renderSolutionCard()
     const editButton = screen.getByTestId('edit-button')

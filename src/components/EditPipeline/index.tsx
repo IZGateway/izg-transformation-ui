@@ -29,7 +29,7 @@ const EditPipeline = ({ orgData }) => {
   const router = useRouter()
   const { isReady, query } = router
   const { pipelineData, setPipelineData } = usePipelineDataContext()
-  const { pipeData } = useUpdatePipeDataContext()
+  const { pipeData, tempPipeData } = useUpdatePipeDataContext()
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
 
@@ -38,7 +38,8 @@ const EditPipeline = ({ orgData }) => {
   }, [isReady, query])
 
   const handleSave = useCallback(async () => {
-    await updateData(query.id as string, {
+    if (tempPipeData === pipeData) return
+    const response = await updateData(query.id as string, {
       ...pipelineData,
       pipes: pipeData,
     })

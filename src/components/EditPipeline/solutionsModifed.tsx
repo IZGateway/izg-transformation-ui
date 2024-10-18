@@ -1,12 +1,22 @@
-import * as React from 'react'
-import { Card, CardContent, Button, Box } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  Button,
+  Box,
+  Collapse,
+  Alert,
+  AlertTitle,
+} from '@mui/material'
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
+import { useState } from 'react'
 
 const SolutionsModified = ({ handleSave }) => {
   const { isReorder, setIsReorder } = useReorderContext()
   const { pipeData, setPipeData, tempPipeData, setTempPipeData } =
     useUpdatePipeDataContext()
+  const [showAlert, setShowAlert] = useState(false)
+  const [severity, setSeverity] = useState<'success' | 'error'>('success')
 
   const onReorder = () => {
     setTempPipeData(pipeData)
@@ -14,65 +24,110 @@ const SolutionsModified = ({ handleSave }) => {
   }
 
   const onCancel = () => {
-    if (tempPipeData) {
-      setPipeData(tempPipeData)
-      setTempPipeData(null)
-    }
+    setPipeData(tempPipeData || pipeData)
+    setTempPipeData(null)
     setIsReorder(false)
   }
 
   const onSave = async () => {
-    await handleSave()
-    setIsReorder(false)
+    if (tempPipeData === pipeData) {
+      setIsReorder(false)
+      return
+    }
+
+    try {
+      const response = await handleSave()
+      if (response.success) {
+        setIsReorder(false)
+        setSeverity('success')
+      } else {
+        console.error('Save failed:', response.error)
+        setSeverity('error')
+      }
+    } catch (error) {
+      console.error('Save failed:', error)
+      setSeverity('error')
+    } finally {
+      setShowAlert(true)
+      setTimeout(() => {
+        setShowAlert(false)
+      }, 2000)
+    }
   }
 
   return (
-    <Card sx={{ marginTop: 4, borderRadius: '30px' }} id="zip">
-      <CardContent>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mt: 1,
-          }}
-        >
-          {isReorder ? (
-            <Button
-              id="cancel"
-              data-testid="cancel-button"
-              color="error"
-              variant="outlined"
-              sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
-          ) : (
-            <Button
-              id="reorder"
-              data-testid="reorder-button"
-              color="primary"
-              variant="outlined"
-              sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
-              onClick={onReorder}
-            >
-              Reorder
-            </Button>
-          )}
-          <Button
-            id="save"
-            data-testid="save-button"
-            color="secondary"
-            variant="contained"
-            sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
-            onClick={onSave}
+    <Box
+      sx={{
+        position: 'fixed',
+        bottom: 0,
+        width: '-webkit-fill-available',
+        marginRight: 3,
+        marginBottom: 3,
+      }}
+    >
+      <Collapse
+        sx={{ marginBottom: 1 }}
+        in={showAlert}
+        timeout={{ enter: 300, exit: 300 }}
+      >
+        <Alert severity={severity}>
+          <AlertTitle>
+            {severity === 'success'
+              ? 'Pipeline has been saved successfully'
+              : 'Error! Pipeline failed to save'}
+          </AlertTitle>
+        </Alert>
+      </Collapse>
+      <Card
+        sx={{ borderRadius: '30px' }}
+        data-testid="solutions-modified-container"
+        id="zip"
+      >
+        <CardContent sx={{ padding: '16px !important' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
           >
-            Save
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
+            {isReorder ? (
+              <Button
+                id="cancel"
+                data-testid="cancel-button"
+                color="error"
+                variant="outlined"
+                sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+                onClick={onCancel}
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                id="reorder"
+                data-testid="reorder-button"
+                color="secondary"
+                variant="outlined"
+                sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+                onClick={onReorder}
+              >
+                Reorder
+              </Button>
+            )}
+            <Button
+              id="save"
+              data-testid="save-button"
+              color="secondary"
+              variant="contained"
+              sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+              onClick={onSave}
+            >
+              Save
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   )
 }
 

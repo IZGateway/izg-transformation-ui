@@ -32,6 +32,8 @@ const EditPipeline = ({ orgData }) => {
   const { pipeData, tempPipeData } = useUpdatePipeDataContext()
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
+const MAX_DESCRIPTION_LENGTH = 75
+  const [showGradient, setShowGradient] = useState(true)
 
   useEffect(() => {
     if (!isReady) return
@@ -74,9 +76,18 @@ const EditPipeline = ({ orgData }) => {
                         size="small"
                         value={description}
                         onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    if (event.target.value.length <= MAX_DESCRIPTION_LENGTH) {
                           setDescription(event.target.value)
+                    }
                         }}
                       />
+                <Typography
+                  variant="body1"
+                  color="primary"
+                  sx={{ color: 'primary', marginLeft: 2 }}
+                >
+                  {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
+                </Typography>
                       <IconButton
                         aria-label="close"
                         color="primary"

@@ -53,6 +53,12 @@ const SolutionCard = memo(
       setPipeData(newOrder)
     }, [id, pipeData, setPipeData])
 
+    const formattedPreconditions = preconditions.map((precondition) => ({
+      id: precondition.id,
+      method: precondition.method,
+      value: precondition.comparisonValue || '',
+    }))
+
     return (
       <Box
         ref={setNodeRef}
@@ -117,7 +123,7 @@ const SolutionCard = memo(
           <SolutionsModal
             selectedSolution={solution}
             isNewSolution={preconditions.length === 0}
-            existingPreconditions={preconditions}
+            existingPreconditions={formattedPreconditions}
             setOpen={setIsModalOpen}
             open={isModalOpen}
           />

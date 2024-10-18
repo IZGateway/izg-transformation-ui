@@ -45,7 +45,11 @@ const MAX_DESCRIPTION_LENGTH = 75
       ...pipelineData,
       pipes: pipeData,
     })
-  }, [pipeData, query, pipelineData])
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 // -1 for rounding errors
+    setShowGradient(!isAtBottom)
+  }, [])
 
   return !isReady ? (
     <>Loading....</>
@@ -137,7 +141,19 @@ const MAX_DESCRIPTION_LENGTH = 75
                 >
                   <Settings pipeData={pipelineData} orgData={orgData} />
 
-                  <Box sx={{ width: '70%' }}>
+            <Box
+              onScroll={handleScroll}
+              sx={{
+                width: '-webkit-fill-available',
+                position: 'relative',
+                paddingLeft: 1,
+                paddingRight: 1,
+                paddingBottom: 1,
+                maxHeight: 'calc(100vh - 275px)',
+                overflowY: 'auto',
+              }}
+            >
+              <Box>
                     <SolutionsList />
                     {pipeData && pipeData.length > 0 && (
                       <>

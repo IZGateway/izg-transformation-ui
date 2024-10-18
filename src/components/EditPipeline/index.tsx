@@ -74,13 +74,18 @@ const MAX_DESCRIPTION_LENGTH = 75
                     {pipelineData.pipelineName} Pipeline
                   </Typography>
                   {open ? (
-                    <Box display={'flex'} flexDirection={'row'}>
+                display={'flex'}
+                flexDirection={'row'}
+                alignItems={'center'}
+                sx={{ display: 'flex' }}
+              >
                       <TextField
                         data-testid="pipeline-description"
                         id="pipeline-description"
                         label="Pipeline Description"
                         variant="standard"
-                        size="small"
+                  size="medium"
+                  sx={{ width: '31.5%' }}
                         value={description}
                         onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     if (event.target.value.length <= MAX_DESCRIPTION_LENGTH) {
@@ -110,9 +115,11 @@ const MAX_DESCRIPTION_LENGTH = 75
                       </IconButton>
                     </Box>
                   ) : (
-                    <Box display={'flex'} flexDirection={'row'}>
-                      <Typography variant="body1">
-                        {pipelineData.description} 25/75 Characters
+              <Box
+                display={'flex'}
+                flexDirection={'row'}
+                alignItems={'center'}
+              >
                       </Typography>
 
                       <Tooltip
@@ -123,6 +130,7 @@ const MAX_DESCRIPTION_LENGTH = 75
                         <IconButton
                           aria-label="edit"
                           color="primary"
+                    sx={{ marginLeft: 2 }}
                           onClick={() => {
                             setOpen(true)
                           }}

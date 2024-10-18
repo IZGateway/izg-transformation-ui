@@ -32,7 +32,7 @@ const EditPipeline = ({ orgData }) => {
   const { pipeData, tempPipeData } = useUpdatePipeDataContext()
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
-const MAX_DESCRIPTION_LENGTH = 75
+  const MAX_DESCRIPTION_LENGTH = 75
   const [showGradient, setShowGradient] = useState(true)
 
   useEffect(() => {
@@ -63,38 +63,40 @@ const MAX_DESCRIPTION_LENGTH = 75
     <ReorderProvider>
       <Container title="Pipeline">
         <ErrorBoundary>
-                        <Close />
-          <Box>
-                  <Typography
-                    variant="h1"
-                    fontWeight={700}
-                    fontSize="32px"
-                    id="title-pipeline"
-                  >
+          <Close />
+          <Box data-testid="pipeline-name-container">
+            <Typography
+              variant="h1"
+              fontWeight={700}
+              fontSize="32px"
+              id="title-pipeline"
+            >
               {pipelineData.pipelineName.includes('Pipeline')
                 ? pipelineData.pipelineName
                 : `${pipelineData.pipelineName} Pipeline`}
-                  </Typography>
-                  {open ? (
+            </Typography>
+            {open ? (
+              <Box
+                data-testid="edit-pipeline-description-container"
                 display={'flex'}
                 flexDirection={'row'}
                 alignItems={'center'}
                 sx={{ display: 'flex' }}
               >
-                      <TextField
-                        data-testid="pipeline-description"
-                        id="pipeline-description"
-                        label="Pipeline Description"
-                        variant="standard"
+                <TextField
+                  data-testid="edit-pipeline-description-input"
+                  id="pipeline-description"
+                  label="Pipeline Description"
+                  variant="standard"
                   size="medium"
                   sx={{ width: '31.5%' }}
-                        value={description}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                  value={description}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     if (event.target.value.length <= MAX_DESCRIPTION_LENGTH) {
-                          setDescription(event.target.value)
+                      setDescription(event.target.value)
                     }
-                        }}
-                      />
+                  }}
+                />
                 <Typography
                   variant="body1"
                   color="primary"
@@ -102,57 +104,62 @@ const MAX_DESCRIPTION_LENGTH = 75
                 >
                   {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
                 </Typography>
-                      <IconButton
-                        aria-label="close"
-                        color="primary"
-                        onClick={() => {
-                          setPipelineData({
-                            ...pipelineData,
-                            description: description,
-                          })
-                          setOpen(false)
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  ) : (
+                <IconButton
+                  data-testid="edit-pipeline-description-close-button"
+                  aria-label="close"
+                  color="primary"
+                  onClick={() => {
+                    setPipelineData({
+                      ...pipelineData,
+                      description: description,
+                    })
+                    setOpen(false)
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            ) : (
               <Box
+                data-testid="pipeline-description-container"
                 display={'flex'}
                 flexDirection={'row'}
                 alignItems={'center'}
               >
-                      </Typography>
+                <Typography data-testid="pipeline-description" variant="body1">
+                  {pipelineData.description}
+                </Typography>
 
-                      <Tooltip
-                        arrow
-                        placement="bottom"
-                        title="Edit description of the pipeline"
-                      >
-                        <IconButton
-                          aria-label="edit"
-                          color="primary"
-                    sx={{ marginLeft: 2 }}
-                          onClick={() => {
-                            setOpen(true)
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  )}
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: 4,
-                    flexDirection: 'row',
-                    alignItems: 'flex-start',
-                    marginTop: 4,
-                  }}
+                <Tooltip
+                  arrow
+                  placement="bottom"
+                  title="Edit description of the pipeline"
                 >
-                  <Settings pipeData={pipelineData} orgData={orgData} />
+                  <IconButton
+                    data-testid="edit-pipeline-description-button"
+                    aria-label="edit"
+                    color="primary"
+                    sx={{ marginLeft: 2 }}
+                    onClick={() => {
+                      setOpen(true)
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            )}
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 4,
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              marginTop: 4,
+            }}
+          >
+            <Settings pipeData={pipelineData} orgData={orgData} />
 
             <Box
               onScroll={handleScroll}
@@ -167,36 +174,37 @@ const MAX_DESCRIPTION_LENGTH = 75
               }}
             >
               <Box>
-                    <SolutionsList />
-                    {pipeData && pipeData.length > 0 && (
-                      <>
-                        <Card
-                          sx={{
-                            minWidth: 275,
+                <SolutionsList />
+                {pipeData && pipeData.length > 0 && (
+                  <>
+                    <Card
+                      data-testid="configured-solutions-container"
+                      sx={{
+                        minWidth: 275,
 
-                            borderRadius: '0px 0px 30px 30px',
-                            marginTop: 4,
-                          }}
-                        >
-                          <CardHeader title="Configured Solutions" />
-                          <Divider />
-                          <CardContent>
-                            <Typography variant="body1">
+                        borderRadius: '0px 0px 30px 30px',
+                        marginTop: 4,
+                      }}
+                    >
+                      <CardHeader title="Configured Solutions" />
+                      <Divider />
+                      <CardContent>
+                        <Typography variant="body1">
                           Your added solutions are listed below. You can add or
                           remove as many you like.{' '}
-                              <b style={{ textDecoration: 'underline' }}>
+                          <b style={{ textDecoration: 'underline' }}>
                             Please note, the order of operations is sequential.
-                              </b>
-                            </Typography>
-                          </CardContent>
-                        </Card>
+                          </b>
+                        </Typography>
+                      </CardContent>
+                    </Card>
 
-                        <SolutionsGrid />
-                      </>
-                    )}
-                    <SolutionsModified handleSave={handleSave} />
-                  </Box>
-                </Box>
+                    <SolutionsGrid />
+                  </>
+                )}
+                <SolutionsModified handleSave={handleSave} />
+              </Box>
+            </Box>
             <Box
               sx={{
                 position: 'fixed',

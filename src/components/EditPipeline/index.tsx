@@ -188,22 +188,23 @@ const MAX_DESCRIPTION_LENGTH = 75
                     <SolutionsModified handleSave={handleSave} />
                   </Box>
                 </Box>
-              <Box />
-          </Box>
-        </ErrorBoundary>
-      </Container>
-    </ReorderProvider>
-  )
-}
-
-export default EditPipeline
-        </ErrorBoundary>
-      </Container>
-    </ReorderProvider>
-  )
-}
-
-export default EditPipeline
+            <Box
+              sx={{
+                position: 'fixed',
+                bottom: 122,
+                left: 540,
+                width: '69.7%',
+                height: '100px',
+                background:
+                  'linear-gradient(to top, rgba(249,249,249,1) 0%,rgba(249,249,249,0) 100%)',
+                zIndex: 1000,
+                opacity: showGradient ? 1 : 0,
+                transition: showGradient
+                  ? 'opacity 100ms ease-in'
+                  : 'opacity 25ms ease-out',
+                pointerEvents: 'none',
+              }}
+            />
           </Box>
         </ErrorBoundary>
       </Container>

@@ -45,6 +45,12 @@ const MAX_DESCRIPTION_LENGTH = 75
       ...pipelineData,
       pipes: pipeData,
     })
+    if (!response.success) {
+      console.error('Error updating pipeline data:', response.error)
+    }
+    return response
+  }, [pipeData, query, pipelineData, tempPipeData])
+
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 // -1 for rounding errors

@@ -10,7 +10,7 @@ import {
   useSensor,
   KeyboardSensor,
 } from '@dnd-kit/core'
-import { restrictToWindowEdges } from '@dnd-kit/modifiers'
+import { restrictToParentElement } from '@dnd-kit/modifiers'
 import {
   SortableContext,
   arrayMove,
@@ -55,17 +55,17 @@ const SolutionsGrid = () => {
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToWindowEdges]}
+      modifiers={[restrictToParentElement]}
     >
       <SortableContext
         items={useMemo(() => pipeData.map((item) => item.id), [pipeData])}
         strategy={rectSortingStrategy}
       >
         <Box
-          data-testid="solutions-grid"
+          data-testid="solutions-grid-container"
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(20em, 1fr))',
             gridAutoRows: 'minmax(201px, 1fr)',
             gap: 2,
             marginTop: 4,
@@ -89,7 +89,7 @@ const SolutionsGrid = () => {
               sx={{
                 height: '100%',
                 width: '100%',
-                borderRadius: 4,
+                borderRadius: '30px',
                 backgroundColor: '#f9f9f9',
                 display: 'flex',
                 alignItems: 'center',

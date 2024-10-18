@@ -14,8 +14,8 @@ import {
 
 const Settings = (props: { pipeData; orgData }) => {
   return (
-    <Box sx={{ width: '30%' }}>
-      <Card sx={{ borderRadius: '0px 0px 16px 16px' }} id="settings">
+    <Box data-testid="settings-container" sx={{ width: '30%' }}>
+      <Card sx={{ borderRadius: '0px 0px 30px 30px' }} id="settings">
         <CardHeader title="Settings" />
 
         <Divider />

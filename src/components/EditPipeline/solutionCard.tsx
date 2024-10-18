@@ -15,6 +15,7 @@ import { CSS } from '@dnd-kit/utilities'
 import SolutionsModal from './Modal/solutionsModal'
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
+import palette from '../../styles/theme/palette'
 
 interface SolutionCardProps {
   id: string
@@ -61,11 +62,13 @@ const SolutionCard = memo(
 
     return (
       <Box
+        data-testid={`solution-card-container-${index}`}
         ref={setNodeRef}
         style={{
           transform: CSS.Transform.toString(transform),
           transition,
-          zIndex: isDragging ? 1000 : 'auto',
+          zIndex: isDragging ? 2000 : 'auto',
+          borderRadius: '0px 0px 30px 30px',
         }}
         {...(isReorder && { ...attributes, ...listeners })}
         sx={{ height: '100%' }}
@@ -73,9 +76,14 @@ const SolutionCard = memo(
         <Card
           sx={{
             height: '100%',
-            borderRadius: '0px 0px 16px 16px',
+            borderRadius: '0px 0px 30px 30px',
             display: 'flex',
             flexDirection: 'column',
+            boxShadow: isReorder
+              ? isDragging
+                ? `0px 1px 5px 3px ${palette.primaryDark}`
+                : `0px 1px 4px 1px ${palette.secondaryLight}`
+              : '',
           }}
         >
           <CardHeader

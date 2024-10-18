@@ -28,7 +28,7 @@ import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipe
 const EditPipeline = ({ orgData }) => {
   const router = useRouter()
   const { isReady, query } = router
-  const { pipelineData } = usePipelineDataContext()
+  const { pipelineData, setPipelineData } = usePipelineDataContext()
   const { pipeData } = useUpdatePipeDataContext()
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
@@ -80,6 +80,10 @@ const EditPipeline = ({ orgData }) => {
                         aria-label="close"
                         color="primary"
                         onClick={() => {
+                          setPipelineData({
+                            ...pipelineData,
+                            description: description,
+                          })
                           setOpen(false)
                         }}
                       >

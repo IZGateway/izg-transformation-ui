@@ -63,11 +63,8 @@ const MAX_DESCRIPTION_LENGTH = 75
     <ReorderProvider>
       <Container title="Pipeline">
         <ErrorBoundary>
-          <Box sx={{ position: 'relative' }}>
-            <div>
-              <Close />
-              <>
-                <Box sx={{ marginTop: 4 }}>
+                        <Close />
+          <Box>
                   <Typography
                     variant="h1"
                     fontWeight={700}
@@ -191,8 +188,22 @@ const MAX_DESCRIPTION_LENGTH = 75
                     <SolutionsModified handleSave={handleSave} />
                   </Box>
                 </Box>
-              </>
-            </div>
+              <Box />
+          </Box>
+        </ErrorBoundary>
+      </Container>
+    </ReorderProvider>
+  )
+}
+
+export default EditPipeline
+        </ErrorBoundary>
+      </Container>
+    </ReorderProvider>
+  )
+}
+
+export default EditPipeline
           </Box>
         </ErrorBoundary>
       </Container>

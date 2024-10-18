@@ -35,7 +35,10 @@ const SolutionsList = () => {
   }
 
   return (
-    <Card sx={{ minWidth: 275, borderRadius: '0px 0px 30px 30px' }}>
+    <Card
+      data-testid="solutions-list-container"
+      sx={{ minWidth: 275, borderRadius: '0px 0px 30px 30px' }}
+    >
       <CardHeader title="Search for Solutions" />
       <Divider />
       <CardContent>
@@ -44,15 +47,24 @@ const SolutionsList = () => {
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
           {Object.keys(solutionsArray).length > 0 ? (
-            <InputLabel id="solutions-select-label" shrink={false}>
+            <InputLabel
+              data-testid="solutions-select-label"
+              id="solutions-select-label"
+              shrink={false}
+            >
               {selectedSolution.solutionName || 'Solutions'}
             </InputLabel>
           ) : (
-            <InputLabel id="solutions-select-label" shrink={false}>
+            <InputLabel
+              data-testid="solutions-select-label"
+              id="solutions-select-label"
+              shrink={false}
+            >
               No solutions available
             </InputLabel>
           )}
           <Select
+            data-testid="solutions-select"
             labelId="solutions-select-label"
             id="solutions-select"
             value={selectItem}
@@ -73,6 +85,7 @@ const SolutionsList = () => {
           </Select>
         </FormControl>
         <Button
+          data-testid="add-button"
           id="add"
           color="secondary"
           variant="outlined"

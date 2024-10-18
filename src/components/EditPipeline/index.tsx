@@ -71,7 +71,9 @@ const MAX_DESCRIPTION_LENGTH = 75
                     fontSize="32px"
                     id="title-pipeline"
                   >
-                    {pipelineData.pipelineName} Pipeline
+              {pipelineData.pipelineName.includes('Pipeline')
+                ? pipelineData.pipelineName
+                : `${pipelineData.pipelineName} Pipeline`}
                   </Typography>
                   {open ? (
                 display={'flex'}

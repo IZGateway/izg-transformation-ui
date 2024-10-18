@@ -21,7 +21,10 @@ const PreconditionsSection = ({
   preconditionsData,
 }) => {
   const renderFormControl = (index, field, value, label, data) => (
-    <FormControl sx={{ width: '25%' }}>
+    <FormControl
+      data-testid={`precondition-form-control-${label}-${index}`}
+      sx={{ width: '25%' }}
+    >
       <InputLabel shrink={false}>{value ? '' : label}</InputLabel>
       <Select
         value={value}
@@ -67,7 +70,10 @@ const PreconditionsSection = ({
                 'Conditional',
                 preconditionMethodsData
               )}
-              <FormControl sx={{ width: '25%' }}>
+              <FormControl
+                data-testid={`precondition-form-control-value-${index}`}
+                sx={{ width: '25%' }}
+              >
                 <TextField
                   value={precondition.value || ''}
                   label={precondition.value ? '' : 'Value'}
@@ -89,6 +95,7 @@ const PreconditionsSection = ({
                 />
               </FormControl>
               <IconButton
+                data-testid={`delete-precondition-button-${index}`}
                 onClick={() =>
                   removePrecondition(index, preconditions, setPreconditions)
                 }

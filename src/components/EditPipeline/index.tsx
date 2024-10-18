@@ -172,11 +172,10 @@ const MAX_DESCRIPTION_LENGTH = 75
                           <Divider />
                           <CardContent>
                             <Typography variant="body1">
-                              Your added solutions are listed below. You can add
-                              or remove as many you like.{' '}
+                          Your added solutions are listed below. You can add or
+                          remove as many you like.{' '}
                               <b style={{ textDecoration: 'underline' }}>
-                                Please note, the order of operations is
-                                sequential.
+                            Please note, the order of operations is sequential.
                               </b>
                             </Typography>
                           </CardContent>

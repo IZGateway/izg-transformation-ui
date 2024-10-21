@@ -21,6 +21,13 @@ jest.mock('../../../components/EditPipeline/updatePipeline', () => ({
   updateData: jest.fn(),
 }))
 
+// Mock for the Close component
+jest.mock('../../Close', () => {
+  return function MockClose() {
+    return <div data-testid="mock-close">CLOSE</div>
+  }
+})
+
 const mockPipelineData = {
   pipelineName: 'Test Pipeline',
   description: 'Test Description',

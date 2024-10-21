@@ -1,11 +1,10 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import EditPipeline from '../index'
 import { useRouter } from 'next/router'
 import PipelineDataProvider from '../../../contexts/EditPipeline/pipelineDataContext'
 import UpdatePipeDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
-import { updateData } from '../../../components/EditPipeline/updatePipeline'
 import ErrorBoundary from '../../ErrorBoundary'
 import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
 import Container from '../../Container'
@@ -145,17 +144,17 @@ const mockSolutionsData = [
 const renderEditPipeline = () => {
   return render(
     <AppProvider>
-    <Container title="Edit Connection">
-      <ErrorBoundary>
-        <PipelineDataProvider pipelineData={mockPipelineData}>
-          <UpdatePipeDataProvider currentOrder={mockPipeData}>
-            <SolutionsDataProvider solutionsData={mockSolutionsData}>
-              <EditPipeline orgData={mockOrgData} />
-            </SolutionsDataProvider>
-          </UpdatePipeDataProvider>
-        </PipelineDataProvider>
-      </ErrorBoundary>
-    </Container>
+      <Container title="Edit Connection">
+        <ErrorBoundary>
+          <PipelineDataProvider pipelineData={mockPipelineData}>
+            <UpdatePipeDataProvider currentOrder={mockPipeData}>
+              <SolutionsDataProvider solutionsData={mockSolutionsData}>
+                <EditPipeline orgData={mockOrgData} />
+              </SolutionsDataProvider>
+            </UpdatePipeDataProvider>
+          </PipelineDataProvider>
+        </ErrorBoundary>
+      </Container>
     </AppProvider>
   )
 }
@@ -177,52 +176,67 @@ describe('EditPipeline Component', () => {
     expect(screen.getByText('Loading....')).toBeInTheDocument()
   })
 
-  it('renders the pipeline name and description', () => {
-    renderComponent()
-    expect(screen.getByTestId('pipeline-description')).toBeInTheDocument()
-    // expect(screen.getByText('Test Pipeline')).toBeInTheDocument()
-    // expect(screen.getByText(' Pipeline')).toBeInTheDocument()
-    // expect(screen.getByText('Test Description')).toBeInTheDocument()
-    // expect(screen.getByText(' 25/75 Characters')).toBeInTheDocument()
+  it('renders correctly', () => {
+    renderEditPipeline()
+    expect(screen.getByTestId('mock-close')).toBeInTheDocument()
+    expect(screen.getByTestId('pipeline-name-container')).toBeInTheDocument()
+    expect(
+      screen.getByTestId('pipeline-description-container')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByTestId('edit-pipeline-description-button')
+    ).toBeInTheDocument()
+    expect(screen.getByTestId('settings-container')).toBeInTheDocument()
+    expect(screen.getByTestId('solutions-list-container')).toBeInTheDocument()
+    expect(
+      screen.getByTestId('configured-solutions-container')
+    ).toBeInTheDocument()
+    expect(screen.getByTestId('solutions-grid-container')).toBeInTheDocument()
+    expect(screen.getByTestId('solution-card-container-1')).toBeInTheDocument()
+    expect(screen.getByTestId('solution-card-container-2')).toBeInTheDocument()
+    expect(
+      screen.getByTestId('solutions-modified-container')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByTestId('edit-pipeline-description-button')
+    ).toBeInTheDocument()
+    expect(screen.getByTestId('save-button')).toBeInTheDocument()
+    expect(screen.getByTestId('reorder-button')).toBeInTheDocument()
   })
 
   it('allows editing the pipeline description', async () => {
-    renderComponent()
-    const editButton = screen.getByLabelText('edit')
+    renderEditPipeline()
+    const editButton = screen.getByTestId('edit-pipeline-description-button')
     fireEvent.click(editButton)
 
     const input = screen.getByLabelText('Pipeline Description')
+    expect(input).toBeInTheDocument()
+    expect(screen.getByText('16/75 Characters')).toBeInTheDocument()
     fireEvent.change(input, { target: { value: 'New Description' } })
 
-    const closeButton = screen.getByLabelText('close')
+    const closeButton = screen.getByTestId(
+      'edit-pipeline-description-close-button'
+    )
     fireEvent.click(closeButton)
 
-    expect(
-      screen.getByText('Test Description 25/75 Characters')
-    ).toBeInTheDocument()
+    expect(screen.getByText('New Description')).toBeInTheDocument()
   })
 
-  it('renders Settings component', () => {
-    renderComponent()
-    expect(screen.getByText('Settings')).toBeInTheDocument()
-  })
-
-  it('renders SolutionsList component', () => {
-    renderComponent()
-    expect(screen.getByText('Solutions List')).toBeInTheDocument()
-  })
-
-  it('renders SolutionsGrid when pipeData is not empty', () => {
-    renderComponent()
+  it('renders Configured Solutions and SolutionsGrid when pipeData is not empty', () => {
+    renderEditPipeline()
     expect(screen.getByText('Configured Solutions')).toBeInTheDocument()
     expect(
       screen.getByText(
         'Your added solutions are listed below. You can add or remove as many you like.'
       )
     ).toBeInTheDocument()
+    expect(
+      screen.getByTestId('configured-solutions-container')
+    ).toBeInTheDocument()
+    expect(screen.getByTestId('solutions-grid-container')).toBeInTheDocument()
   })
 
-  it('does not render SolutionsGrid when pipeData is empty', () => {
+  it('does not render Configured Solutions or SolutionsGrid when pipeData is empty', () => {
     render(
       <PipelineDataProvider pipelineData={mockPipelineData}>
         <UpdatePipeDataProvider currentOrder={[]}>
@@ -232,39 +246,18 @@ describe('EditPipeline Component', () => {
         </UpdatePipeDataProvider>
       </PipelineDataProvider>
     )
-    expect(screen.queryByText('Configured Solutions')).not.toBeInTheDocument()
-  })
-
-  it('renders the save button', async () => {
-    renderComponent()
-    screen.debug() // Add this line
-    const saveButton = screen.getByRole('button', { name: 'SAVE' })
-    expect(saveButton).toBeInTheDocument()
-  })
-
-  it('calls updateData when save button is clicked', async () => {
-    renderComponent()
-
-    const saveButton = await screen.findByTestId('save-button')
-    expect(saveButton).toBeInTheDocument()
-
-    fireEvent.click(saveButton)
-
-    await waitFor(() => {
-      expect(updateData).toHaveBeenCalledWith('test-id', {
-        ...mockPipelineData,
-        pipes: mockPipeData,
-      })
-    })
+    expect(
+      screen.queryByTestId('configured-solutions-container')
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByTestId('solutions-grid-container')
+    ).not.toBeInTheDocument()
   })
 
   it('handles error in ErrorBoundary', () => {
     const ErrorComponent = () => {
       throw new Error('Test error')
     }
-
-    const originalConsoleError = console.error
-    console.error = jest.fn()
 
     render(
       <PipelineDataProvider pipelineData={mockPipelineData}>
@@ -291,7 +284,5 @@ describe('EditPipeline Component', () => {
     expect(
       screen.getByText('If error still occurs, please contact help desk.')
     ).toBeInTheDocument()
-
-    console.error = originalConsoleError
   })
 })

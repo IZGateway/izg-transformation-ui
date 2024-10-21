@@ -227,7 +227,7 @@ const renderSolutionsGrid = () => (
 describe('SolutionsGrid Component', () => {
   it('renders correctly', () => {
     render(renderSolutionsGrid())
-    expect(screen.getByTestId('solutions-grid')).toBeInTheDocument()
+    expect(screen.getByTestId('solutions-grid-container')).toBeInTheDocument()
     expect(screen.getByText('Add more above')).toBeInTheDocument()
     expect(screen.getAllByTestId(/sortable-/)).toHaveLength(2)
     expect(screen.getByTestId('dnd-context')).toBeInTheDocument()

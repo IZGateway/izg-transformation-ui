@@ -111,9 +111,9 @@ const SolutionsModal = ({
               Make some additional configurations to save your solution.
             </Typography>
             <Tooltip arrow placement="bottom" title="Close">
-            <IconButton onClick={handleClose}>
-              <CloseIcon fontSize="large" />
-            </IconButton>
+              <IconButton onClick={handleClose}>
+                <CloseIcon fontSize="large" />
+              </IconButton>
             </Tooltip>
           </Box>
 

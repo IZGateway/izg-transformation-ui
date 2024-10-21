@@ -9,6 +9,7 @@ import {
   Typography,
   IconButton,
   Drawer,
+  Tooltip,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { v4 as uuidv4 } from 'uuid'
@@ -95,9 +96,11 @@ const SolutionsModal = ({
             <Typography variant="h1" sx={styles.title}>
               Make some additional configurations to save your solution.
             </Typography>
+            <Tooltip arrow placement="bottom" title="Close">
             <IconButton onClick={handleClose}>
               <CloseIcon fontSize="large" />
             </IconButton>
+            </Tooltip>
           </Box>
 
           <Typography variant="h5" sx={styles.solutionName}>

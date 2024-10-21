@@ -157,6 +157,7 @@ const SolutionsModal = ({
               <>
                 <Divider sx={styles.divider} />
                 <Button
+                  data-testid="add-more-preconditions-button"
                   sx={{
                     marginBottom: 3,
                     display: 'inline-flex',

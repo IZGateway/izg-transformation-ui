@@ -9,6 +9,7 @@ import { updateData } from '../../../components/EditPipeline/updatePipeline'
 import ErrorBoundary from '../../ErrorBoundary'
 import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
 import Container from '../../Container'
+import { AppProvider } from '../../../contexts/app'
 
 // Mock the next/router
 jest.mock('next/router', () => ({
@@ -134,9 +135,9 @@ const mockSolutionsData = [
   },
 ]
 
-// Update the renderComponent function to use mockSolutionsData
-const renderComponent = () => {
+const renderEditPipeline = () => {
   return render(
+    <AppProvider>
     <Container title="Edit Connection">
       <ErrorBoundary>
         <PipelineDataProvider pipelineData={mockPipelineData}>
@@ -148,6 +149,7 @@ const renderComponent = () => {
         </PipelineDataProvider>
       </ErrorBoundary>
     </Container>
+    </AppProvider>
   )
 }
 
@@ -164,7 +166,7 @@ describe('EditPipeline Component', () => {
       isReady: false,
       query: {},
     })
-    renderComponent()
+    renderEditPipeline()
     expect(screen.getByText('Loading....')).toBeInTheDocument()
   })
 

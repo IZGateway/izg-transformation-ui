@@ -30,7 +30,6 @@ describe('PreconditionsSection', () => {
         setPreconditions={mockSetPreconditions}
         preconditionMethodsData={mockPreconditionMethodsData}
         preconditionsData={mockPreconditionsData}
-        formErrors={{}}
       />
     )
 
@@ -68,7 +67,6 @@ describe('PreconditionsSection', () => {
         setPreconditions={mockSetPreconditions}
         preconditionMethodsData={mockPreconditionMethodsData}
         preconditionsData={mockPreconditionsData}
-        formErrors={{}}
       />
     )
 
@@ -90,7 +88,6 @@ describe('PreconditionsSection', () => {
         setPreconditions={mockSetPreconditions}
         preconditionMethodsData={mockPreconditionMethodsData}
         preconditionsData={mockPreconditionsData}
-        formErrors={{}}
       />
     )
     const valueInput = screen.getByRole('textbox', {
@@ -108,7 +105,6 @@ describe('PreconditionsSection', () => {
         setPreconditions={mockSetPreconditions}
         preconditionMethodsData={mockPreconditionMethodsData}
         preconditionsData={mockPreconditionsData}
-        formErrors={{}}
       />
     )
 
@@ -116,20 +112,5 @@ describe('PreconditionsSection', () => {
     fireEvent.click(deleteButton)
 
     expect(mockSetPreconditions).toHaveBeenCalled()
-  })
-
-  it('displays form error when present', () => {
-    const formErrors = { preconditions: 'Invalid preconditions' }
-    render(
-      <PreconditionsSection
-        preconditions={mockPreconditions}
-        setPreconditions={mockSetPreconditions}
-        preconditionMethodsData={mockPreconditionMethodsData}
-        preconditionsData={mockPreconditionsData}
-        formErrors={formErrors}
-      />
-    )
-
-    expect(screen.getByText('Invalid preconditions')).toBeInTheDocument()
   })
 })

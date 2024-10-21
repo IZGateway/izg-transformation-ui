@@ -23,7 +23,7 @@ import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updateP
 const SolutionsModal = ({
   selectedSolution,
   isNewSolution,
-  existingPreconditions = [],
+  existingPreconditions = [{ id: '', method: '', value: '' }],
   setOpen,
   open,
 }) => {
@@ -36,7 +36,7 @@ const SolutionsModal = ({
 
   const formattedPreconditions = useFormattedPreconditions(
     hasPreconditions,
-    hasPreconditions ? preconditions : []
+    existingPreconditions ? preconditions : [{ id: '', method: '', value: '' }]
   )
 
   const handleAddPrecondition = useCallback(() => {

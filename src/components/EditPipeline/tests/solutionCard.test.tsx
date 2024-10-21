@@ -61,6 +61,13 @@ const mockPreconditions = [
     comparisonValue: 'VXU',
   },
 ]
+const mockFormattedPreconditions = [
+  {
+    method: 'equals',
+    id: 'precond1',
+    value: 'VXU',
+  },
+]
 
 const mockPipeData = [
   {
@@ -188,7 +195,7 @@ describe('SolutionCard Component', () => {
       expect.objectContaining({
         selectedSolution: mockSolution,
         isNewSolution: false,
-        existingPreconditions: mockPreconditions,
+        existingPreconditions: mockFormattedPreconditions,
         setOpen: expect.any(Function),
         open: true,
       }),

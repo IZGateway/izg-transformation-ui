@@ -1,8 +1,9 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { Precondition } from './solutionsDataContext'
 
 type PipelineDataContextType = {
   pipelineData: PipelineData | null
+  setPipelineData: React.Dispatch<React.SetStateAction<PipelineData | null>>
 }
 
 type PipelineData = {
@@ -13,15 +14,14 @@ type PipelineData = {
 
 const pipelineDataContext = createContext<PipelineDataContextType | null>(null)
 
-const PipelineDataProvider = ({
-  children,
-  pipelineData,
-}: {
+const PipelineDataProvider: React.FC<{
   children: React.ReactNode
   pipelineData: PipelineData | null
-}) => {
+}> = ({ children, pipelineData: initialPipelineData }) => {
+  const [pipelineData, setPipelineData] =
+    useState<PipelineData>(initialPipelineData)
   return (
-    <pipelineDataContext.Provider value={{ pipelineData }}>
+    <pipelineDataContext.Provider value={{ pipelineData, setPipelineData }}>
       {children}
     </pipelineDataContext.Provider>
   )

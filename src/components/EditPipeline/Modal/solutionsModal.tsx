@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useMemo } from 'react'
 import {
   Box,
   Button,
@@ -38,6 +38,20 @@ const SolutionsModal = ({
     hasPreconditions,
     existingPreconditions ? preconditions : [{ id: '', method: '', value: '' }]
   )
+
+  const isFormValid = useMemo(() => {
+    if (!hasPreconditions) return true
+
+    return formattedPreconditions.every((precondition) => {
+      if (!precondition.id || !precondition.method) return false
+      if (
+        !['exists', 'not_exists'].includes(precondition.method) &&
+        !precondition.value
+      )
+        return false
+      return true
+    })
+  }, [hasPreconditions, formattedPreconditions])
 
   const handleAddPrecondition = useCallback(() => {
     setHasPreconditions(true)
@@ -164,6 +178,7 @@ const SolutionsModal = ({
               variant="contained"
               onClick={handleSave}
               sx={styles.saveButton}
+              disabled={!isFormValid}
             >
               Save
             </Button>

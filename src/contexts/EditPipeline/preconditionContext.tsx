@@ -9,9 +9,15 @@ const PreconditionContext = createContext<PreconditionContextType | undefined>(
   undefined
 )
 
-export const PreconditionProvider: React.FC<
-  PreconditionContextType & { children: React.ReactNode }
-> = ({ children, preconditionsData, preconditionMethodsData }) => {
+const PreconditionProvider = ({
+  children,
+  preconditionsData,
+  preconditionMethodsData,
+}: {
+  children: React.ReactNode
+  preconditionsData: object | null
+  preconditionMethodsData: object | null
+}) => {
   return (
     <PreconditionContext.Provider
       value={{ preconditionsData, preconditionMethodsData }}

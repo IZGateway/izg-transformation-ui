@@ -1,11 +1,12 @@
 import React, { useContext } from 'react'
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import { Box, IconButton, Typography, Card } from '@mui/material'
+import { Box, IconButton, Typography, Card, Tooltip } from '@mui/material'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
+import Link from 'next/link'
 
 const dataGridCustom = {
   '&.MuiDataGrid-root.MuiDataGrid-autoHeight.MuiDataGrid-root--densityComfortable':
@@ -119,16 +120,27 @@ const ConnectionsTable = (props) => {
       filterable: false,
       flex: 0.5,
       minWidth: 100,
-      renderCell: () => {
+      renderCell: (params) => {
         return (
           <div>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
+            <Link
+              prefetch={false}
+              tabIndex={props.tabIndex}
+              href={{
+                pathname: `/edit/${params.row.id}`,
+              }}
             >
-              <EditIcon fontSize="small" />
-            </IconButton>
+              <Tooltip arrow placement="bottom" title="Edit">
+                <IconButton
+                  id={'edit_' + params.row.id}
+                  aria-label="edit"
+                  color="primary"
+                  sx={actionButtonStyle}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Link>
             <IconButton
               aria-label="test"
               color="primary"

@@ -168,7 +168,7 @@ const ConnectionsTable = (props) => {
             display="flex"
             align="center"
           >
-            My Pipelines
+            My Pipelines!!
           </Typography>
         </Card>
       </Box>

@@ -15,7 +15,9 @@ export const authOptions = {
       clientSecret: process.env.OKTA_CLIENT_SECRET,
       issuer: process.env.NEXT_PUBLIC_OKTA_ISSUER,
       idToken: true,
-      authorization: { params: { scope: 'openid email profile groups' } },
+      authorization: {
+        params: { scope: 'openid email profile groups', groups: 'Test Group' },
+      },
     }),
   ],
   session: {
@@ -24,6 +26,7 @@ export const authOptions = {
   },
   callbacks: {
     async session({ session, token, user }) {
+      logger.info('PAUL: SESSION CALLBACK')
       if (token) {
         session.user.id = token.id
         session.accessToken = token.accessToken
@@ -36,7 +39,9 @@ export const authOptions = {
       return session
     },
     async jwt({ token, user, account, profile, isNewUser, idToken }) {
+      logger.info('PAUL: JWT CALLBACK')
       if (account) {
+        logger.info('PAUL: JWT CALLBACK TOKEN 1: ' + JSON.stringify(token))
         token.idToken = idToken
         token.id_token = account.id_token
         token.provider = account.provider
@@ -55,6 +60,7 @@ export const authOptions = {
           logger.error('ERROR FETCHING USER INFO FROM OKTA: ' + err)
         }
       }
+      logger.info('PAUL: JWT CALLBACK TOKEN 2: ' + JSON.stringify(token))
       return token
     },
   },

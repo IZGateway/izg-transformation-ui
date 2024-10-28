@@ -8,6 +8,8 @@ import axios from 'axios'
 import * as fs from 'fs'
 import path from 'path'
 import https from 'https'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '../api/auth/[...nextauth]'
 
 const Manage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -24,15 +26,22 @@ const Manage = (
 
 export default Manage
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (context) => {
+  const session = await getServerSession(context.req, context.res, authOptions)
+  if (!session) {
+    throw new Error('No server session found.')
+  }
+
   const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
   try {
     const organizationsResponse = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=10`
+      `${TS_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=10`,
+      session
     )
     const organizationsData = organizationsResponse.data
     const pipelineResponse = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/pipelines`
+      `${TS_ENDPOINT}/api/v1/pipelines`,
+      session
     )
     const pipelineData = pipelineResponse.data
     const combinedData = combineData(organizationsData, pipelineData)
@@ -43,7 +52,7 @@ export const getServerSideProps = async () => {
   }
 }
 
-const fetchDataFromEndpoint = async (endpoint) => {
+const fetchDataFromEndpoint = async (endpoint, session) => {
   const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || ''
   const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || ''
   const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || ''
@@ -55,9 +64,17 @@ const fetchDataFromEndpoint = async (endpoint) => {
     keepAlive: true,
   }
   try {
+    console.log('Fetching data from endpoint: ' + endpoint)
+    console.log('Request headers: ', {
+      Authorization: `Bearer ${session.accessToken}`,
+    })
+
     const response = await axios.get(endpoint, {
       httpsAgent: new https.Agent(httpsAgentOptions),
       timeout: 30000,
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
     })
     return response.data
   } catch (error) {

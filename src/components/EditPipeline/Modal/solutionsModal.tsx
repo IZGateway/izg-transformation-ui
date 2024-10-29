@@ -67,15 +67,22 @@ const SolutionsModal = ({
           formattedPreconditions
         )
 
-    const newPipeData = [
-      ...pipeData,
-      {
-        id: uuidv4(),
-        solutionId: selectedSolution.id,
-        solutionVersion: '1.0',
-        preconditions: transformedPreconditions,
-      },
-    ]
+    const newPipeData = isNewSolution
+      ? [
+          ...pipeData,
+          {
+            id: uuidv4(),
+            solutionId: selectedSolution.id,
+            solutionVersion: '1.0',
+            preconditions: transformedPreconditions,
+          },
+        ]
+      : pipeData.map((solution) =>
+          solution.solutionId === selectedSolution.id
+            ? { ...solution, preconditions: transformedPreconditions }
+            : solution
+        )
+
     setOpen(false)
     setPipeData(newPipeData)
     setTempPipeData(pipeData)

@@ -171,7 +171,7 @@ const SolutionsGrid = () => {
         </Box>
       </SortableContext>
 
-      <DragOverlay style={{ zIndex: 0 }}>
+      <DragOverlay style={{ zIndex: 1000 }}>
         {activeId && activeSolution ? (
           <SolutionCard
             id={activeSolution.id}

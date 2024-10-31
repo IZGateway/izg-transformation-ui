@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined'
+import EditIcon from '@mui/icons-material/Edit'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import SolutionsModal from './Modal/solutionsModal'
@@ -115,6 +115,7 @@ const SolutionCard = memo(
                     data-testid="delete-button"
                     aria-label="delete"
                     onClick={handleDelete}
+                    color="error"
                   >
                     <DeleteOutlinedIcon />
                   </IconButton>
@@ -128,7 +129,7 @@ const SolutionCard = memo(
                     setIsModalOpen(true)
                   }}
                 >
-                  <EditOutlinedIcon />
+                  <EditIcon />
                 </IconButton>
               </>
             }

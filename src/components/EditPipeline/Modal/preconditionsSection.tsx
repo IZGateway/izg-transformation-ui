@@ -100,8 +100,9 @@ const PreconditionsSection = ({
                   removePrecondition(index, preconditions, setPreconditions)
                 }
                 aria-label="delete"
+                color="error"
               >
-                <DeleteOutlinedIcon sx={{ color: 'red' }} />
+                <DeleteOutlinedIcon />
               </IconButton>
             </FormGroup>
           </React.Fragment>

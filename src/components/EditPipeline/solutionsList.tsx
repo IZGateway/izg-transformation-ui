@@ -10,6 +10,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Tooltip,
 } from '@mui/material'
 import SolutionsModal from './Modal/solutionsModal'
 import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
@@ -72,13 +73,22 @@ const SolutionsList = () => {
             displayEmpty
           >
             {Object.keys(solutionsArray).length > 0 ? (
-              Object.entries(solutionsArray).map(([id, solution]) => {
-                return (
-                  <MenuItem key={id} value={id}>
-                    {(solution as { solutionName: string }).solutionName}
-                  </MenuItem>
-                )
-              })
+              Object.entries(solutionsArray).map(([id, solution]) => (
+                <MenuItem key={id} value={id}>
+                  <Tooltip
+                    title={
+                      (solution as { description: string }).description +
+                      ' this is a link'
+                    }
+                    arrow
+                    placement="right"
+                  >
+                    <span>
+                      {(solution as { solutionName: string }).solutionName}
+                    </span>
+                  </Tooltip>
+                </MenuItem>
+              ))
             ) : (
               <MenuItem value="">No solutions available</MenuItem>
             )}

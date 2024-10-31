@@ -33,18 +33,21 @@ interface SolutionCardProps {
     regex?: string
     comparisonValue?: string
   }>
+  isDragging?: boolean
+  activeId?: string
 }
 
 const SolutionCard = memo(
-  ({ id, solution, index, preconditions }: SolutionCardProps) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
+  ({
+    id,
+    solution,
+    index,
+    preconditions,
       isDragging,
-    } = useSortable({ id })
+    activeId,
+  }: SolutionCardProps) => {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id })
     const { isReorder } = useReorderContext()
     const { pipeData, setPipeData } = useUpdatePipeDataContext()
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -77,7 +80,7 @@ const SolutionCard = memo(
           sx={{
             height: '100%',
             borderRadius: '0px 0px 30px 30px',
-            display: 'flex',
+            display: activeId?.localeCompare(id) !== 0 ? 'flex' : 'none',
             flexDirection: 'column',
             boxShadow: isReorder
               ? isDragging

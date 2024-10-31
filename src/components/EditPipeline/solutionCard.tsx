@@ -43,7 +43,7 @@ const SolutionCard = memo(
     solution,
     index,
     preconditions,
-      isDragging,
+    isDragging,
     activeId,
   }: SolutionCardProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
@@ -51,6 +51,7 @@ const SolutionCard = memo(
     const { isReorder } = useReorderContext()
     const { pipeData, setPipeData } = useUpdatePipeDataContext()
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const [isOverButtons, setIsOverButtons] = useState(false)
 
     const handleDelete = useCallback(() => {
       const newOrder = pipeData.filter((pipe) => pipe.id !== id)
@@ -63,6 +64,10 @@ const SolutionCard = memo(
       value: precondition.comparisonValue || '',
     }))
 
+    const handleButtonsHover = useCallback((isOver: boolean) => {
+      setIsOverButtons(isOver)
+    }, [])
+
     return (
       <Box
         data-testid={`solution-card-container-${index}`}
@@ -71,9 +76,10 @@ const SolutionCard = memo(
           transform: CSS.Transform.toString(transform),
           transition,
           zIndex: isDragging ? 2000 : 'auto',
-          borderRadius: '0px 0px 30px 30px',
         }}
-        {...(isReorder && { ...attributes, ...listeners })}
+        {...(isReorder &&
+          !isOverButtons &&
+          !isModalOpen && { ...attributes, ...listeners })}
         sx={{ height: '100%' }}
       >
         <Card
@@ -86,7 +92,7 @@ const SolutionCard = memo(
               ? isDragging
                 ? `0px 1px 5px 3px ${palette.primaryDark}`
                 : `0px 1px 4px 1px ${palette.secondaryLight}`
-              : '',
+              : undefined,
           }}
         >
           <CardHeader
@@ -104,6 +110,8 @@ const SolutionCard = memo(
               <>
                 {isReorder && (
                   <IconButton
+                    onMouseEnter={() => handleButtonsHover(true)}
+                    onMouseLeave={() => handleButtonsHover(false)}
                     data-testid="delete-button"
                     aria-label="delete"
                     onClick={handleDelete}
@@ -112,6 +120,8 @@ const SolutionCard = memo(
                   </IconButton>
                 )}
                 <IconButton
+                  onMouseEnter={() => handleButtonsHover(true)}
+                  onMouseLeave={() => handleButtonsHover(false)}
                   data-testid="edit-button"
                   aria-label="edit"
                   onClick={() => {

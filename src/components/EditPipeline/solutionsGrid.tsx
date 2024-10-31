@@ -21,7 +21,10 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
 import SolutionCard from './solutionCard'
-import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
+import {
+  Solution,
+  useSolutionsDataContext,
+} from '../../contexts/EditPipeline/solutionsDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 
 const SolutionsGrid = () => {
@@ -36,7 +39,7 @@ const SolutionsGrid = () => {
   )
 
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [activeSolution, setActiveSolution] = useState<any>(null)
+  const [activeSolution, setActiveSolution] = useState<Solution>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
 
   const handleDragEnd = useCallback(

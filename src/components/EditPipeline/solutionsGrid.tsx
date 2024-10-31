@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Box, Card, CardContent, Typography } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import {
@@ -9,6 +9,8 @@ import {
   useSensors,
   useSensor,
   KeyboardSensor,
+  DragStartEvent,
+  DragOverEvent,
 } from '@dnd-kit/core'
 import { restrictToParentElement } from '@dnd-kit/modifiers'
 import {
@@ -32,25 +34,48 @@ const SolutionsGrid = () => {
     })
   )
 
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event
 
-      if (active.id !== over?.id) {
+      if (over && active.id !== over.id) {
         const oldIndex = pipeData.findIndex((item) => item.id === active.id)
-        const newIndex = pipeData.findIndex((item) => item.id === over?.id)
-        const newOrder = arrayMove(pipeData, oldIndex, newIndex)
-        setPipeData(newOrder)
+        const newIndex = pipeData.findIndex((item) => item.id === over.id)
+        setPipeData(arrayMove(pipeData, oldIndex, newIndex))
       }
+
+      setActiveId(null)
+      setOverIndex(null)
     },
     [pipeData, setPipeData]
+  )
+
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event
+      setActiveId(active.id as string)
+  }, [])
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { over } = event
+      setOverIndex(
+        over ? pipeData.findIndex((item) => item.id === over.id) : null
+      )
+    },
+    [pipeData]
   )
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
       modifiers={[restrictToParentElement]}
     >
       <SortableContext
@@ -69,14 +94,37 @@ const SolutionsGrid = () => {
         >
           {pipeData.map((pipe, index) => {
             const solution = solutionsData.find((s) => s.id === pipe.solutionId)
+            let displayIndex = index + 1
+
+            if (activeId) {
+              const activeIndex = pipeData.findIndex(
+                (item) => item.id === activeId
+              )
+              const currentIndex = index
+
+              if (overIndex !== null) {
+                const isMovingDown = activeIndex < overIndex
+                const isInShiftRange = isMovingDown
+                  ? currentIndex > activeIndex && currentIndex <= overIndex
+                  : currentIndex < activeIndex && currentIndex >= overIndex
+
+                if (pipe.id === activeId) {
+                  displayIndex = overIndex + 1
+                } else if (isInShiftRange) {
+                  displayIndex = currentIndex + (isMovingDown ? -1 : 1) + 1
+                }
+              }
+            }
+
             return (
               <SolutionCard
                 data-testid={`solution-card-${index + 1}`}
                 key={pipe.id}
                 solution={solution}
                 id={pipe.id}
-                index={index + 1}
+                index={displayIndex}
                 preconditions={pipe.preconditions}
+                activeId={activeId}
               />
             )
           })}

@@ -24,6 +24,7 @@ import ReorderProvider from '../../contexts/EditPipeline/reorderContext'
 import { updateData } from '../../components/EditPipeline/updatePipeline'
 import { usePipelineDataContext } from '../../contexts/EditPipeline/pipelineDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
+import palette from '../../styles/theme/palette'
 
 const EditPipeline = ({ orgData }) => {
   const router = useRouter()
@@ -202,26 +203,24 @@ const EditPipeline = ({ orgData }) => {
                     <SolutionsGrid />
                   </>
                 )}
+                <Box
+                  sx={{
+                    position: 'fixed',
+                    bottom: 122,
+                    left: 540,
+                    width: '69.7%',
+                    height: '100px',
+                    background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 1) 0%,rgb(from ${palette.background} r g b / 0) 100%)`,
+                    opacity: showGradient ? 1 : 0,
+                    transition: showGradient
+                      ? 'opacity 100ms ease-in'
+                      : 'opacity 100ms ease-out',
+                    pointerEvents: 'none',
+                  }}
+                />
                 <SolutionsModified handleSave={handleSave} />
               </Box>
             </Box>
-            <Box
-              sx={{
-                position: 'fixed',
-                bottom: 122,
-                left: 540,
-                width: '69.7%',
-                height: '100px',
-                background:
-                  'linear-gradient(to top, rgba(249,249,249,1) 0%,rgba(249,249,249,0) 100%)',
-                zIndex: 1000,
-                opacity: showGradient ? 1 : 0,
-                transition: showGradient
-                  ? 'opacity 100ms ease-in'
-                  : 'opacity 25ms ease-out',
-                pointerEvents: 'none',
-              }}
-            />
           </Box>
         </ErrorBoundary>
       </Container>

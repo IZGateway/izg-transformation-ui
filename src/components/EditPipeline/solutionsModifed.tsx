@@ -16,7 +16,9 @@ const SolutionsModified = ({ handleSave }) => {
   const { pipeData, setPipeData, tempPipeData, setTempPipeData } =
     useUpdatePipeDataContext()
   const [showAlert, setShowAlert] = useState(false)
-  const [severity, setSeverity] = useState<'success' | 'error'>('success')
+  const [severity, setSeverity] = useState<'success' | 'error' | 'info'>(
+    'success'
+  )
 
   const onReorder = () => {
     setTempPipeData(pipeData)
@@ -30,12 +32,13 @@ const SolutionsModified = ({ handleSave }) => {
   }
 
   const onSave = async () => {
-    if (tempPipeData === pipeData) {
-      setIsReorder(false)
-      return
-    }
-
     try {
+      if (tempPipeData === pipeData || !isReorder) {
+        setIsReorder(false)
+        setSeverity('info')
+        return
+      }
+
       const response = await handleSave()
       if (response.success) {
         setIsReorder(false)
@@ -66,15 +69,24 @@ const SolutionsModified = ({ handleSave }) => {
       }}
     >
       <Collapse
-        sx={{ marginBottom: 1 }}
+        sx={{ marginBottom: 1, position: 'relative', zIndex: 1000 }}
         in={showAlert}
-        timeout={{ enter: 300, exit: 300 }}
       >
-        <Alert severity={severity}>
+        <Alert
+          severity={severity}
+          variant="filled"
+          sx={{
+            width: 'fit-content',
+            marginLeft: 'auto',
+          }}
+          elevation={2}
+        >
           <AlertTitle>
             {severity === 'success'
               ? 'Pipeline has been saved successfully'
-              : 'Error! Pipeline failed to save'}
+              : severity === 'error'
+              ? 'Error! Pipeline failed to save'
+              : 'No changes detected. Pipeline not saved'}
           </AlertTitle>
         </Alert>
       </Collapse>

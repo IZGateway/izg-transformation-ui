@@ -10,6 +10,7 @@ import {
   useSensor,
   KeyboardSensor,
   DragStartEvent,
+  DragOverlay,
   DragOverEvent,
 } from '@dnd-kit/core'
 import { restrictToParentElement } from '@dnd-kit/modifiers'
@@ -35,6 +36,7 @@ const SolutionsGrid = () => {
   )
 
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [activeSolution, setActiveSolution] = useState<any>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
 
   const handleDragEnd = useCallback(
@@ -48,6 +50,7 @@ const SolutionsGrid = () => {
       }
 
       setActiveId(null)
+      setActiveSolution(null)
       setOverIndex(null)
     },
     [pipeData, setPipeData]
@@ -57,7 +60,13 @@ const SolutionsGrid = () => {
     (event: DragStartEvent) => {
       const { active } = event
       setActiveId(active.id as string)
-  }, [])
+      const draggedSolution = solutionsData.find(
+        (s) => s.id === pipeData.find((p) => p.id === active.id)?.solutionId
+      )
+      setActiveSolution(draggedSolution)
+    },
+    [pipeData, solutionsData]
+  )
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
@@ -158,6 +167,25 @@ const SolutionsGrid = () => {
           )}
         </Box>
       </SortableContext>
+
+      <DragOverlay style={{ zIndex: 0 }}>
+        {activeId && activeSolution ? (
+          <SolutionCard
+            id={activeSolution.id}
+            key={activeSolution.id}
+            solution={activeSolution}
+            index={
+              overIndex !== null
+                ? overIndex + 1
+                : pipeData.findIndex(
+                    (p) => p.solutionId === activeSolution.id
+                  ) + 1
+            }
+            preconditions={activeSolution.requestOperations[0].preconditions}
+            isDragging
+          />
+        ) : null}
+      </DragOverlay>
     </DndContext>
   )
 }

@@ -26,11 +26,7 @@ const SolutionsGrid = () => {
   const { pipeData, setPipeData } = useUpdatePipeDataContext()
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 4,
-      },
-    }),
+    useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })

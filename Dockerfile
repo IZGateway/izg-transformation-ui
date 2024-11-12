@@ -1,22 +1,26 @@
 FROM node:alpine AS deps
-#RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN  npm ci --force
+RUN npm ci --force
 
 FROM node:alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN mkdir -p /app/.next/cache
+# Set directory permissions and clean any existing cache
+RUN rm -rf .next && \
+    mkdir -p /app/.next/cache && \
+    chmod -R 777 /app/.next
 
 ENV NEXT_TELEMETRY_DISABLED 1
 ARG BUILD_ID=0.0.0
-#Strategy for using NEXT_PUBLIC variables found at https://phase.dev/blog/nextjs-public-runtime-variables/
 ARG NEXT_PUBLIC_OKTA_ISSUER=BAKED_NEXT_PUBLIC_OKTA_ISSUER
 ARG NEXT_PUBLIC_GA_ID=BAKED_NEXT_PUBLIC_GA_ID
 ARG NEXT_PUBLIC_BUILD_ID=${BUILD_ID}
+# Force production mode and disable cache
+ENV NODE_ENV=production
+ENV NEXT_SHARP_PATH=/app/node_modules/sharp
 RUN npm run build
 
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS runner

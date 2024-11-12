@@ -6,6 +6,7 @@ import {
   CardHeader,
   Divider,
   IconButton,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
@@ -109,6 +110,7 @@ const SolutionCard = memo(
             action={
               <>
                 {isReorder && (
+                    <Tooltip title="Delete Solution" arrow placement="bottom">
                   <IconButton
                     onMouseEnter={() => handleButtonsHover(true)}
                     onMouseLeave={() => handleButtonsHover(false)}
@@ -119,7 +121,9 @@ const SolutionCard = memo(
                   >
                     <DeleteOutlinedIcon />
                   </IconButton>
+                    </Tooltip>
                 )}
+                  <Tooltip title="Edit Solution" arrow placement="bottom">
                 <IconButton
                   onMouseEnter={() => handleButtonsHover(true)}
                   onMouseLeave={() => handleButtonsHover(false)}
@@ -131,6 +135,7 @@ const SolutionCard = memo(
                 >
                   <EditIcon />
                 </IconButton>
+                  </Tooltip>
               </>
             }
           />

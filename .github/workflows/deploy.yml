@@ -6,6 +6,7 @@ on:
     branches:
       - develop
       - 'release/**'
+      - IGDD-1769_Pipeline_Fix
 
 env:
   GITHUB_REGISTRY_PREFIX: ghcr.io

@@ -9,6 +9,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+RUN mkdir -p /app/.next/cache
+
 ENV NEXT_TELEMETRY_DISABLED 1
 ARG BUILD_ID=0.0.0
 #Strategy for using NEXT_PUBLIC variables found at https://phase.dev/blog/nextjs-public-runtime-variables/

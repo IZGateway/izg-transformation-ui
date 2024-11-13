@@ -137,13 +137,24 @@ const SolutionsModal = ({
                 Does this solution have any preconditions?
               </Typography>
               <FormControlLabel
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  justifyContent: 'space-between',
+                  position: 'static',
+                }}
                 control={
                   <Switch
                     checked={hasPreconditions}
-                    onChange={() => setHasPreconditions((prev) => !prev)}
+                    onChange={(e) => setHasPreconditions(e.target.checked)}
                   />
                 }
-                label={hasPreconditions ? 'Yes' : 'No'}
+                label={
+                  <Box sx={{ width: '30px' }}>
+                    {hasPreconditions ? 'Yes' : 'No'}
+                  </Box>
+                }
               />
             </Box>
             <Divider sx={styles.divider} />

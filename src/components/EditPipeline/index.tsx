@@ -38,6 +38,7 @@ const EditPipeline = ({ orgData }) => {
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
   const MAX_DESCRIPTION_LENGTH = 75
+  const [showTopGradient, setShowTopGradient] = useState(true)
   const [showBottomGradient, setShowBottomGradient] = useState(true)
   const [showAlert, setShowAlert] = useState(false)
   const [alertState, setAlertState] = useState<{
@@ -104,7 +105,10 @@ const EditPipeline = ({ orgData }) => {
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 // -1 for rounding errors
+    const isAtTop = scrollTop === 0
+
     setShowBottomGradient(!isAtBottom)
+    setShowTopGradient(isAtTop)
   }, [])
 
   return !isReady ? (
@@ -265,6 +269,22 @@ const EditPipeline = ({ orgData }) => {
               }}
             >
               <Box>
+                <Box
+                  sx={{
+                    position: 'fixed',
+                    top: 130,
+                    left: 540,
+                    width: '69.7%',
+                    height: '150px',
+                    background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
+                    opacity: showTopGradient ? 0 : 1,
+                    transition: showTopGradient
+                      ? 'opacity 100ms ease-in'
+                      : 'opacity 100ms ease-out',
+                    pointerEvents: 'none',
+                    zIndex: 50,
+                  }}
+                />
                 <SolutionsList />
                 {pipeData && pipeData.length > 0 && (
                   <>

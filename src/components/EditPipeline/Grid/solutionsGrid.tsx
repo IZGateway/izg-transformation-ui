@@ -13,7 +13,7 @@ import {
   DragOverlay,
   DragOverEvent,
 } from '@dnd-kit/core'
-import { restrictToParentElement } from '@dnd-kit/modifiers'
+import { restrictToWindowEdges } from '@dnd-kit/modifiers'
 import {
   SortableContext,
   arrayMove,
@@ -24,8 +24,9 @@ import SolutionCard from './solutionCard'
 import {
   Solution,
   useSolutionsDataContext,
-} from '../../contexts/EditPipeline/solutionsDataContext'
-import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
+} from '../../../contexts/EditPipeline/solutionsDataContext'
+import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updatePipeDataContext'
+import { dropAnimationConfig } from './dropAnimation'
 
 const SolutionsGrid = () => {
   const { solutionsData } = useSolutionsDataContext()
@@ -37,11 +38,9 @@ const SolutionsGrid = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   )
-
   const [activeId, setActiveId] = useState<string | null>(null)
   const [activeSolution, setActiveSolution] = useState<Solution>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
-
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event
@@ -80,7 +79,6 @@ const SolutionsGrid = () => {
     },
     [pipeData]
   )
-
   return (
     <DndContext
       sensors={sensors}
@@ -88,7 +86,7 @@ const SolutionsGrid = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragOver={handleDragOver}
-      modifiers={[restrictToParentElement]}
+      modifiers={[restrictToWindowEdges]}
     >
       <SortableContext
         items={useMemo(() => pipeData.map((item) => item.id), [pipeData])}
@@ -171,7 +169,11 @@ const SolutionsGrid = () => {
         </Box>
       </SortableContext>
 
-      <DragOverlay style={{ zIndex: 1000 }}>
+      <DragOverlay
+        style={{ zIndex: 1000 }}
+        adjustScale={false}
+        dropAnimation={dropAnimationConfig}
+      >
         {activeId && activeSolution ? (
           <SolutionCard
             id={activeSolution.id}
@@ -185,7 +187,7 @@ const SolutionsGrid = () => {
                   ) + 1
             }
             preconditions={activeSolution.requestOperations[0].preconditions}
-            isDragging
+            isDragging={true}
           />
         ) : null}
       </DragOverlay>

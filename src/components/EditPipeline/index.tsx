@@ -22,7 +22,7 @@ import Settings from './settings'
 import SolutionsList from './solutionsList'
 import SolutionsModified from './solutionsModifed'
 import CloseIcon from '@mui/icons-material/Close'
-import SolutionsGrid from './solutionsGrid'
+import SolutionsGrid from './Grid/solutionsGrid'
 import ReorderProvider from '../../contexts/EditPipeline/reorderContext'
 import { updateData } from '../../components/EditPipeline/updatePipeline'
 import { usePipelineDataContext } from '../../contexts/EditPipeline/pipelineDataContext'
@@ -209,14 +209,14 @@ const EditPipeline = ({ orgData }) => {
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Cancel" arrow placement="bottom">
-                <IconButton
+                  <IconButton
                     data-testid="edit-pipeline-description-cancel-button"
                     aria-label="cancel"
-                  color="primary"
+                    color="primary"
                     onClick={handleDescriptionCancel}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
                 </Tooltip>
               </Box>
             ) : (

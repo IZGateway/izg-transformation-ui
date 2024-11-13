@@ -13,10 +13,10 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import EditIcon from '@mui/icons-material/Edit'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import SolutionsModal from './Modal/solutionsModal'
-import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
-import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
-import palette from '../../styles/theme/palette'
+import SolutionsModal from '../Modal/solutionsModal'
+import { useReorderContext } from '../../../contexts/EditPipeline/reorderContext'
+import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updatePipeDataContext'
+import styles from './draggable.module.css'
 
 interface SolutionCardProps {
   id: string
@@ -35,6 +35,7 @@ interface SolutionCardProps {
     comparisonValue?: string
   }>
   isDragging?: boolean
+  isReleased?: boolean
   activeId?: string
 }
 
@@ -58,7 +59,6 @@ const SolutionCard = memo(
       const newOrder = pipeData.filter((pipe) => pipe.id !== id)
       setPipeData(newOrder)
     }, [id, pipeData, setPipeData])
-
     const formattedPreconditions = preconditions.map((precondition) => ({
       id: precondition.id,
       method: precondition.method,
@@ -73,6 +73,13 @@ const SolutionCard = memo(
       <Box
         data-testid={`solution-card-container-${index}`}
         ref={setNodeRef}
+        className={`${styles.Draggable} ${
+          isReorder
+            ? isDragging
+              ? styles.dragging
+              : styles.released
+            : styles.reorder
+        }`}
         style={{
           transform: CSS.Transform.toString(transform),
           transition,
@@ -89,11 +96,6 @@ const SolutionCard = memo(
             borderRadius: '0px 0px 30px 30px',
             display: activeId?.localeCompare(id) !== 0 ? 'flex' : 'none',
             flexDirection: 'column',
-            boxShadow: isReorder
-              ? isDragging
-                ? `0px 1px 5px 3px ${palette.primaryDark}`
-                : `0px 1px 4px 1px ${palette.secondaryLight}`
-              : undefined,
           }}
         >
           <CardHeader
@@ -110,32 +112,32 @@ const SolutionCard = memo(
             action={
               <>
                 {isReorder && (
-                    <Tooltip title="Delete Solution" arrow placement="bottom">
+                  <Tooltip title="Delete Solution" arrow placement="bottom">
+                    <IconButton
+                      onMouseEnter={() => handleButtonsHover(true)}
+                      onMouseLeave={() => handleButtonsHover(false)}
+                      data-testid="delete-button"
+                      aria-label="delete"
+                      onClick={handleDelete}
+                      color="error"
+                    >
+                      <DeleteOutlinedIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <Tooltip title="Edit Solution" arrow placement="bottom">
                   <IconButton
                     onMouseEnter={() => handleButtonsHover(true)}
                     onMouseLeave={() => handleButtonsHover(false)}
-                    data-testid="delete-button"
-                    aria-label="delete"
-                    onClick={handleDelete}
-                    color="error"
+                    data-testid="edit-button"
+                    aria-label="edit"
+                    onClick={() => {
+                      setIsModalOpen(true)
+                    }}
                   >
-                    <DeleteOutlinedIcon />
+                    <EditIcon />
                   </IconButton>
-                    </Tooltip>
-                )}
-                  <Tooltip title="Edit Solution" arrow placement="bottom">
-                <IconButton
-                  onMouseEnter={() => handleButtonsHover(true)}
-                  onMouseLeave={() => handleButtonsHover(false)}
-                  data-testid="edit-button"
-                  aria-label="edit"
-                  onClick={() => {
-                    setIsModalOpen(true)
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                  </Tooltip>
+                </Tooltip>
               </>
             }
           />

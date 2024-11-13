@@ -2,11 +2,11 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import SolutionsGrid from '../solutionsGrid'
-import ReorderProvider from '../../../contexts/EditPipeline/reorderContext'
+import ReorderProvider from '../../../../contexts/EditPipeline/reorderContext'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
-import * as UpdatePipeDataContext from '../../../contexts/EditPipeline/updatePipeDataContext'
+import SolutionsDataProvider from '../../../../contexts/EditPipeline/solutionsDataContext'
+import * as UpdatePipeDataContext from '../../../../contexts/EditPipeline/updatePipeDataContext'
 
 const mockPipeData = [
   {
@@ -83,8 +83,10 @@ const mockSolutionsData = [
 const setPipeDataMock = jest.fn()
 
 // Mock the UpdatePipeDataContext module
-jest.mock('../../../contexts/EditPipeline/updatePipeDataContext', () => ({
-  ...jest.requireActual('../../../contexts/EditPipeline/updatePipeDataContext'),
+jest.mock('../../../../contexts/EditPipeline/updatePipeDataContext', () => ({
+  ...jest.requireActual(
+    '../../../../contexts/EditPipeline/updatePipeDataContext'
+  ),
   useUpdatePipeDataContext: jest.fn(() => ({
     pipeData: mockPipeData,
     setPipeData: setPipeDataMock,
@@ -169,8 +171,10 @@ jest.mock('@dnd-kit/sortable', () => ({
 }))
 
 // Mock the UpdatePipeDataContext module
-jest.mock('../../../contexts/EditPipeline/updatePipeDataContext', () => ({
-  ...jest.requireActual('../../../contexts/EditPipeline/updatePipeDataContext'),
+jest.mock('../../../../contexts/EditPipeline/updatePipeDataContext', () => ({
+  ...jest.requireActual(
+    '../../../../contexts/EditPipeline/updatePipeDataContext'
+  ),
   useUpdatePipeDataContext: jest.fn(() => ({
     pipeData: mockPipeData,
     setPipeData: jest.fn(),

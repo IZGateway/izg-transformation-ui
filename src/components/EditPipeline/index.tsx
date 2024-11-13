@@ -82,15 +82,22 @@ const EditPipeline = ({ orgData }) => {
                 display={'flex'}
                 flexDirection={'row'}
                 alignItems={'center'}
-                sx={{ display: 'flex' }}
+                sx={{
+                  display: 'flex',
+                  position: 'relative',
+                  top: 1,
+                  left: 0,
+                  right: 0,
+                }}
               >
                 <TextField
                   data-testid="edit-pipeline-description-input"
                   id="pipeline-description"
-                  label="Pipeline Description"
                   variant="standard"
                   size="medium"
-                  sx={{ width: '31.5%' }}
+                  sx={{
+                    width: '31.5%',
+                  }}
                   value={description}
                   onChange={(event: ChangeEvent<HTMLInputElement>) => {
                     if (event.target.value.length <= MAX_DESCRIPTION_LENGTH) {

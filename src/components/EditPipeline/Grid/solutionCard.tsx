@@ -131,6 +131,7 @@ const SolutionCard = memo(
                     onMouseLeave={() => handleButtonsHover(false)}
                     data-testid="edit-button"
                     aria-label="edit"
+                    color="primary"
                     onClick={() => {
                       setIsModalOpen(true)
                     }}

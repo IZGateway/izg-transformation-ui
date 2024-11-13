@@ -105,6 +105,7 @@ const EditPipeline = ({ orgData }) => {
                 >
                   {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
                 </Typography>
+                <Tooltip title="Save" arrow placement="bottom">
                   <IconButton
                     data-testid="edit-pipeline-description-save-button"
                     aria-label="save"
@@ -114,6 +115,8 @@ const EditPipeline = ({ orgData }) => {
                   >
                     <SaveIcon fontSize="small" />
                   </IconButton>
+                </Tooltip>
+                <Tooltip title="Cancel" arrow placement="bottom">
                 <IconButton
                     data-testid="edit-pipeline-description-cancel-button"
                     aria-label="cancel"
@@ -122,6 +125,7 @@ const EditPipeline = ({ orgData }) => {
                 >
                   <CloseIcon fontSize="small" />
                 </IconButton>
+                </Tooltip>
               </Box>
             ) : (
               <Box

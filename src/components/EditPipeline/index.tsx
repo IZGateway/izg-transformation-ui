@@ -33,7 +33,7 @@ const EditPipeline = ({ orgData }) => {
   const router = useRouter()
   const { isReady, query } = router
   const { pipelineData, setPipelineData } = usePipelineDataContext()
-  const { pipeData, tempPipeData } = useUpdatePipeDataContext()
+  const { pipeData } = useUpdatePipeDataContext()
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
   const MAX_DESCRIPTION_LENGTH = 75
@@ -49,15 +49,16 @@ const EditPipeline = ({ orgData }) => {
   }, [isReady, query])
 
   const handleSave = useCallback(async () => {
-    if (tempPipeData === pipeData) return
     const response = await updateData(query.id as string, {
       ...pipelineData,
+      description: description,
       pipes: pipeData,
     })
     if (!response.success) {
       console.error('Error updating pipeline data:', response.error)
     }
     return response
+  }, [pipeData, query, pipelineData, description])
 
   const handleDescriptionSave = async () => {
     try {

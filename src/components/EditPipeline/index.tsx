@@ -102,6 +102,11 @@ const EditPipeline = ({ orgData }) => {
     }
   }
 
+  const handleDescriptionCancel = () => {
+    setDescription(pipelineData.description)
+    setOpen(false)
+  }
+
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 // -1 for rounding errors

@@ -105,17 +105,20 @@ const EditPipeline = ({ orgData }) => {
                 >
                   {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
                 </Typography>
+                  <IconButton
+                    data-testid="edit-pipeline-description-save-button"
+                    aria-label="save"
+                    sx={{ marginLeft: 2, padding: 0 }}
+                    color="primary"
+                    onClick={handleDescriptionSave}
+                  >
+                    <SaveIcon fontSize="small" />
+                  </IconButton>
                 <IconButton
-                  data-testid="edit-pipeline-description-close-button"
-                  aria-label="close"
+                    data-testid="edit-pipeline-description-cancel-button"
+                    aria-label="cancel"
                   color="primary"
-                  onClick={() => {
-                    setPipelineData({
-                      ...pipelineData,
-                      description: description,
-                    })
-                    setOpen(false)
-                  }}
+                    onClick={handleDescriptionCancel}
                 >
                   <CloseIcon fontSize="small" />
                 </IconButton>

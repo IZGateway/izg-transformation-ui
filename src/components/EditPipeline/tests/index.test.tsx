@@ -17,7 +17,7 @@ jest.mock('next/router', () => ({
 
 // Mock the updateData function
 jest.mock('../../../components/EditPipeline/updatePipeline', () => ({
-  updateData: jest.fn(),
+  updateData: jest.fn().mockResolvedValue({ success: true }),
 }))
 
 // Mock for the Close component
@@ -209,17 +209,81 @@ describe('EditPipeline Component', () => {
     const editButton = screen.getByTestId('edit-pipeline-description-button')
     fireEvent.click(editButton)
 
-    const input = screen.getByLabelText('Pipeline Description')
+    const input = screen
+      .getByTestId('edit-pipeline-description-input')
+      .querySelector('input')
     expect(input).toBeInTheDocument()
     expect(screen.getByText('16/75 Characters')).toBeInTheDocument()
+
+    // Change the description
     fireEvent.change(input, { target: { value: 'New Description' } })
+    expect(screen.getByText('15/75 Characters')).toBeInTheDocument()
 
-    const closeButton = screen.getByTestId(
-      'edit-pipeline-description-close-button'
+    // Click save and verify alert appears
+    const saveButton = screen.getByTestId(
+      'edit-pipeline-description-save-button'
     )
-    fireEvent.click(closeButton)
+    fireEvent.click(saveButton)
 
-    expect(screen.getByText('New Description')).toBeInTheDocument()
+    // Verify success alert appears - using findByText to wait for the async update
+    expect(
+      await screen.findByText('Description Saved Successfully!')
+    ).toBeInTheDocument()
+
+    // Verify the description was updated
+    expect(screen.getByTestId('pipeline-description')).toHaveTextContent(
+      'New Description'
+    )
+  })
+
+  // Add new test for canceling description edit
+  it('allows canceling pipeline description edit', () => {
+    renderEditPipeline()
+    const originalDescription = mockPipelineData.description
+
+    // Start editing
+    const editButton = screen.getByTestId('edit-pipeline-description-button')
+    fireEvent.click(editButton)
+
+    // Change the input
+    const input = screen
+      .getByTestId('edit-pipeline-description-input')
+      .querySelector('input')
+    fireEvent.change(input, { target: { value: 'Canceled Description' } })
+
+    // Click cancel
+    const cancelButton = screen.getByTestId(
+      'edit-pipeline-description-cancel-button'
+    )
+    fireEvent.click(cancelButton)
+
+    // Verify original description remains
+    expect(screen.getByTestId('pipeline-description')).toHaveTextContent(
+      originalDescription
+    )
+  })
+
+  it('it displays an info alert if the pipeline description has not changed', async () => {
+    renderEditPipeline()
+    const editButton = screen.getByTestId('edit-pipeline-description-button')
+    fireEvent.click(editButton)
+
+    const input = screen
+      .getByTestId('edit-pipeline-description-input')
+      .querySelector('input')
+    expect(input).toBeInTheDocument()
+    expect(screen.getByText('16/75 Characters')).toBeInTheDocument()
+
+    // Click save and verify alert appears
+    const saveButton = screen.getByTestId(
+      'edit-pipeline-description-save-button'
+    )
+    fireEvent.click(saveButton)
+
+    // Verify success alert appears - using findByText to wait for the async update
+    expect(
+      await screen.findByText('Description Not Changed')
+    ).toBeInTheDocument()
   })
 
   it('renders Configured Solutions and SolutionsGrid when pipeData is not empty', () => {

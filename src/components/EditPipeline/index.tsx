@@ -14,6 +14,9 @@ import {
   CardContent,
   CardHeader,
   Divider,
+  Alert,
+  AlertTitle,
+  Collapse,
 } from '@mui/material'
 import Settings from './settings'
 import SolutionsList from './solutionsList'
@@ -34,7 +37,12 @@ const EditPipeline = ({ orgData }) => {
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
   const MAX_DESCRIPTION_LENGTH = 75
-  const [showGradient, setShowGradient] = useState(true)
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertState, setAlertState] = useState<{
+    show: boolean
+    severity: 'success' | 'info' | 'error'
+    message: string
+  }>({ show: false, severity: 'info', message: '' })
 
   useEffect(() => {
     if (!isReady) return
@@ -50,7 +58,45 @@ const EditPipeline = ({ orgData }) => {
       console.error('Error updating pipeline data:', response.error)
     }
     return response
-  }, [pipeData, query, pipelineData, tempPipeData])
+
+  const handleDescriptionSave = async () => {
+    try {
+      if (description === pipelineData.description) {
+        setAlertState({
+          show: true,
+          severity: 'info',
+          message: 'Description Not Changed',
+        })
+        return
+      }
+      setPipelineData({
+        ...pipelineData,
+        description: description,
+      })
+      const response = await handleSave()
+
+      if (response.success) {
+        setAlertState({
+          show: true,
+          severity: 'success',
+          message: 'Description Saved Successfully!',
+        })
+      }
+    } catch (error) {
+      console.error('Error saving description:', error)
+      setAlertState({
+        show: true,
+        severity: 'error',
+        message: 'Error! Could not save description!',
+      })
+    } finally {
+      setOpen(false)
+      setShowAlert(true)
+      setTimeout(() => {
+        setShowAlert(false)
+      }, 2000)
+    }
+  }
 
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
@@ -76,6 +122,33 @@ const EditPipeline = ({ orgData }) => {
                 ? pipelineData.pipelineName
                 : `${pipelineData.pipelineName} Pipeline`}
             </Typography>
+
+            <Box sx={{ position: 'relative', height: 0 }}>
+              <Collapse
+                sx={{
+                  position: 'absolute',
+                  top: 40,
+                  left: 0,
+                  right: 0,
+                  zIndex: 1000,
+                }}
+                in={showAlert}
+              >
+                <Alert
+                  severity={alertState.severity}
+                  variant="filled"
+                  sx={{
+                    width: 'fit-content',
+                    marginRight: 'auto',
+                    zIndex: 1000,
+                  }}
+                  elevation={2}
+                >
+                  <AlertTitle>{alertState.message}</AlertTitle>
+                </Alert>
+              </Collapse>
+            </Box>
+
             {open ? (
               <Box
                 data-testid="edit-pipeline-description-container"

@@ -4,15 +4,6 @@ type SolutionsDataContextType = {
   solutionsData: Solution[]
 }
 
-type Solution = {
-  id: string
-  solutionName: string
-  description: string
-  version: string
-  active: boolean
-  requestOperations: OperationGroup[]
-}
-
 type OperationGroup = {
   preconditions: Precondition[] | null
 }
@@ -39,6 +30,15 @@ export const useSolutionsDataContext = () => {
     )
   }
   return context
+}
+
+export type Solution = {
+  id: string
+  solutionName: string
+  description: string
+  version: string
+  active: boolean
+  requestOperations: OperationGroup[]
 }
 
 export type Precondition = {

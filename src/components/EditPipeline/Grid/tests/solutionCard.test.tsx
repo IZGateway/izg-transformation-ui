@@ -4,25 +4,27 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import SolutionCard from '../solutionCard'
 import { CSS } from '@dnd-kit/utilities'
-import SolutionsModal from '../Modal/solutionsModal'
-import * as ReorderContextModule from '../../../contexts/EditPipeline/reorderContext'
-import * as UpdatePipeDataContextModule from '../../../contexts/EditPipeline/updatePipeDataContext'
+import SolutionsModal from '../../Modal/solutionsModal'
+import * as ReorderContextModule from '../../../../contexts/EditPipeline/reorderContext'
+import * as UpdatePipeDataContextModule from '../../../../contexts/EditPipeline/updatePipeDataContext'
 
 // Mock the SolutionsModal component
-jest.mock('../Modal/solutionsModal', () => ({
+jest.mock('../../Modal/solutionsModal', () => ({
   __esModule: true,
   default: jest.fn(() => <div data-testid="mocked-solutions-modal" />),
 }))
 
 // Mock the useReorderContext hook
-jest.mock('../../../contexts/EditPipeline/reorderContext', () => ({
-  ...jest.requireActual('../../../contexts/EditPipeline/reorderContext'),
+jest.mock('../../../../contexts/EditPipeline/reorderContext', () => ({
+  ...jest.requireActual('../../../../contexts/EditPipeline/reorderContext'),
   useReorderContext: jest.fn(),
 }))
 
 // Mock the UpdatePipeDataContext module
-jest.mock('../../../contexts/EditPipeline/updatePipeDataContext', () => ({
-  ...jest.requireActual('../../../contexts/EditPipeline/updatePipeDataContext'),
+jest.mock('../../../../contexts/EditPipeline/updatePipeDataContext', () => ({
+  ...jest.requireActual(
+    '../../../../contexts/EditPipeline/updatePipeDataContext'
+  ),
   useUpdatePipeDataContext: jest.fn(() => ({
     pipeData: mockPipeData,
     setPipeData: jest.fn(),
@@ -130,7 +132,7 @@ describe('SolutionCard Component', () => {
   })
 
   it('calls handleDelete when the delete button is clicked', () => {
-    jest.mock('../../../contexts/EditPipeline/updatePipeDataContext')
+    jest.mock('../../../../contexts/EditPipeline/updatePipeDataContext')
     const mockSetPipeData = jest.fn()
     jest
       .spyOn(UpdatePipeDataContextModule, 'useUpdatePipeDataContext')

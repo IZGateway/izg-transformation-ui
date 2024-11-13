@@ -146,8 +146,7 @@ const blueThemeOptions: ThemeOptions = {
     MuiAlert: {
       styleOverrides: {
         filledSuccess: {
-          backgroundColor: '#82d9ff',
-          color: '#043054',
+          backgroundColor: '#388e3c',
         },
         filledInfo: {
           backgroundColor: '#0A3F7E',

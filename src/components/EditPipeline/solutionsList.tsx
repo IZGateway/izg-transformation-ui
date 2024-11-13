@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react'
+import React, { memo, useMemo, useState } from 'react'
 import {
   Typography,
   CardHeader,
@@ -10,6 +10,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Tooltip,
+  Link,
+  Box,
 } from '@mui/material'
 import SolutionsModal from './Modal/solutionsModal'
 import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
@@ -72,13 +75,35 @@ const SolutionsList = () => {
             displayEmpty
           >
             {Object.keys(solutionsArray).length > 0 ? (
-              Object.entries(solutionsArray).map(([id, solution]) => {
-                return (
-                  <MenuItem key={id} value={id}>
-                    {(solution as { solutionName: string }).solutionName}
-                  </MenuItem>
-                )
-              })
+              Object.entries(solutionsArray).map(([id, solution]) => (
+                <MenuItem key={id} value={id}>
+                  <Tooltip
+                    sx={{ cursor: 'pointer', zIndex: 1000 }}
+                    title={
+                      <Typography>
+                        {(solution as { description: string }).description}
+                        <Box mt={2}>
+                          <Link
+                            color="inherit"
+                            sx={{ textTransform: 'none' }}
+                            href="/manage"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            (Click here for more information)
+                          </Link>
+                        </Box>
+                      </Typography>
+                    }
+                    arrow
+                    placement="left-start"
+                  >
+                    <span>
+                      {(solution as { solutionName: string }).solutionName}
+                    </span>
+                  </Tooltip>
+                </MenuItem>
+              ))
             ) : (
               <MenuItem value="">No solutions available</MenuItem>
             )}

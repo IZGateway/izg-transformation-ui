@@ -67,15 +67,22 @@ const SolutionsModal = ({
           formattedPreconditions
         )
 
-    const newPipeData = [
-      ...pipeData,
-      {
-        id: uuidv4(),
-        solutionId: selectedSolution.id,
-        solutionVersion: '1.0',
-        preconditions: transformedPreconditions,
-      },
-    ]
+    const newPipeData = isNewSolution
+      ? [
+          ...pipeData,
+          {
+            id: uuidv4(),
+            solutionId: selectedSolution.id,
+            solutionVersion: '1.0',
+            preconditions: transformedPreconditions,
+          },
+        ]
+      : pipeData.map((solution) =>
+          solution.solutionId === selectedSolution.id
+            ? { ...solution, preconditions: transformedPreconditions }
+            : solution
+        )
+
     setOpen(false)
     setPipeData(newPipeData)
     setTempPipeData(pipeData)
@@ -130,13 +137,24 @@ const SolutionsModal = ({
                 Does this solution have any preconditions?
               </Typography>
               <FormControlLabel
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  justifyContent: 'space-between',
+                  position: 'static',
+                }}
                 control={
                   <Switch
                     checked={hasPreconditions}
-                    onChange={() => setHasPreconditions((prev) => !prev)}
+                    onChange={(e) => setHasPreconditions(e.target.checked)}
                   />
                 }
-                label={hasPreconditions ? 'Yes' : 'No'}
+                label={
+                  <Box sx={{ width: '30px' }}>
+                    {hasPreconditions ? 'Yes' : 'No'}
+                  </Box>
+                }
               />
             </Box>
             <Divider sx={styles.divider} />

@@ -28,6 +28,7 @@ import { updateData } from '../../components/EditPipeline/updatePipeline'
 import { usePipelineDataContext } from '../../contexts/EditPipeline/pipelineDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 import palette from '../../styles/theme/palette'
+import SaveIcon from '@mui/icons-material/Save'
 
 const EditPipeline = ({ orgData }) => {
   const router = useRouter()

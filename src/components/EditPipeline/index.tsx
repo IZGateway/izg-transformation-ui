@@ -38,6 +38,7 @@ const EditPipeline = ({ orgData }) => {
   const [description, setDescription] = useState(pipelineData.description)
   const [open, setOpen] = useState(false)
   const MAX_DESCRIPTION_LENGTH = 75
+  const [showBottomGradient, setShowBottomGradient] = useState(true)
   const [showAlert, setShowAlert] = useState(false)
   const [alertState, setAlertState] = useState<{
     show: boolean
@@ -103,7 +104,7 @@ const EditPipeline = ({ orgData }) => {
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 // -1 for rounding errors
-    setShowGradient(!isAtBottom)
+    setShowBottomGradient(!isAtBottom)
   }, [])
 
   return !isReady ? (
@@ -295,13 +296,13 @@ const EditPipeline = ({ orgData }) => {
                 <Box
                   sx={{
                     position: 'fixed',
-                    bottom: 122,
+                    bottom: 100,
                     left: 540,
                     width: '69.7%',
-                    height: '100px',
+                    height: '150px',
                     background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 1) 0%,rgb(from ${palette.background} r g b / 0) 100%)`,
-                    opacity: showGradient ? 1 : 0,
-                    transition: showGradient
+                    opacity: showBottomGradient ? 1 : 0,
+                    transition: showBottomGradient
                       ? 'opacity 100ms ease-in'
                       : 'opacity 100ms ease-out',
                     pointerEvents: 'none',

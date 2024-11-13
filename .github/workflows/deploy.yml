@@ -75,6 +75,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Cache Next.js build
+        uses: actions/cache@v3
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-nextjs-
+
       - name: Login to the GitHub Container registry
         if: ${{ contains(github.ref, 'refs/heads/release/') }}
         id: login-ghcr
@@ -109,7 +119,7 @@ jobs:
           flavor: |
             latest=true
 
-      - name: Build and push Docker Transformation Console image
+      - name: Build and push Docker Xform Console image
         id: docker_build
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:

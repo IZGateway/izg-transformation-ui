@@ -29,7 +29,8 @@ const SolutionsModal = ({
 }) => {
   const { preconditionsData, preconditionMethodsData } =
     usePreconditionContext()
-  const { pipeData, setPipeData, setTempPipeData } = useUpdatePipeDataContext()
+  const { pipeData, tempPipeData, setPipeData, setTempPipeData } =
+    useUpdatePipeDataContext()
   const { setIsReorder } = useReorderContext()
   const [hasPreconditions, setHasPreconditions] = useState(!isNewSolution)
   const [preconditions, setPreconditions] = useState(existingPreconditions)
@@ -85,7 +86,9 @@ const SolutionsModal = ({
 
     setOpen(false)
     setPipeData(newPipeData)
-    setTempPipeData(pipeData)
+    if (!tempPipeData) {
+      setTempPipeData(pipeData)
+    }
     setIsReorder(true)
   }
 

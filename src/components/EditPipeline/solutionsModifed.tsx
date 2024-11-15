@@ -27,7 +27,7 @@ const SolutionsModified = ({ handleSave }) => {
   }
 
   const onCancel = () => {
-    setPipeData(tempPipeData || pipeData)
+    setPipeData(tempPipeData)
     setTempPipeData(null)
     setIsReorder(false)
   }

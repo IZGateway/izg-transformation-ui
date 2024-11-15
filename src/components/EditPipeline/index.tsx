@@ -260,80 +260,86 @@ const EditPipeline = ({ orgData }) => {
             }}
           >
             <Settings pipeData={pipelineData} orgData={orgData} />
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 130,
-                left: 540,
-                width: '69.7%',
-                height: '150px',
-                background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
-                opacity: showTopGradient ? 0 : 1,
-                transition: showTopGradient
-                  ? 'opacity 100ms ease-in'
-                  : 'opacity 100ms ease-out',
-                pointerEvents: 'none',
-                zIndex: 50,
-              }}
-            />
-            <Box
-              onScroll={handleScroll}
-              sx={{
-                width: '-webkit-fill-available',
-                position: 'relative',
-                paddingLeft: 1,
-                paddingRight: 1,
-                paddingBottom: 1,
-                maxHeight: 'calc(100vh - 275px)',
-                overflowY: 'auto',
-              }}
-            >
-              <Box>
-                <SolutionsList />
-                {pipeData && pipeData.length > 0 && (
-                  <>
-                    <Card
-                      data-testid="configured-solutions-container"
-                      sx={{
-                        minWidth: 275,
-
-                        borderRadius: '0px 0px 30px 30px',
-                        marginTop: 4,
-                      }}
-                    >
-                      <CardHeader title="Configured Solutions" />
-                      <Divider />
-                      <CardContent>
-                        <Typography variant="body1">
-                          Your added solutions are listed below. You can add or
-                          remove as many you like.{' '}
-                          <b style={{ textDecoration: 'underline' }}>
-                            Please note, the order of operations is sequential.
-                          </b>
-                        </Typography>
-                      </CardContent>
-                    </Card>
-
-                    <SolutionsGrid />
-                  </>
-                )}
-                <Box
-                  sx={{
-                    position: 'fixed',
-                    bottom: 100,
-                    left: 540,
-                    width: '69.7%',
+            <Box sx={{ position: 'relative' }}>
+              <Box
+                sx={[
+                  {
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    right: '1em',
                     height: '150px',
-                    background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 1) 0%,rgb(from ${palette.background} r g b / 0) 100%)`,
-                    opacity: showBottomGradient ? 1 : 0,
-                    transition: showBottomGradient
+                    background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
+                    opacity: showTopGradient ? 0 : 1,
+                    transition: showTopGradient
                       ? 'opacity 100ms ease-in'
                       : 'opacity 100ms ease-out',
                     pointerEvents: 'none',
-                  }}
-                />
-                <SolutionsModified handleSave={handleSave} />
+                    zIndex: 50,
+                  },
+                  { zoom: '100% / ' },
+                ]}
+              />
+              <Box
+                onScroll={handleScroll}
+                sx={{
+                  width: '-webkit-fill-available',
+                  position: 'relative',
+                  paddingLeft: 1,
+                  paddingRight: 1,
+                  paddingBottom: 1,
+                  maxHeight: 'calc(100vh - 275px)',
+                  overflowY: 'auto',
+                }}
+              >
+                <Box>
+                  <SolutionsList />
+                  {pipeData && pipeData.length > 0 && (
+                    <>
+                      <Card
+                        data-testid="configured-solutions-container"
+                        sx={{
+                          minWidth: 275,
+
+                          borderRadius: '0px 0px 30px 30px',
+                          marginTop: 4,
+                        }}
+                      >
+                        <CardHeader title="Configured Solutions" />
+                        <Divider />
+                        <CardContent>
+                          <Typography variant="body1">
+                            Your added solutions are listed below. You can add
+                            or remove as many you like.{' '}
+                            <b style={{ textDecoration: 'underline' }}>
+                              Please note, the order of operations is
+                              sequential.
+                            </b>
+                          </Typography>
+                        </CardContent>
+                      </Card>
+
+                      <SolutionsGrid />
+                    </>
+                  )}
+                  <SolutionsModified handleSave={handleSave} />
+                </Box>
               </Box>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: '1em',
+                  height: '150px',
+                  background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 1) 0%,rgb(from ${palette.background} r g b / 0) 100%)`,
+                  opacity: showBottomGradient ? 1 : 0,
+                  transition: showBottomGradient
+                    ? 'opacity 100ms ease-in'
+                    : 'opacity 100ms ease-out',
+                  pointerEvents: 'none',
+                }}
+              />
             </Box>
           </Box>
         </ErrorBoundary>

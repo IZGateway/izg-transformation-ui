@@ -100,7 +100,7 @@ describe('SolutionsModal', () => {
     const mockSetOpen = jest.fn()
     renderSolutionsModal({ setOpen: mockSetOpen })
 
-    const saveButton = screen.getByText('Save')
+    const saveButton = screen.getByTestId('save-solution-button')
     fireEvent.click(saveButton)
 
     await waitFor(() => {

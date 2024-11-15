@@ -90,7 +90,6 @@ jest.mock('../../../contexts/EditPipeline/updatePipeDataContext', () => ({
   })),
 }))
 
-// let mockIsReorder = false
 // Mock handleSave function
 const mockHandleSave = jest.fn()
 
@@ -105,12 +104,6 @@ const renderComponent = (isReorder = false) => {
 describe('SolutionsModified', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    // mockIsReorder = false
-
-    // jest.mocked(ReorderContext.useReorderContext).mockReturnValue({
-    //   isReorder: mockIsReorder,
-    //   setIsReorder: mockSetIsReorder,
-    // })
 
     jest
       .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
@@ -125,7 +118,7 @@ describe('SolutionsModified', () => {
   test('renders correctly', () => {
     renderComponent()
     expect(screen.getByTestId('reorder-button')).toBeInTheDocument()
-    expect(screen.getByTestId('save-button')).toBeInTheDocument()
+    expect(screen.getByTestId('apply-button')).toBeInTheDocument()
   })
 
   test('Cancel button is shown when Reorder button is clicked', async () => {
@@ -135,7 +128,7 @@ describe('SolutionsModified', () => {
     expect(screen.queryByTestId('reorder-button')).not.toBeInTheDocument()
   })
 
-  test('clicking Save button calls handleSave when data has changed', async () => {
+  test('clicking Apply button calls handleSave when data has changed', async () => {
     jest
       .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
       .mockReturnValue({
@@ -148,8 +141,8 @@ describe('SolutionsModified', () => {
     mockHandleSave.mockResolvedValue({ success: true })
     renderComponent(true)
 
-    const saveButton = screen.getByTestId('save-button')
-    fireEvent.click(saveButton)
+    const applyButton = screen.getByTestId('apply-button')
+    fireEvent.click(applyButton)
 
     await waitFor(() => {
       expect(mockHandleSave).toHaveBeenCalledTimes(1)
@@ -157,7 +150,7 @@ describe('SolutionsModified', () => {
   })
 
   // Add a new test for unsuccessful save
-  test('clicking Save with unsuccessful response shows error alert', async () => {
+  test('clicking Apply with unsuccessful response shows error alert', async () => {
     jest
       .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
       .mockReturnValue({
@@ -171,19 +164,19 @@ describe('SolutionsModified', () => {
 
     renderComponent(true)
 
-    const saveButton = screen.getByTestId('save-button')
+    const saveButton = screen.getByTestId('apply-button')
     fireEvent.click(saveButton)
 
     await waitFor(() => {
       expect(
-        screen.getByText('Error! Pipeline failed to save')
+        screen.getByText('Error! Pipeline failed to apply changes')
       ).toBeInTheDocument()
     })
 
     expect(mockHandleSave).toHaveBeenCalledTimes(1)
   })
 
-  test('clicking Save button with successful response shows success alert', async () => {
+  test('clicking Apply button with successful response shows success alert', async () => {
     mockHandleSave.mockResolvedValue({ success: true })
     jest
       .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
@@ -195,28 +188,24 @@ describe('SolutionsModified', () => {
       })
     renderComponent(true)
 
-    const saveButton = screen.getByTestId('save-button')
-    fireEvent.click(saveButton)
+    const applyButton = screen.getByTestId('apply-button')
+    fireEvent.click(applyButton)
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Pipeline has been saved successfully')
-      ).toBeInTheDocument()
+      expect(screen.getByText('Pipeline changes applied!')).toBeInTheDocument()
     })
 
     expect(mockHandleSave).toHaveBeenCalledTimes(1)
   })
 
-  test('clicking Save with no changes to data shows info alert', async () => {
+  test('clicking Apply with no changes to data shows info alert', async () => {
     renderComponent()
 
-    const saveButton = screen.getByTestId('save-button')
-    fireEvent.click(saveButton)
+    const applyButton = screen.getByTestId('apply-button')
+    fireEvent.click(applyButton)
 
     await waitFor(() => {
-      expect(
-        screen.getByText('No changes detected. Pipeline not saved')
-      ).toBeInTheDocument()
+      expect(screen.getByText('No changes detected.')).toBeInTheDocument()
     })
 
     expect(mockHandleSave).toHaveBeenCalledTimes(0)

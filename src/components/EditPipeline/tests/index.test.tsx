@@ -200,7 +200,7 @@ describe('EditPipeline Component', () => {
     expect(
       screen.getByTestId('edit-pipeline-description-button')
     ).toBeInTheDocument()
-    expect(screen.getByTestId('save-button')).toBeInTheDocument()
+    expect(screen.getByTestId('apply-button')).toBeInTheDocument()
     expect(screen.getByTestId('reorder-button')).toBeInTheDocument()
   })
 

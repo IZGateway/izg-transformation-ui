@@ -197,11 +197,11 @@ const EditPipeline = ({ orgData }) => {
                 >
                   {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
                 </Typography>
-                <Tooltip title="Save" arrow placement="bottom">
+                <Tooltip title="Save Description" arrow placement="bottom">
                   <IconButton
                     data-testid="edit-pipeline-description-save-button"
                     aria-label="save"
-                    sx={{ marginLeft: 2, padding: 0 }}
+                    sx={{ marginLeft: 2, paddingLeft: 0, paddingRight: 0 }}
                     color="primary"
                     onClick={handleDescriptionSave}
                   >

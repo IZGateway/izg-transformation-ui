@@ -335,7 +335,6 @@ const EditPipeline = ({ orgData }) => {
                       <SolutionsGrid />
                     </>
                   )}
-                  <SolutionsModified handleSave={handleSave} />
                 </Box>
               </Box>
               <Box
@@ -353,6 +352,7 @@ const EditPipeline = ({ orgData }) => {
                   pointerEvents: 'none',
                 }}
               />
+              <SolutionsModified handleSave={handleSave} />
             </Box>
           </Box>
         </ErrorBoundary>

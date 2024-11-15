@@ -46,6 +46,7 @@ const EditPipeline = ({ orgData }) => {
     severity: 'success' | 'info' | 'error'
     message: string
   }>({ show: false, severity: 'info', message: '' })
+  const [isScrollable, setIsScrollable] = useState(false)
 
   useEffect(() => {
     if (!isReady) return
@@ -109,11 +110,18 @@ const EditPipeline = ({ orgData }) => {
 
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
-    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1 // -1 for rounding errors
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1
     const isAtTop = scrollTop === 0
 
+    setIsScrollable(scrollHeight > clientHeight)
     setShowBottomGradient(!isAtBottom)
     setShowTopGradient(isAtTop)
+  }, [])
+
+  const checkScrollability = useCallback((element: HTMLDivElement) => {
+    const { scrollHeight, clientHeight } = element
+    const isScrollable = scrollHeight > clientHeight
+    setIsScrollable(isScrollable)
   }, [])
 
   return !isReady ? (
@@ -253,14 +261,16 @@ const EditPipeline = ({ orgData }) => {
           <Box
             sx={{
               display: 'flex',
+              position: 'relative',
               gap: 4,
-              flexDirection: 'row',
               alignItems: 'flex-start',
               marginTop: 4,
             }}
           >
-            <Settings pipeData={pipelineData} orgData={orgData} />
-            <Box sx={{ position: 'relative' }}>
+            <Box sx={{ position: 'relative', width: '35%' }}>
+              <Settings pipeData={pipelineData} orgData={orgData} />
+            </Box>
+            <Box sx={{ position: 'relative', width: '100%' }}>
               <Box
                 sx={[
                   {
@@ -270,7 +280,7 @@ const EditPipeline = ({ orgData }) => {
                     right: '1em',
                     height: '150px',
                     background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
-                    opacity: showTopGradient ? 0 : 1,
+                    opacity: isScrollable ? (showTopGradient ? 0 : 1) : 0,
                     transition: showTopGradient
                       ? 'opacity 100ms ease-in'
                       : 'opacity 100ms ease-out',
@@ -282,6 +292,9 @@ const EditPipeline = ({ orgData }) => {
               />
               <Box
                 onScroll={handleScroll}
+                ref={(element) =>
+                  element && checkScrollability(element as HTMLDivElement)
+                }
                 sx={{
                   width: '-webkit-fill-available',
                   position: 'relative',
@@ -333,7 +346,7 @@ const EditPipeline = ({ orgData }) => {
                   right: '1em',
                   height: '150px',
                   background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 1) 0%,rgb(from ${palette.background} r g b / 0) 100%)`,
-                  opacity: showBottomGradient ? 1 : 0,
+                  opacity: showBottomGradient && isScrollable ? 1 : 0,
                   transition: showBottomGradient
                     ? 'opacity 100ms ease-in'
                     : 'opacity 100ms ease-out',

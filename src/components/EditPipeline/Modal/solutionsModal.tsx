@@ -193,13 +193,14 @@ const SolutionsModal = ({
 
             <Button
               id="save-solution-preconditions"
+              data-testid="save-solution-button"
               color="secondary"
               variant="contained"
               onClick={handleSave}
               sx={styles.saveButton}
               disabled={!isFormValid}
             >
-              Save
+              Save Solution
             </Button>
           </Box>
         </Box>

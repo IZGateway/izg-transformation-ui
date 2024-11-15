@@ -56,6 +56,7 @@ const SolutionsList = () => {
             href="/manage"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Need help? Find descriptions for these solutions on our documentation page"
           >
             <Tooltip
               title={

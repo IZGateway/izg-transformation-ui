@@ -260,7 +260,22 @@ const EditPipeline = ({ orgData }) => {
             }}
           >
             <Settings pipeData={pipelineData} orgData={orgData} />
-
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 130,
+                left: 540,
+                width: '69.7%',
+                height: '150px',
+                background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
+                opacity: showTopGradient ? 0 : 1,
+                transition: showTopGradient
+                  ? 'opacity 100ms ease-in'
+                  : 'opacity 100ms ease-out',
+                pointerEvents: 'none',
+                zIndex: 50,
+              }}
+            />
             <Box
               onScroll={handleScroll}
               sx={{
@@ -274,22 +289,6 @@ const EditPipeline = ({ orgData }) => {
               }}
             >
               <Box>
-                <Box
-                  sx={{
-                    position: 'fixed',
-                    top: 130,
-                    left: 540,
-                    width: '69.7%',
-                    height: '150px',
-                    background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
-                    opacity: showTopGradient ? 0 : 1,
-                    transition: showTopGradient
-                      ? 'opacity 100ms ease-in'
-                      : 'opacity 100ms ease-out',
-                    pointerEvents: 'none',
-                    zIndex: 50,
-                  }}
-                />
                 <SolutionsList />
                 {pipeData && pipeData.length > 0 && (
                   <>

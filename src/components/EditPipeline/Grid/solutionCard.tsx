@@ -54,6 +54,8 @@ const SolutionCard = memo(
     const { pipeData, setPipeData } = useUpdatePipeDataContext()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isOverButtons, setIsOverButtons] = useState(false)
+    const [isTruncated, setIsTruncated] = useState(false)
+    const [showCopied, setShowCopied] = useState(false)
 
     const handleDelete = useCallback(() => {
       const newOrder = pipeData.filter((pipe) => pipe.id !== id)
@@ -99,15 +101,52 @@ const SolutionCard = memo(
           }}
         >
           <CardHeader
+            sx={{
+              display: 'flex',
+              '& .MuiCardHeader-content': { minWidth: 0 },
+              '& .MuiCardHeader-action': {
+                margin: 0,
+                alignSelf: 'center',
+                marginLeft: 'auto',
+                flexShrink: 0,
+              },
+            }}
             title={
-              <Typography
-                data-testid="solution-name"
-                variant="h5"
-                noWrap
-                sx={{ fontSize: '1.4em', whiteSpace: 'nowrap' }}
+              <Tooltip
+                open={showCopied}
+                title={showCopied ? 'Copied!' : `${solution.solutionName}`}
+                arrow
+                placement="top"
+                PopperProps={{
+                  onClick: () => {
+                    navigator.clipboard.writeText(solution.solutionName)
+                    setShowCopied(true)
+                    setTimeout(() => setShowCopied(false), 1000)
+                  },
+                  sx: {
+                    display: isTruncated || showCopied ? 'block' : 'none',
+                    cursor: 'pointer',
+                  },
+                }}
               >
-                {`${index}. ${solution.solutionName}`}
-              </Typography>
+                <Typography
+                  data-testid="solution-name"
+                  variant="h5"
+                  noWrap
+                  sx={{
+                    fontSize: '1.4rem',
+                    width: '100%',
+                  }}
+                  ref={(el) => {
+                    if (el) {
+                      setIsTruncated(el.scrollWidth > el.clientWidth)
+                      el.setAttribute('data-truncated', isTruncated.toString())
+                    }
+                  }}
+                >
+                  {`${index}. ${solution.solutionName}`}
+                </Typography>
+              </Tooltip>
             }
             action={
               <>

@@ -96,8 +96,8 @@ const SolutionCard = memo(
           sx={{
             height: '100%',
             borderRadius: '0px 0px 30px 30px',
-            display: activeId?.localeCompare(id) !== 0 ? 'flex' : 'none',
             flexDirection: 'column',
+            opacity: activeId?.localeCompare(id) !== 0 ? 1 : 0,
           }}
         >
           <CardHeader

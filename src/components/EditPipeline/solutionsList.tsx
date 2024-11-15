@@ -12,8 +12,8 @@ import {
   Select,
   Tooltip,
   Link,
-  Box,
 } from '@mui/material'
+import HelpIcon from '@mui/icons-material/Help'
 import SolutionsModal from './Modal/solutionsModal'
 import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
@@ -45,8 +45,39 @@ const SolutionsList = () => {
       <CardHeader title="Search for Solutions" />
       <Divider />
       <CardContent>
-        <Typography variant="body1" component="div">
+        <Typography
+          variant="body1"
+          component="div"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
           Pick a solution from the dropdown menu.
+          <Link
+            color="primary"
+            href="/manage"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Tooltip
+              title={
+                <Typography fontSize=".75rem">
+                  <b>Need help?</b>
+                  <br /> Find descriptions for
+                  <br />
+                  these solutions on our
+                  <br />
+                  documentation page
+                </Typography>
+              }
+              arrow
+              placement="right"
+              sx={{ display: 'flex', alignItems: 'center' }}
+            >
+              <HelpIcon
+                color="primary"
+                sx={{ marginLeft: 1, display: 'flex', alignSelf: 'center' }}
+              />
+            </Tooltip>
+          </Link>
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
           {Object.keys(solutionsArray).length > 0 ? (
@@ -82,17 +113,6 @@ const SolutionsList = () => {
                     title={
                       <Typography>
                         {(solution as { description: string }).description}
-                        <Box mt={2}>
-                          <Link
-                            color="inherit"
-                            sx={{ textTransform: 'none' }}
-                            href="/manage"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            (Click here for more information)
-                          </Link>
-                        </Box>
                       </Typography>
                     }
                     arrow

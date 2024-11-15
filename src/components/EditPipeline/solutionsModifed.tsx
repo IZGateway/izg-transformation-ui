@@ -6,6 +6,7 @@ import {
   Collapse,
   Alert,
   AlertTitle,
+  Tooltip,
 } from '@mui/material'
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
@@ -83,10 +84,10 @@ const SolutionsModified = ({ handleSave }) => {
         >
           <AlertTitle>
             {severity === 'success'
-              ? 'Pipeline has been saved successfully'
+              ? 'Pipeline changes applied!'
               : severity === 'error'
-              ? 'Error! Pipeline failed to save'
-              : 'No changes detected. Pipeline not saved'}
+              ? 'Error! Pipeline failed to apply changes'
+              : 'No changes detected.'}
           </AlertTitle>
         </Alert>
       </Collapse>
@@ -126,16 +127,18 @@ const SolutionsModified = ({ handleSave }) => {
                 Reorder
               </Button>
             )}
-            <Button
-              id="save"
-              data-testid="save-button"
-              color="secondary"
-              variant="contained"
-              sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
-              onClick={onSave}
-            >
-              Save
-            </Button>
+            <Tooltip title="Apply Changes" arrow placement="bottom">
+              <Button
+                id="apply"
+                data-testid="apply-button"
+                color="secondary"
+                variant="contained"
+                sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+                onClick={onSave}
+              >
+                Apply
+              </Button>
+            </Tooltip>
           </Box>
         </CardContent>
       </Card>

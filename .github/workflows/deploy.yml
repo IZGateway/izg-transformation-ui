@@ -6,6 +6,7 @@ on:
     branches:
       - develop
       - 'release/**'
+      - IGDD-1789_APHL_Push
 
 env:
   GITHUB_REGISTRY_PREFIX: ghcr.io
@@ -131,6 +132,42 @@ jobs:
           tags: |
             ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  build-and-push-aphl:
+    name: "Push Image To APHL"
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+    needs: [ code-quality-check, generate-release-timestamp ]
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      repository-projects: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Cache Next.js build
+        uses: actions/cache@v3
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-nextjs-
+
+      - name: Configure APHL AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.AUSTIN_APHL_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AUSTIN_APHL_AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AUSTIN_APHL_AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Login to the APHL Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
   deploy-dev:
     name: Deploy to Dev AWS environment

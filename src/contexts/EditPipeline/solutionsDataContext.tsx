@@ -4,10 +4,6 @@ type SolutionsDataContextType = {
   solutionsData: Solution[]
 }
 
-type OperationGroup = {
-  preconditions: Precondition[] | null
-}
-
 const SolutionsDataContext = createContext<
   SolutionsDataContextType | undefined
 >(undefined)
@@ -47,4 +43,8 @@ export type Precondition = {
   dataPath: string
   comparisonValue?: string
   regex?: string
+}
+
+export type OperationGroup = {
+  preconditions: Precondition[] | null
 }

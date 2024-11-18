@@ -6,7 +6,6 @@ on:
     branches:
       - develop
       - 'release/**'
-      - IGDD-1789_APHL_Push
 
 env:
   GITHUB_REGISTRY_PREFIX: ghcr.io
@@ -136,7 +135,7 @@ jobs:
   build-and-push-aphl:
     name: "Push Image To APHL"
     runs-on: ubuntu-latest
-    if: ${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+    if: ${{ contains(github.ref, 'refs/heads/release/') }}
     needs: [ code-quality-check, generate-release-timestamp ]
     permissions:
       contents: write
@@ -160,9 +159,8 @@ jobs:
       - name: Configure AWS credentials (APHL)
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ secrets.AUSTIN_APHL_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AUSTIN_APHL_AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AUSTIN_APHL_AWS_SESSION_TOKEN }}
+          aws-access-key-id: ${{ secrets.APHL_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APHL_AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Login to Amazon ECR (APHL)
@@ -174,10 +172,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.AUSTIN_APHL_ECR_REGISTRY }}/${{ secrets.AUSTIN_APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+            ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
           tags: |
             type=raw,value=izg-transformation-ui_${{ needs.generate-release-timestamp.outputs.releaseDate }}
-            type=raw,value=izg-transformation-ui_release,enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+            type=raw,value=izg-transformation-ui_release,enable=${{ contains(github.ref, 'refs/heads/release/') }}
             type=raw,value=izg-transformation-ui_snapshot,enable=${{ github.ref == 'refs/heads/main' }}
           flavor: |
             latest=true

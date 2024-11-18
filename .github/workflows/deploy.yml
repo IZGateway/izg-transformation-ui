@@ -157,7 +157,7 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
             ${{ runner.os }}-nextjs-
 
-      - name: Configure APHL AWS credentials
+      - name: Configure AWS credentials (APHL)
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.AUSTIN_APHL_AWS_ACCESS_KEY_ID }}
@@ -165,9 +165,35 @@ jobs:
           aws-session-token: ${{ secrets.AUSTIN_APHL_AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      - name: Login to the APHL Amazon ECR
-        id: login-ecr
+      - name: Login to Amazon ECR (APHL)
+        id: login_ecr_aphl
         uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Docker Metadata (APHL)
+        id: docker_meta_aphl
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ secrets.AUSTIN_APHL_ECR_REGISTRY }}/${{ secrets.AUSTIN_APHL_ECR_REPOSITORY }}/izg-transformation-ui_,enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+          tags: |
+            type=raw,value=${{ needs.generate-release-timestamp.outputs.releaseDate }}
+            type=raw,value=release,enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+            type=raw,value=snapshot,enable=${{ github.ref == 'refs/heads/main' }}
+          flavor: |
+            latest=true
+
+      - name: Build and push Docker Xform Console image
+        id: docker_build_aphl
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          file: Dockerfile
+          build-args: |
+            BUILD_ID=${{ needs.generate-release-timestamp.outputs.releaseDate }}
+          push: true
+          tags: |
+            ${{ steps.docker_meta_aphl.outputs.tags }}
+          labels: ${{ steps.docker_meta_aphl.outputs.labels }}
 
   deploy-dev:
     name: Deploy to Dev AWS environment

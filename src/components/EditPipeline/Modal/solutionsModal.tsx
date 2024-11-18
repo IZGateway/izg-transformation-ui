@@ -19,20 +19,33 @@ import { transformPreconditions, useFormattedPreconditions } from './utils'
 import { usePreconditionContext } from '../../../contexts/EditPipeline/preconditionContext'
 import { useReorderContext } from '../../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updatePipeDataContext'
+import { Solution } from '../../../contexts/EditPipeline/solutionsDataContext'
+
+interface SolutionsModalProps {
+  selectedSolution: Solution
+  isNewSolution?: boolean
+  initialHasPreconditions?: boolean
+  existingPreconditions?: Array<{ [key: string]: string }>
+  setOpen: (open: boolean) => void
+  open: boolean
+}
 
 const SolutionsModal = ({
   selectedSolution,
   isNewSolution,
+  initialHasPreconditions,
   existingPreconditions = [{ id: '', method: '', value: '' }],
   setOpen,
   open,
-}) => {
+}: SolutionsModalProps) => {
   const { preconditionsData, preconditionMethodsData } =
     usePreconditionContext()
   const { pipeData, tempPipeData, setPipeData, setTempPipeData } =
     useUpdatePipeDataContext()
   const { setIsReorder } = useReorderContext()
-  const [hasPreconditions, setHasPreconditions] = useState(!isNewSolution)
+  const [hasPreconditions, setHasPreconditions] = useState(
+    initialHasPreconditions
+)
   const [preconditions, setPreconditions] = useState(existingPreconditions)
 
   const formattedPreconditions = useFormattedPreconditions(

@@ -17,6 +17,7 @@ import SolutionsModal from '../Modal/solutionsModal'
 import { useReorderContext } from '../../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updatePipeDataContext'
 import styles from './draggable.module.css'
+import { OperationGroup } from '../../../contexts/EditPipeline/solutionsDataContext'
 
 interface SolutionCardProps {
   id: string
@@ -24,7 +25,9 @@ interface SolutionCardProps {
     id: string
     solutionName: string
     description: string
-    requestOperations: Array<object>
+    requestOperations: OperationGroup[]
+    version: string
+    active: boolean
   }
   index: number
   preconditions: Array<{
@@ -61,11 +64,13 @@ const SolutionCard = memo(
       const newOrder = pipeData.filter((pipe) => pipe.id !== id)
       setPipeData(newOrder)
     }, [id, pipeData, setPipeData])
-    const formattedPreconditions = preconditions.map((precondition) => ({
-      id: precondition.id,
-      method: precondition.method,
-      value: precondition.comparisonValue || '',
-    }))
+    const formattedPreconditions = preconditions?.length
+      ? preconditions.map((precondition) => ({
+          id: precondition.id,
+          method: precondition.method,
+          value: precondition.comparisonValue || '',
+        }))
+      : undefined
 
     const handleButtonsHover = useCallback((isOver: boolean) => {
       setIsOverButtons(isOver)
@@ -191,7 +196,8 @@ const SolutionCard = memo(
         {isModalOpen && (
           <SolutionsModal
             selectedSolution={solution}
-            isNewSolution={preconditions.length === 0}
+            isNewSolution={false}
+            initialHasPreconditions={formattedPreconditions?.length > 0}
             existingPreconditions={formattedPreconditions}
             setOpen={setIsModalOpen}
             open={isModalOpen}

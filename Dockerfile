@@ -1,9 +1,9 @@
-FROM node:alpine AS deps
+FROM node:21-alpine3.20 AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --force
 
-FROM node:alpine AS builder
+FROM node:21-alpine3.20 AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

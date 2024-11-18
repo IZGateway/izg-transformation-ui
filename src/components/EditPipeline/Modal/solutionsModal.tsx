@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react'
+import { isEqual } from 'lodash'
 import {
   Box,
   Button,
@@ -40,12 +41,11 @@ const SolutionsModal = ({
 }: SolutionsModalProps) => {
   const { preconditionsData, preconditionMethodsData } =
     usePreconditionContext()
-  const { pipeData, tempPipeData, setPipeData, setTempPipeData } =
-    useUpdatePipeDataContext()
+  const { pipeData, setPipeData, setTempPipeData } = useUpdatePipeDataContext()
   const { setIsReorder } = useReorderContext()
   const [hasPreconditions, setHasPreconditions] = useState(
     initialHasPreconditions
-)
+  )
   const [preconditions, setPreconditions] = useState(existingPreconditions)
 
   const formattedPreconditions = useFormattedPreconditions(
@@ -97,12 +97,12 @@ const SolutionsModal = ({
             : solution
         )
 
-    setOpen(false)
-    setPipeData(newPipeData)
-    if (!tempPipeData) {
+    if (!isEqual(newPipeData, pipeData)) {
       setTempPipeData(pipeData)
+      setPipeData(newPipeData)
+      setIsReorder(true)
     }
-    setIsReorder(true)
+    setOpen(false)
   }
 
   const handleClose = () => {
@@ -182,6 +182,7 @@ const SolutionsModal = ({
                 }}
                 preconditionMethodsData={preconditionMethodsData}
                 preconditionsData={preconditionsData}
+                setHasPreconditions={setHasPreconditions}
               />
             )}
           </FormControl>

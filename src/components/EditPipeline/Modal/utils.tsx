@@ -14,9 +14,16 @@ export const updatePrecondition = (
   })
 }
 
-export const removePrecondition = (index, preconditions, setPreconditions) => {
+export const removePrecondition = (
+  index,
+  preconditions,
+  setPreconditions,
+  setHasPreconditions
+) => {
   const newPreconditions = preconditions.filter((_, i) => i !== index)
-  setPreconditions(newPreconditions)
+  newPreconditions.length > 0
+    ? setPreconditions(newPreconditions)
+    : setHasPreconditions(false)
 }
 
 export const transformPreconditions = (

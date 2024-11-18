@@ -19,6 +19,7 @@ const PreconditionsSection = ({
   setPreconditions,
   preconditionMethodsData,
   preconditionsData,
+  setHasPreconditions,
 }) => {
   const renderFormControl = (index, field, value, label, data) => (
     <FormControl
@@ -97,7 +98,12 @@ const PreconditionsSection = ({
               <IconButton
                 data-testid={`delete-precondition-button-${index}`}
                 onClick={() =>
-                  removePrecondition(index, preconditions, setPreconditions)
+                  removePrecondition(
+                    index,
+                    preconditions,
+                    setPreconditions,
+                    setHasPreconditions
+                  )
                 }
                 aria-label="delete"
                 color="error"

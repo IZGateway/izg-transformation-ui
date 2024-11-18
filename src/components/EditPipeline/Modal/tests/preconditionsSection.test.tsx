@@ -2,6 +2,8 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import PreconditionsSection from '../preconditionsSection'
 
+const mockSetHasPreconditions = jest.fn()
+
 const mockPreconditions = [
   { id: 'field1', method: 'equals', value: 'value1' },
   { id: 'field2', method: 'exists', value: '' },
@@ -23,16 +25,19 @@ const mockPreconditionMethodsData = [
 const mockSetPreconditions = jest.fn()
 
 describe('PreconditionsSection', () => {
-  it('renders preconditions correctly', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
     render(
       <PreconditionsSection
         preconditions={mockPreconditions}
         setPreconditions={mockSetPreconditions}
         preconditionMethodsData={mockPreconditionMethodsData}
         preconditionsData={mockPreconditionsData}
+        setHasPreconditions={mockSetHasPreconditions}
       />
     )
-
+  })
+  it('renders preconditions correctly', () => {
     expect(
       screen.getByTestId('precondition-form-control-Field-0')
     ).toBeInTheDocument()
@@ -61,15 +66,6 @@ describe('PreconditionsSection', () => {
   })
 
   it('disables value input for exists and not_exists methods', () => {
-    render(
-      <PreconditionsSection
-        preconditions={mockPreconditions}
-        setPreconditions={mockSetPreconditions}
-        preconditionMethodsData={mockPreconditionMethodsData}
-        preconditionsData={mockPreconditionsData}
-      />
-    )
-
     const valueInput1 = screen
       .getByTestId('precondition-form-control-value-0')
       .querySelector('input')
@@ -82,14 +78,6 @@ describe('PreconditionsSection', () => {
   })
 
   it('calls setPreconditions when a field is changed', async () => {
-    render(
-      <PreconditionsSection
-        preconditions={mockPreconditions}
-        setPreconditions={mockSetPreconditions}
-        preconditionMethodsData={mockPreconditionMethodsData}
-        preconditionsData={mockPreconditionsData}
-      />
-    )
     const valueInput = screen.getByRole('textbox', {
       name: 'Value',
     })
@@ -99,15 +87,6 @@ describe('PreconditionsSection', () => {
   })
 
   it('calls setPreconditions when delete button is clicked', () => {
-    render(
-      <PreconditionsSection
-        preconditions={mockPreconditions}
-        setPreconditions={mockSetPreconditions}
-        preconditionMethodsData={mockPreconditionMethodsData}
-        preconditionsData={mockPreconditionsData}
-      />
-    )
-
     const deleteButton = screen.getByTestId('delete-precondition-button-0')
     fireEvent.click(deleteButton)
 

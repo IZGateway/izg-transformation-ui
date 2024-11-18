@@ -10,6 +10,9 @@ const mockSelectedSolution = {
   id: '1',
   solutionName: 'Test Solution',
   description: 'This is a test solution',
+  version: '1.0',
+  active: true,
+  requestOperations: [],
 }
 
 const mockPreconditionsData = {
@@ -129,6 +132,7 @@ describe('SolutionsModal', () => {
             <SolutionsModal
               selectedSolution={mockSelectedSolution}
               isNewSolution={false}
+              initialHasPreconditions={true}
               existingPreconditions={mockPreconditionsData.data}
               setOpen={jest.fn()}
               open={true}

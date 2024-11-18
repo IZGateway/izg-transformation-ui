@@ -51,6 +51,8 @@ const mockSolution = {
   id: 'solution1',
   solutionName: 'Test Solution',
   description: 'This is a test solution',
+  version: '1.0',
+  active: true,
   requestOperations: [],
 }
 

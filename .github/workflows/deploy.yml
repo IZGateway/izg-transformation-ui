@@ -174,11 +174,11 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.AUSTIN_APHL_ECR_REGISTRY }}/${{ secrets.AUSTIN_APHL_ECR_REPOSITORY }}/izg-transformation-ui_,enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+            ${{ secrets.AUSTIN_APHL_ECR_REGISTRY }}/${{ secrets.AUSTIN_APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
           tags: |
-            type=raw,value=${{ needs.generate-release-timestamp.outputs.releaseDate }}
-            type=raw,value=release,enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
-            type=raw,value=snapshot,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=izg-transformation-ui_${{ needs.generate-release-timestamp.outputs.releaseDate }}
+            type=raw,value=izg-transformation-ui_release,enable=${{ contains(github.ref, 'refs/heads/release/') || github.ref == 'refs/heads/IGDD-1789_APHL_Push' }}
+            type=raw,value=izg-transformation-ui_snapshot,enable=${{ github.ref == 'refs/heads/main' }}
           flavor: |
             latest=true
 

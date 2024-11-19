@@ -278,7 +278,7 @@ const EditPipeline = ({ orgData }) => {
                     top: '0',
                     left: '0',
                     right: '1em',
-                    height: '150px',
+                    height: '5em',
                     background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
                     opacity: isScrollable ? (showTopGradient ? 0 : 1) : 0,
                     transition: showTopGradient
@@ -343,7 +343,7 @@ const EditPipeline = ({ orgData }) => {
                   bottom: 0,
                   left: 0,
                   right: '1em',
-                  height: '150px',
+                  height: '5em',
                   background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 1) 0%,rgb(from ${palette.background} r g b / 0) 100%)`,
                   opacity: showBottomGradient && isScrollable ? 1 : 0,
                   transition: showBottomGradient

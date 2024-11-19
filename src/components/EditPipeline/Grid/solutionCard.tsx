@@ -58,7 +58,6 @@ const SolutionCard = memo(
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isOverButtons, setIsOverButtons] = useState(false)
     const [isTruncated, setIsTruncated] = useState(false)
-    const [showCopied, setShowCopied] = useState(false)
 
     const handleDelete = useCallback(() => {
       const newOrder = pipeData.filter((pipe) => pipe.id !== id)
@@ -95,7 +94,7 @@ const SolutionCard = memo(
         {...(isReorder &&
           !isOverButtons &&
           !isModalOpen && { ...attributes, ...listeners })}
-        sx={{ height: '100%' }}
+        sx={{ height: '100%', cursor: isReorder ? 'grab' : 'auto' }}
       >
         <Card
           sx={{
@@ -118,21 +117,10 @@ const SolutionCard = memo(
             }}
             title={
               <Tooltip
-                open={showCopied}
-                title={showCopied ? 'Copied!' : `${solution.solutionName}`}
+                title={solution.solutionName}
                 arrow
                 placement="top"
-                PopperProps={{
-                  onClick: () => {
-                    navigator.clipboard.writeText(solution.solutionName)
-                    setShowCopied(true)
-                    setTimeout(() => setShowCopied(false), 1000)
-                  },
-                  sx: {
-                    display: isTruncated || showCopied ? 'block' : 'none',
-                    cursor: 'pointer',
-                  },
-                }}
+                open={isTruncated ? undefined : false}
               >
                 <Typography
                   data-testid="solution-name"
@@ -141,6 +129,19 @@ const SolutionCard = memo(
                   sx={{
                     fontSize: '1.4rem',
                     width: '100%',
+                    position: 'relative',
+                    textOverflow: 'clip',
+                    '&::after': isTruncated && {
+                      content: '""',
+                      position: 'absolute',
+                      right: 0,
+                      top: 0,
+                      height: '100%',
+                      width: '150px',
+                      background:
+                        'linear-gradient(to right, transparent 0%, #ffffff 93%)',
+                      pointerEvents: 'none',
+                    },
                   }}
                   ref={(el) => {
                     if (el) {

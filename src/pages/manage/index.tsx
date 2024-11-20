@@ -25,7 +25,7 @@ export const getServerSideProps = async () => {
   const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
   try {
     const organizationsResponse = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=10`
+      `${TS_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=1000`
     )
     const organizationsData = organizationsResponse.data
     const pipelineResponse = await fetchDataFromEndpoint(

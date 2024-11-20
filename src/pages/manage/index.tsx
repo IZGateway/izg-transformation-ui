@@ -29,7 +29,7 @@ export const getServerSideProps = async () => {
     )
     const organizationsData = organizationsResponse.data
     const pipelineResponse = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/pipelines`
+      `${TS_ENDPOINT}/api/v1/pipelines?limit=1000`
     )
 
     const pipelineData = pipelineResponse.data

@@ -178,7 +178,7 @@ jobs:
             type=raw,value=izg-transformation-ui_rc_${{ needs.generate-release-timestamp.outputs.releaseDate }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
             type=raw,value=izg-transformation-ui_release_${{ needs.generate-release-timestamp.outputs.releaseDate }},enable=${{ github.ref == 'refs/heads/main' }}
           flavor: |
-            latest=true
+            latest=false
 
       - name: Build and push Docker Xform Console image
         id: docker_build_aphl

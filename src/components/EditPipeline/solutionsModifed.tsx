@@ -11,6 +11,7 @@ import {
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 import { useState } from 'react'
+import { isEqual } from 'lodash'
 
 const SolutionsModified = ({ handleSave }) => {
   const { isReorder, setIsReorder } = useReorderContext()
@@ -34,7 +35,7 @@ const SolutionsModified = ({ handleSave }) => {
 
   const onSave = async () => {
     try {
-      if (tempPipeData === pipeData || !isReorder) {
+      if (isEqual(tempPipeData, pipeData) || !isReorder) {
         setIsReorder(false)
         setSeverity('info')
         return

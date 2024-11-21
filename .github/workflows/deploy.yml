@@ -133,10 +133,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   build-and-push-aphl:
-    name: "Push Image To APHL"
+    name: 'Push Image To APHL'
     runs-on: ubuntu-latest
     if: ${{ contains(github.ref, 'refs/heads/release/') }}
-    needs: [ code-quality-check, generate-release-timestamp ]
+    needs: [code-quality-check, generate-release-timestamp]
     permissions:
       contents: write
       packages: write
@@ -175,8 +175,8 @@ jobs:
             ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
           tags: |
             type=raw,value=izg-transformation-ui_${{ needs.generate-release-timestamp.outputs.releaseDate }}
-            type=raw,value=izg-transformation-ui_release,enable=${{ contains(github.ref, 'refs/heads/release/') }}
-            type=raw,value=izg-transformation-ui_snapshot,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=izg-transformation-ui_rc_${{ needs.generate-release-timestamp.outputs.releaseDate }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
+            type=raw,value=izg-transformation-ui_release_${{ needs.generate-release-timestamp.outputs.releaseDate }},enable=${{ github.ref == 'refs/heads/main' }}
           flavor: |
             latest=true
 

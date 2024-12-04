@@ -206,4 +206,4 @@ jobs:
           aws-region: us-east-1
       - name: Deploy to Dev AWS
         run: |
-          aws ecs update-service --cluster izgateway-transformation-console --service izgateway-transform-console --force-new-deployment --enable-execute-command | jq ".service.deployments[].id"
+          aws ecs update-service --cluster xform-console-dev --service xform-console-dev --force-new-deployment --enable-execute-command | jq ".service.deployments[].id"

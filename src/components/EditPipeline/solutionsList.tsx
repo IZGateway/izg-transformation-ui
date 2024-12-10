@@ -21,9 +21,12 @@ import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipe
 const SolutionsList = () => {
   const [selectItem, setSelectItem] = useState<string>('')
   const { solutionsData } = useSolutionsDataContext()
-  const { pipeData } = useUpdatePipeDataContext()
+  const { pipeData, tempPipeData } = useUpdatePipeDataContext()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const solutionsArray = CreateSolutionsArray(solutionsData, pipeData)
+  const solutionsArray = CreateSolutionsArray(
+    solutionsData,
+    tempPipeData || pipeData
+  )
   const selectedSolution = solutionsArray[selectItem] || {
     description: '',
     id: '',

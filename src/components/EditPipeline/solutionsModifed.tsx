@@ -11,10 +11,11 @@ import {
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 import { useState } from 'react'
+import { isEqual } from 'lodash'
 
 const SolutionsModified = ({ handleSave }) => {
   const { isReorder, setIsReorder } = useReorderContext()
-  const { pipeData, setPipeData, tempPipeData, setTempPipeData } =
+  const { pipeData, tempPipeData, setPipeData, setTempPipeData } =
     useUpdatePipeDataContext()
   const [showAlert, setShowAlert] = useState(false)
   const [severity, setSeverity] = useState<'success' | 'error' | 'info'>(
@@ -27,22 +28,24 @@ const SolutionsModified = ({ handleSave }) => {
   }
 
   const onCancel = () => {
-    setPipeData(tempPipeData)
     setTempPipeData(null)
     setIsReorder(false)
   }
 
   const onSave = async () => {
     try {
-      if (tempPipeData === pipeData || !isReorder) {
+      if (isEqual(tempPipeData, pipeData) || !isReorder) {
         setIsReorder(false)
         setSeverity('info')
         return
       }
 
+      setPipeData(tempPipeData)
+
       const response = await handleSave()
       if (response.success) {
         setIsReorder(false)
+        setTempPipeData(null)
         setSeverity('success')
       } else {
         console.error('Save failed:', response.error)

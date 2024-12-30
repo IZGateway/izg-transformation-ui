@@ -21,8 +21,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // IZGATEWAY
   const izgwStatus = async () => {
     let izgwHealthCheck = {}
-    const IZG_HEALTHCHECK_ENDPOINT =
-      process.env.IZG_HEALTHCHECK_URL || 'unknown'
+    const IZG_HEALTHCHECK_ENDPOINT = process.env.TS_HEALTHCHECK_URL || 'unknown'
     const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || undefined
     const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || undefined
     const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || undefined

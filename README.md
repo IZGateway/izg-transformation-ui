@@ -1,6 +1,6 @@
-# izg-configuration-console
+# izg-xform-console
 
-This project contains source code for the IZ Gateway Configuration Console. This is written using the following technologies:
+This project contains source code for the IZ Gateway Xform Console. This is written using the following technologies:
 
 - NodeJS
 - NextJS

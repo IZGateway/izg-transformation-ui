@@ -21,8 +21,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // IZGATEWAY
   const izgwStatus = async () => {
     let izgwHealthCheck = {}
-    const XFORM_HEALTHCHECK_ENDPOINT =
-      process.env.XFORM_HEALTHCHECK_URL || 'unknown'
+    const XFORM_SERVICE_HEALTHCHECK_ENDPOINT =
+      process.env.XFORM_SERVICE_HEALTHCHECK_URL || 'unknown'
     const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || undefined
     const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || undefined
     const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || undefined
@@ -34,7 +34,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       keepAlive: true,
     }
     const responseData = await axios
-      .get(XFORM_HEALTHCHECK_ENDPOINT, {
+      .get(XFORM_SERVICE_HEALTHCHECK_ENDPOINT, {
         httpsAgent: new https.Agent(httpsAgentOptions),
         timeout: 30000,
       })
@@ -48,7 +48,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             statusAt: data.statusAt,
             reason: data.lastChangeReason,
             healthy: data.healthy,
-            url: XFORM_HEALTHCHECK_ENDPOINT,
+            url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
           }
         } else {
           izgwHealthCheck = {
@@ -58,7 +58,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             reason: data.lastChangeReason,
             exception: data.lastException,
             healthy: data.healthy,
-            url: XFORM_HEALTHCHECK_ENDPOINT,
+            url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
           }
         }
         return izgwHealthCheck
@@ -69,7 +69,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           status: 'unable to connect',
           statusAt: new Date(Date.now()).toISOString(),
           reason: error.message,
-          url: XFORM_HEALTHCHECK_ENDPOINT,
+          url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
         }
         return izgwHealthCheck
       })

@@ -35,7 +35,7 @@ IZG_ENDPOINT_CRT_PATH=<crt cert file path>
 IZG_ENDPOINT_KEY_PATH=<private key file path>
 IZG_ENDPOINT_PASSCODE=<passcode for certs>
 XFORM_ENDPOINT=<server endpoint for transformation service api>
-XFORM_HEALTHCHECK_URL=<server endpoint for healthcheck API>
+XFORM_SERVICE_HEALTHCHECK_URL=<server endpoint for healthcheck API>
 ```
 
 ### **Step 2: Install Dependencies**

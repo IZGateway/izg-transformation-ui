@@ -22,14 +22,14 @@ const Manage = (
 export default Manage
 
 export const getServerSideProps = async () => {
-  const XFORM_ENDPOINT = process.env.XFORM_ENDPOINT || ''
+  const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
   try {
     const organizationsResponse = await fetchDataFromEndpoint(
-      `${XFORM_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=1000`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=1000`
     )
     const organizationsData = organizationsResponse.data
     const pipelineResponse = await fetchDataFromEndpoint(
-      `${XFORM_ENDPOINT}/api/v1/pipelines?limit=1000`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines?limit=1000`
     )
 
     const pipelineData = pipelineResponse.data

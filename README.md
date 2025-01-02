@@ -34,7 +34,7 @@ NEXTAUTH_DEBUG=true
 XFORM_SERVICE_ENDPOINT_CRT_PATH=<crt cert file path>
 XFORM_SERVICE_ENDPOINT_KEY_PATH=<private key file path>
 XFORM_SERVICE_ENDPOINT_PASSCODE=<passcode for certs>
-XFORM_ENDPOINT=<server endpoint for transformation service api>
+XFORM_SERVICE_ENDPOINT=<server endpoint for transformation service api>
 XFORM_SERVICE_HEALTHCHECK_URL=<server endpoint for healthcheck API>
 ```
 

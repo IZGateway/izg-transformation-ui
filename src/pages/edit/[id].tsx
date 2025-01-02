@@ -49,22 +49,22 @@ const Edit = (props) => {
 export default Edit
 
 export const getServerSideProps = async (context) => {
-  const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
+  const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
   try {
     const pipelineData = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/pipelines/${context.params.id}`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines/${context.params.id}`
     )
     const organizationData = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/organizations/${pipelineData.organizationId}`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/organizations/${pipelineData.organizationId}`
     )
     const solutionsData = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/solutions`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions`
     )
     const preconditionsData = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/preconditions/fields`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/preconditions/fields`
     )
     const preconditionMethodsData = await fetchDataFromEndpoint(
-      `${TS_ENDPOINT}/api/v1/preconditions/available`
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/preconditions/available`
     )
     return {
       props: {

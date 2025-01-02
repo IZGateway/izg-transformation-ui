@@ -31,10 +31,11 @@ OKTA_CLIENT_SECRET=<Okta secret>
 NEXT_PUBLIC_OKTA_ISSUER=<the URL for the Okta service>
 NEXT_PUBLIC_GA_ID=<id>
 NEXTAUTH_DEBUG=true
-IZG_ENDPOINT_CRT_PATH=<crt cert file path>
-IZG_ENDPOINT_KEY_PATH=<private key file path>
-IZG_ENDPOINT_PASSCODE=<passcode for certs>
-TS_ENDPOINT=<server endpoint for transformation service api>
+XFORM_SERVICE_ENDPOINT_CRT_PATH=<crt cert file path>
+XFORM_SERVICE_ENDPOINT_KEY_PATH=<private key file path>
+XFORM_SERVICE_ENDPOINT_PASSCODE=<passcode for certs>
+XFORM_SERVICE_ENDPOINT=<server endpoint for transformation service api>
+XFORM_SERVICE_HEALTHCHECK_URL=<server endpoint for healthcheck API>
 ```
 
 ### **Step 2: Install Dependencies**

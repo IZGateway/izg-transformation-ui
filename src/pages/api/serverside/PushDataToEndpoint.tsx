@@ -4,14 +4,23 @@ import axios from 'axios'
 import https from 'https'
 
 const pushDataToEndpoint = async (endpoint, data) => {
-  const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || ''
-  const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || ''
-  const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || ''
+  const XFORM_SERVICE_ENDPOINT_CRT_PATH =
+    process.env.XFORM_SERVICE_ENDPOINT_CRT_PATH || ''
+  const XFORM_SERVICE_ENDPOINT_KEY_PATH =
+    process.env.XFORM_SERVICE_ENDPOINT_KEY_PATH || ''
+  const XFORM_SERVICE_ENDPOINT_PASSCODE =
+    process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || ''
 
   const httpsAgentOptions = {
-    cert: fs.readFileSync(path.resolve(IZG_ENDPOINT_CRT_PATH), 'utf-8'),
-    key: fs.readFileSync(path.resolve(IZG_ENDPOINT_KEY_PATH), 'utf-8'),
-    passphrase: IZG_ENDPOINT_PASSCODE,
+    cert: fs.readFileSync(
+      path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
+      'utf-8'
+    ),
+    key: fs.readFileSync(
+      path.resolve(XFORM_SERVICE_ENDPOINT_KEY_PATH),
+      'utf-8'
+    ),
+    passphrase: XFORM_SERVICE_ENDPOINT_PASSCODE,
     rejectUnauthorized: false,
   }
 

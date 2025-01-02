@@ -16,62 +16,71 @@ import axios from 'axios'
  */
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const deepHealthCheckResults = []
-  const checkConnections = ['OKTA', 'IZG']
+  const checkConnections = ['OKTA', 'XFORMSERVICE']
 
-  // IZGATEWAY
-  const izgwStatus = async () => {
-    let izgwHealthCheck = {}
-    const IZG_HEALTHCHECK_ENDPOINT =
-      process.env.IZG_HEALTHCHECK_URL || 'unknown'
-    const IZG_ENDPOINT_CRT_PATH = process.env.IZG_ENDPOINT_CRT_PATH || undefined
-    const IZG_ENDPOINT_KEY_PATH = process.env.IZG_ENDPOINT_KEY_PATH || undefined
-    const IZG_ENDPOINT_PASSCODE = process.env.IZG_ENDPOINT_PASSCODE || undefined
+  // XFORM SERVICE
+  const xformServiceStatus = async () => {
+    let xformServiceHealthCheck = {}
+    const XFORM_SERVICE_HEALTHCHECK_ENDPOINT =
+      process.env.XFORM_SERVICE_HEALTHCHECK_URL || 'unknown'
+    const XFORM_SERVICE_ENDPOINT_CRT_PATH =
+      process.env.XFORM_SERVICE_ENDPOINT_CRT_PATH || undefined
+    const XFORM_SERVICE_ENDPOINT_KEY_PATH =
+      process.env.XFORM_SERVICE_ENDPOINT_KEY_PATH || undefined
+    const XFORM_SERVICE_ENDPOINT_PASSCODE =
+      process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || undefined
     const httpsAgentOptions = {
-      cert: fs.readFileSync(path.resolve(IZG_ENDPOINT_CRT_PATH), 'utf-8'),
-      key: fs.readFileSync(path.resolve(IZG_ENDPOINT_KEY_PATH), 'utf-8'),
-      passphrase: IZG_ENDPOINT_PASSCODE,
+      cert: fs.readFileSync(
+        path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
+        'utf-8'
+      ),
+      key: fs.readFileSync(
+        path.resolve(XFORM_SERVICE_ENDPOINT_KEY_PATH),
+        'utf-8'
+      ),
+      passphrase: XFORM_SERVICE_ENDPOINT_PASSCODE,
       rejectUnauthorized: false,
       keepAlive: true,
     }
     const responseData = await axios
-      .get(IZG_HEALTHCHECK_ENDPOINT, {
+      .get(XFORM_SERVICE_HEALTHCHECK_ENDPOINT, {
         httpsAgent: new https.Agent(httpsAgentOptions),
         timeout: 30000,
       })
       .then((response) => {
         const data = response.data
-        logger.info('IZG Health Status', { data })
+        logger.info('XFORMSERVICE Health Status', { data })
         if (data.healthy) {
-          izgwHealthCheck = {
-            component: 'IZG',
+          xformServiceHealthCheck = {
+            component: 'XFORMSERVICE',
             status: 'connected',
             statusAt: data.statusAt,
             reason: data.lastChangeReason,
             healthy: data.healthy,
-            url: IZG_HEALTHCHECK_ENDPOINT,
+            url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
           }
         } else {
-          izgwHealthCheck = {
-            component: 'IZG',
+          xformServiceHealthCheck = {
+            component: 'XFORMSERVICE',
             status: 'connected but status not healthy',
             statusAt: data.statusAt,
             reason: data.lastChangeReason,
             exception: data.lastException,
             healthy: data.healthy,
-            url: IZG_HEALTHCHECK_ENDPOINT,
+            url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
           }
         }
-        return izgwHealthCheck
+        return xformServiceHealthCheck
       })
       .catch((error) => {
-        izgwHealthCheck = {
-          component: 'IZG',
+        xformServiceHealthCheck = {
+          component: 'XFORMSERVICE',
           status: 'unable to connect',
           statusAt: new Date(Date.now()).toISOString(),
           reason: error.message,
-          url: IZG_HEALTHCHECK_ENDPOINT,
+          url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
         }
-        return izgwHealthCheck
+        return xformServiceHealthCheck
       })
     return responseData
   }
@@ -80,7 +89,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const oktaStatus = async () => {
     let oktaHealthCheck = {}
     const oktaEndpoint =
-      process.env.OKTA_ISSUER + '/.well-known/openid-configuration' || 'unknown'
+      process.env.NEXT_PUBLIC_OKTA_ISSUER +
+        '/.well-known/openid-configuration' || 'unknown'
     try {
       const response = await fetch(oktaEndpoint)
       const data = await response.json()
@@ -109,9 +119,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     for (const component of checkConnections) {
-      if (component === 'IZG') {
-        const izgwHealthCheck = await izgwStatus()
-        deepHealthCheckResults.push(izgwHealthCheck)
+      if (component === 'XFORMSERVICE') {
+        const xformServiceHealthCheck = await xformServiceStatus()
+        deepHealthCheckResults.push(xformServiceHealthCheck)
       }
       if (component === 'OKTA') {
         const oktaCheck = await oktaStatus()

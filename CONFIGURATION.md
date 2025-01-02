@@ -4,7 +4,7 @@
 | :------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------ | :-----------: | :------: |
 | OKTA_CLIENT_SECRET              | Secret generated when creating a client in Okta. Used for Okta authentication.                                                                          |   undefined   |   true   |
 | OKTA_CLIENT_ID                  | ID for a particular Okta client. Used for Okta authentication.                                                                                          |   undefined   |   true   |
-| OKTA_ISSUER                     | URL to the Okta instance.                                                                                                                               |   undefined   |   true   |
+| NEXT_PUBLIC_OKTA_ISSUER         | URL to the Okta instance.                                                                                                                               |   undefined   |   true   |
 | XFORM_SERVICE_ENDPOINT_CRT_PATH | Certificate used to connect to Xform Service endpoint.                                                                                                  |   undefined   |   true   |
 | XFORM_SERVICE_ENDPOINT_KEY_PATH | Key used with the certificate to connect to Xform Service endpoint.                                                                                     |   undefined   |   true   |
 | XFORM_SERVICE_ENDPOINT_PASSCODE | Passcode in association with the certificate to authorize and connect with Xform Service.                                                               |   undefined   |   true   |

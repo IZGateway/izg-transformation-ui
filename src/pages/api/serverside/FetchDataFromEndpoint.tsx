@@ -3,7 +3,7 @@ import path from 'path'
 import axios from 'axios'
 import https from 'https'
 
-const fetchDataFromEndpoint = async (endpoint) => {
+const fetchDataFromEndpoint = async (endpoint, access_token : string) => {
   const XFORM_SERVICE_ENDPOINT_CRT_PATH =
     process.env.XFORM_SERVICE_ENDPOINT_CRT_PATH || ''
   const XFORM_SERVICE_ENDPOINT_KEY_PATH =
@@ -26,6 +26,10 @@ const fetchDataFromEndpoint = async (endpoint) => {
   try {
     const response = await axios.get(endpoint, {
       httpsAgent: new https.Agent(httpsAgentOptions),
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        'X-Not-Admin': 'true'
+      },
       timeout: 30000,
     })
     return response.data

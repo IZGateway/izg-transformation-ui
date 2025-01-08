@@ -4,7 +4,7 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       XFORM_SERVICE_ENDPOINT_CRT_PATH: ${XFORM_SERVICE_ENDPOINT_CRT_PATH}
       XFORM_SERVICE_ENDPOINT_KEY_PATH: ${XFORM_SERVICE_ENDPOINT_KEY_PATH}
@@ -30,7 +30,7 @@ services:
       context: ./
       dockerfile: ./nginx/Dockerfile
     ports:
-      - 80:80
+      - "80:80"
     networks:
       - izg-shared-network
 

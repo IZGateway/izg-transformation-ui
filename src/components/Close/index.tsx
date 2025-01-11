@@ -16,7 +16,7 @@ const Close = () => {
     <Button
       variant="text"
       color="primary"
-      sx={{ float: 'right', marginTop: -8 }}
+      sx={{ float: 'right', marginTop: '-2rem' }}
       onClick={handleClose}
       id="close"
     >

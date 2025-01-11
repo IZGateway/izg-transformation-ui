@@ -5,7 +5,6 @@ import MuiDrawer from '@mui/material/Drawer'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { signOut } from 'next-auth/react'
-import { useSession } from 'next-auth/react'
 import {
   Collapse,
   styled,
@@ -17,7 +16,6 @@ import {
   ListItemIcon,
   ListItemText,
   Button,
-  Link,
 } from '@mui/material'
 import { menuItems } from './menuItems'
 import palette from '../../styles/theme/palette'
@@ -75,7 +73,6 @@ export type MenuItem = {
 }
 
 const MiniDrawer = () => {
-  const { data: session } = useSession()
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(0)
 

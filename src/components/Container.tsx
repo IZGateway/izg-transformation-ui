@@ -10,7 +10,7 @@ const Container = ({ title, children }: ContainerProps) => {
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content="IZ Gateway Configuratoin Console" />
+        <meta name="description" content="IZ Gateway Xform Console" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {children}

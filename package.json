@@ -6,7 +6,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "start:local-dev": "./start-app-local-docker.sh DEV",
+    "start:local-dev": "./start-app-local-docker.sh --dev",
     "start:local-docker": "./start-app-local-docker.sh",
     "lint": "next lint",
     "lint:fix": "next lint --fix",

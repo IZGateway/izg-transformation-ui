@@ -3,10 +3,11 @@ import NextAuth from 'next-auth'
 import OktaProvider from 'next-auth/providers/okta'
 import logger from '../../../../logger'
 import _ from 'lodash'
+import { getTokenStore } from '../../../lib/tokenStore'
 
-const userInfoEndpoint = `${process.env.OKTA_BASE_URL}${process.env.OKTA_USERINFO_PATH}`
-const isDebugging =
-  (`${process.env.NEXTAUTH_DEBUG}` as unknown as boolean) || false
+const userInfoEndpoint = `${process.env.OKTA_BASE_URL}${process.env.OKTA_ISSUER_PATH}${process.env.OKTA_USERINFO_PATH}`
+const isDebugging = (`${process.env.NEXTAUTH_DEBUG}` as unknown as boolean) || false
+
 export const authOptions = {
   debug: isDebugging,
   providers: [
@@ -19,40 +20,54 @@ export const authOptions = {
     }),
   ],
   session: {
-    maxAge: 30 * 60, // 30 mins
-    jwt: true,
+    maxAge: 30 * 60,
+    jwt: true
   },
   callbacks: {
+
     async session({ session, token }) {
-      if (token) {
-        session.user.access_token = token.access_token
-        // TODO - this is used for checking if user has access to destId's
-        // which we don't have.  Do we need this or jurisdictions?
-        session.user.isAdmin = token?.groups?.includes(
-          process.env.OPERATIONS_GROUP
-        )
-        session.user.jurisdictions = token.jurisdictions
+      return {
+        expires: session.expires,
+        user: {
+          name: session.user.name,
+          email: session.user.email,
+          isAdmin: token?.groups?.includes(process.env.OPERATIONS_GROUP),
+          jurisdictions: token?.jurisdictions
+        }
       }
-      return session
     },
+
     async jwt({ token, user, account, profile, isNewUser, idToken }) {
       if (account) {
-        token.access_token = account.access_token
-        token.groups = profile.groups
-        try {
-          const response = await fetch(userInfoEndpoint, {
-            headers: {
-              Authorization: 'Bearer ' + account.access_token,
-            },
-          })
-          const data = await response.json()
-          token.jurisdictions = data?.jurisdictions?.map((j) => _.lowerCase(j))
-        } catch (err) {
-          logger.error('ERROR FETCHING USER INFO FROM OKTA: ' + err)
+        // Store the access token in server-side map using the user's sub as the key
+        const store = getTokenStore()
+        store.set(token.sub, account.access_token)
+
+        // Don't include access_token in the token at all
+        return {
+          ...token,
+          groups: profile.groups,
+          jurisdictions: await getJurisdictions(account.access_token)
         }
       }
       return token
-    },
-  },
+    }
+  }
 }
+
+async function getJurisdictions(access_token: string) {
+  try {
+    const response = await fetch(userInfoEndpoint, {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    })
+    const data = await response.json()
+    return data?.jurisdictions?.map((j) => _.lowerCase(j))
+  } catch (err) {
+    logger.error('ERROR FETCHING USER INFO FROM OKTA: ' + err)
+    return []
+  }
+}
+
 export default NextAuth(authOptions)

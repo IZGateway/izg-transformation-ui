@@ -2,8 +2,15 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import https from 'https'
+import { getToken } from "next-auth/jwt"
+import { getTokenStore } from '../../../lib/tokenStore'
 
-const fetchDataFromEndpoint = async (endpoint : string, access_token : string) => {
+const fetchWithToken = async (endpoint : string, access_token : unknown) => {
+
+  if (typeof access_token !== 'string') {
+    throw new Error('access_token must be a string')
+  }
+
   const XFORM_SERVICE_ENDPOINT_CRT_PATH =
     process.env.XFORM_SERVICE_ENDPOINT_CRT_PATH || ''
   const XFORM_SERVICE_ENDPOINT_KEY_PATH =
@@ -44,4 +51,21 @@ const fetchDataFromEndpoint = async (endpoint : string, access_token : string) =
     throw new Error(error)
   }
 }
+
+const fetchDataFromEndpoint = async (endpoint: string, request: any) => {
+
+  const token = await getToken({ req: request });
+  if (!token?.sub) {
+    throw new Error('No user ID available');
+  }
+
+  const store = getTokenStore();
+  const access_token = store.get(token.sub);
+  if (!access_token) {
+    throw new Error('No access token available');
+  }
+
+  return fetchWithToken(endpoint, access_token)
+}
+
 export default fetchDataFromEndpoint

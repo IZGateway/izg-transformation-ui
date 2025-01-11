@@ -5,8 +5,6 @@ import Container from '../../components/Container'
 import { InferGetServerSidePropsType } from 'next'
 import AppHeaderBar from '../../components/AppHeader'
 import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
-import { GetServerSidePropsContext } from 'next';
-import { getSession } from 'next-auth/react'
 
 const Manage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -23,21 +21,22 @@ const Manage = (
 
 export default Manage
 
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps = async (context) => {
   const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
-  const session = await getSession({ req: context.req });
   try {
+
     const organizationsResponse = await fetchDataFromEndpoint(
       `${XFORM_SERVICE_ENDPOINT}/api/v1/organizations?includeInactive=false&limit=1000`,
-      session.user.access_token
+      context.req
     )
-    const organizationsData = organizationsResponse.data
-    const pipelineResponse = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines?limit=1000`,
-      session.user.access_token
-    )
+    const organizationsData = await organizationsResponse.data
 
-    const pipelineData = pipelineResponse.data
+    const pipelineResponse = await fetchDataFromEndpoint(
+        `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines?limit=1000`,
+      context.req
+    )
+    const pipelineData = await pipelineResponse.data
+
     const combinedData = combineData(organizationsData, pipelineData)
     return { props: { data: combinedData } }
   } catch (error) {

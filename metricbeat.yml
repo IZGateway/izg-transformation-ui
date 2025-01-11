@@ -28,7 +28,7 @@ output.elasticsearch:
       '${ELASTIC_HOST:https://audacioussearchtest.es.us-east-1.aws.found.io:9243}',
     ] # Set ELASTIC_HOST in environment
   # Set index to izgw-config-console-{tag} datastream for selected environment
-  index: '${ELASTIC_INDEX:izgw-config-console-dev}' # Use izgw-config-console-prod for production
+  index: '${ELASTIC_INDEX:izgw-transform-console-dev}' # Use izgw-config-console-prod for production
   api_key: '${ELASTIC_API_KEY}' # Set ELASTIC_API_KEY in environment
   worker: 2
   allow_older_versions: true

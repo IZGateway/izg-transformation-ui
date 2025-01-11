@@ -5,7 +5,7 @@ import logger from '../../../../logger'
 import _ from 'lodash'
 import { getTokenStore } from '../../../lib/tokenStore'
 
-const userInfoEndpoint = `${process.env.OKTA_BASE_URL}${process.env.OKTA_ISSUER_PATH}${process.env.OKTA_USERINFO_PATH}`
+const userInfoEndpoint = `${process.env.NEXT_PUBLIC_OKTA_ISSUER}${process.env.OKTA_ISSUER_PATH}${process.env.OKTA_USERINFO_PATH}`
 const isDebugging = (`${process.env.NEXTAUTH_DEBUG}` as unknown as boolean) || false
 
 export const authOptions = {
@@ -14,7 +14,7 @@ export const authOptions = {
     OktaProvider({
       clientId: process.env.OKTA_CLIENT_ID,
       clientSecret: process.env.OKTA_CLIENT_SECRET,
-      issuer: `${process.env.OKTA_BASE_URL}${process.env.OKTA_ISSUER_PATH}`,
+      issuer: `${process.env.NEXT_PUBLIC_OKTA_ISSUER}${process.env.OKTA_ISSUER_PATH}`,
       idToken: true,
       authorization: { params: { scope: 'openid email profile' } },
     }),

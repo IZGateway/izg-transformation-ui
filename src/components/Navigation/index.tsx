@@ -197,7 +197,7 @@ const MiniDrawer = () => {
           variant="text"
           onClick={() => {
             signOut().then(() => {
-              return (window.location.href = `${process.env.OKTA_BASE_URL}/login/signout`)
+              return (window.location.href = `${process.env.NEXT_PUBLIC_OKTA_ISSUER}/login/signout`)
             })
           }}
           sx={{

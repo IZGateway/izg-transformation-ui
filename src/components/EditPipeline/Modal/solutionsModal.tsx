@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useCallback, useState, useMemo } from 'react'
 import { isEqual } from 'lodash'
 import {
@@ -108,6 +109,7 @@ const SolutionsModal = ({
 
   useEffect(() => {
     setMounted(true)
+    return () => setMounted(false)
   }, [])
 
   const handleClose = () => {

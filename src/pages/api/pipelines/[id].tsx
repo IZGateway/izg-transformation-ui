@@ -9,12 +9,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { id } = req.query
   const data = req.body
 
-  const TS_ENDPOINT = process.env.TS_ENDPOINT || ''
+  const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
 
   try {
     const updatedPipeData = await pushDataToEndpoint(
-      `${TS_ENDPOINT}/api/v1/pipelines/${id}`,
-      data
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines/${id}`,
+      data,
+      req
     )
     res.status(200).json(updatedPipeData)
   } catch (error) {

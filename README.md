@@ -1,6 +1,6 @@
-# izg-xform-console
+# Xform Console
 
-This project contains source code for the IZ Gateway Xform Console. This is written using the following technologies:
+This project contains source code for Xform Console. This is written using the following technologies:
 
 - NodeJS
 - NextJS
@@ -16,39 +16,30 @@ The following prerequisites must be met for the first-time install and run the a
 - Docker & Docker compose installed
 - Okta account for the localhost client
 
-NOTE: A certificate for connecting to an instance of IZ Gateway is not necessary, however the connection status feature will not function without a certificate. You will see errors in the console but they do not prevent the application from running.
+### Step 1: Create .env file in project root directory
 
-### **Step 1: Create .env and .env.local text files in project root directory**
+Running the application either via npm or via Docker will use the .env file.
 
-NextJS will use values found in the .env.local file. Below is an example of the keys that require values custom to your environment
+_Copy_ the .env.example file in the repository to .env and update.  **DO NOT** edit .env.example.
 
-```
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_URL_INTERNAL=http://localhost:3000
-NEXTAUTH_SECRET=<enter generated secret>
-OKTA_CLIENT_ID=<enter client id>
-OKTA_CLIENT_SECRET=<Okta secret>
-NEXT_PUBLIC_OKTA_ISSUER=<the URL for the Okta service>
-NEXT_PUBLIC_GA_ID=<id>
-NEXTAUTH_DEBUG=true
-IZG_ENDPOINT_CRT_PATH=<crt cert file path>
-IZG_ENDPOINT_KEY_PATH=<private key file path>
-IZG_ENDPOINT_PASSCODE=<passcode for certs>
-TS_ENDPOINT=<server endpoint for transformation service api>
-```
-
-### **Step 2: Install Dependencies**
+### Step 2: Install Dependencies
 
 Install dependencies by running
 
 ```
-npm install
+npm install --force
 ```
 
-### **Step 3: Start local application**
+### Step 3: Start local application
 
-- Runs 'npm run dev' to start the node application on port 3000
+Run
 
-### **After start**
+```bash
+npm run dev -- --port 80
+```
+
+This will start the application on port 80.  The development Okta has redirects setup on http://localhost port 80.
+
+### After start
 
 Navigate to http://localhost:3000 in a browser and you should see the application prompt you for a okta login

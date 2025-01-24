@@ -54,15 +54,15 @@ const SolutionCard = memo(
     const { attributes, listeners, setNodeRef, transform, transition } =
       useSortable({ id })
     const { isReorder } = useReorderContext()
-    const { pipeData, setPipeData } = useUpdatePipeDataContext()
+    const { tempPipeData, setTempPipeData } = useUpdatePipeDataContext()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isOverButtons, setIsOverButtons] = useState(false)
     const [isTruncated, setIsTruncated] = useState(false)
 
     const handleDelete = useCallback(() => {
-      const newOrder = pipeData.filter((pipe) => pipe.id !== id)
-      setPipeData(newOrder)
-    }, [id, pipeData, setPipeData])
+      const newOrder = tempPipeData.filter((pipe) => pipe.id !== id)
+      setTempPipeData(newOrder)
+    }, [id, tempPipeData, setTempPipeData])
     const formattedPreconditions = preconditions?.length
       ? preconditions.map((precondition) => ({
           id: precondition.id,

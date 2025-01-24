@@ -1,5 +1,5 @@
 ---
-name: Config Console PR Code Quality Flow
+name: Xform Console PR Code Quality Flow
 
 on:
   pull_request:

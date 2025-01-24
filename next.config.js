@@ -35,7 +35,7 @@ module.exports = async (phase, { defaultConfig }) => {
     webpack(config, { nextRuntime, isServer, dev }) {
       // Disable caching for production builds
       if (!dev) {
-        config.cache = false;
+        config.cache = false
       }
 
       if (typeof nextRuntime === 'undefined') {
@@ -66,21 +66,21 @@ module.exports = async (phase, { defaultConfig }) => {
   }
 
   if (phase === PHASE_DEVELOPMENT_SERVER) {
-    logger.info('Config Console Service started', {
+    logger.info('Xform Console Service started', {
       'startup-phase': phase,
     })
   } else if (
     process.argv.includes('start') &&
     phase === PHASE_PRODUCTION_SERVER
   ) {
-    logger.info('Config Console Service started ', {
+    logger.info('Xform Console Service started ', {
       'startup-phase': phase,
     })
   } else if (
     process.argv.includes('build') &&
     phase === PHASE_PRODUCTION_BUILD
   ) {
-    logger.info('Config Console Service building', {
+    logger.info('Xform Console Service building', {
       'build-phase': phase,
     })
   }

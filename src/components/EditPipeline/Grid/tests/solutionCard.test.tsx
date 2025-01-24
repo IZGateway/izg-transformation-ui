@@ -135,21 +135,21 @@ describe('SolutionCard Component', () => {
 
   it('calls handleDelete when the delete button is clicked', () => {
     jest.mock('../../../../contexts/EditPipeline/updatePipeDataContext')
-    const mockSetPipeData = jest.fn()
+    const mockSetTempPipeData = jest.fn()
     jest
       .spyOn(UpdatePipeDataContextModule, 'useUpdatePipeDataContext')
       .mockReturnValue({
         pipeData: mockPipeData,
-        setPipeData: mockSetPipeData,
+        setPipeData: jest.fn(),
         tempPipeData: mockPipeData,
-        setTempPipeData: jest.fn(),
+        setTempPipeData: mockSetTempPipeData,
       })
 
     renderSolutionCard(true)
     const deleteButton = screen.getByTestId('delete-button')
     fireEvent.click(deleteButton)
 
-    expect(mockSetPipeData).toHaveBeenCalledWith(
+    expect(mockSetTempPipeData).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.not.objectContaining({ id: '1', solutionId: 'solution1' }),
       ])

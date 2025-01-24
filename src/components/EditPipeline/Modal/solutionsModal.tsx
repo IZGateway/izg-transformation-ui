@@ -41,7 +41,7 @@ const SolutionsModal = ({
 }: SolutionsModalProps) => {
   const { preconditionsData, preconditionMethodsData } =
     usePreconditionContext()
-  const { pipeData, setPipeData, setTempPipeData } = useUpdatePipeDataContext()
+  const { pipeData, tempPipeData, setTempPipeData } = useUpdatePipeDataContext()
   const { setIsReorder } = useReorderContext()
   const [hasPreconditions, setHasPreconditions] = useState(
     initialHasPreconditions
@@ -80,10 +80,10 @@ const SolutionsModal = ({
           preconditionMethodsData,
           formattedPreconditions
         )
-
+    const currentPipeData = tempPipeData || pipeData
     const newPipeData = isNewSolution
       ? [
-          ...pipeData,
+          ...currentPipeData,
           {
             id: uuidv4(),
             solutionId: selectedSolution.id,
@@ -91,15 +91,14 @@ const SolutionsModal = ({
             preconditions: transformedPreconditions,
           },
         ]
-      : pipeData.map((solution) =>
+      : currentPipeData.map((solution) =>
           solution.solutionId === selectedSolution.id
             ? { ...solution, preconditions: transformedPreconditions }
             : solution
         )
 
     if (!isEqual(newPipeData, pipeData)) {
-      setTempPipeData(pipeData)
-      setPipeData(newPipeData)
+      setTempPipeData(newPipeData)
       setIsReorder(true)
     }
     setOpen(false)

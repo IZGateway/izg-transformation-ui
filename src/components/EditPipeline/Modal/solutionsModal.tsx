@@ -73,35 +73,38 @@ const SolutionsModal = ({
   }, [setHasPreconditions, setPreconditions])
 
   const handleSave = () => {
-    const transformedPreconditions = !hasPreconditions
-      ? []
-      : transformPreconditions(
-          preconditionsData,
-          preconditionMethodsData,
-          formattedPreconditions
-        )
-    const currentPipeData = tempPipeData || pipeData
-    const newPipeData = isNewSolution
-      ? [
-          ...currentPipeData,
-          {
-            id: uuidv4(),
-            solutionId: selectedSolution.id,
-            solutionVersion: '1.0',
-            preconditions: transformedPreconditions,
-          },
-        ]
-      : currentPipeData.map((solution) =>
-          solution.solutionId === selectedSolution.id
-            ? { ...solution, preconditions: transformedPreconditions }
-            : solution
-        )
+    setClosing(true)
+    setTimeout(() => {
+      const transformedPreconditions = !hasPreconditions
+        ? []
+        : transformPreconditions(
+            preconditionsData,
+            preconditionMethodsData,
+            formattedPreconditions
+          )
+      const currentPipeData = tempPipeData || pipeData
+      const newPipeData = isNewSolution
+        ? [
+            ...currentPipeData,
+            {
+              id: uuidv4(),
+              solutionId: selectedSolution.id,
+              solutionVersion: '1.0',
+              preconditions: transformedPreconditions,
+            },
+          ]
+        : currentPipeData.map((solution) =>
+            solution.solutionId === selectedSolution.id
+              ? { ...solution, preconditions: transformedPreconditions }
+              : solution
+          )
 
-    if (!isEqual(newPipeData, pipeData)) {
-      setTempPipeData(newPipeData)
-      setIsReorder(true)
-    }
-    setOpen(false)
+      if (!isEqual(newPipeData, pipeData)) {
+        setTempPipeData(newPipeData)
+        setIsReorder(true)
+      }
+      setOpen(false)
+    }, 400)
   }
 
   const [mounted, setMounted] = useState(false)

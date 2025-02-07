@@ -27,10 +27,10 @@ const Footer: React.FC = () => {
         Version {pack.version}-{process.env.NEXT_PUBLIC_BUILD_ID || 'Dev'} |
         Immunization (IZ) Gateway Transformation Service 2024
       </Typography>
-      <Typography variant="caption" mr={10}>
+      {/* <Typography variant="caption" mr={10}>
         This application has been authorized by the Centers for Disease Control
         and Prevention
-      </Typography>
+      </Typography> */}
     </Box>
   )
 }

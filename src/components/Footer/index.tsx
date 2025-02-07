@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
       component="footer"
       sx={{
         py: 2,
-        px: 2,
+        px: 4,
         position: 'fixed',
         bottom: 0,
         ml: -4,
@@ -17,6 +17,7 @@ const Footer: React.FC = () => {
         width: '100%',
         justifyContent: 'space-between',
         top: 'auto',
+        zIndex: 1000,
         backgroundColor: (theme) =>
           theme.palette.mode === 'light'
             ? theme.palette.grey[200]

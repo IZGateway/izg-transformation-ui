@@ -15,6 +15,7 @@ const dataGridCustom = {
       zIndex: 1,
       paddingTop: '1em',
       border: 'none',
+      marginBottom: '2em',
     },
   '& .MuiDataGrid-main': {
     marginTop: '-8px',

@@ -33,7 +33,7 @@ RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
 COPY package.json package-lock.json ./
-RUN  npm ci --omit=dev --force
+RUN  npm ci --omit=dev --force && find. -type f -name 'yarn.lock' -delete
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml

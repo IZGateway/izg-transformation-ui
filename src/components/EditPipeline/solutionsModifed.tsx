@@ -67,7 +67,10 @@ const SolutionsModified = ({ handleSave }) => {
       sx={{
         position: 'fixed',
         bottom: 0,
-        width: '-webkit-fill-available',
+        width: '-webkit-fill-available', // Safari and older Firefox
+        '@supports (width: -moz-available)': {
+          width: '-moz-available', // Firefox-specific rule
+        },
         marginRight: 3,
         marginBottom: 3,
       }}

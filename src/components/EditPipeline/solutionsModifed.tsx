@@ -63,18 +63,7 @@ const SolutionsModified = ({ handleSave }) => {
   }
 
   return (
-    <Box
-      sx={{
-        position: 'fixed',
-        bottom: 0,
-        width: '-webkit-fill-available', // Safari and older Firefox
-        '@supports (width: -moz-available)': {
-          width: '-moz-available', // Firefox-specific rule
-        },
-        marginRight: 3,
-        marginBottom: 3,
-      }}
-    >
+    <Box>
       <Collapse
         sx={{ marginBottom: 1, position: 'relative', zIndex: 1000 }}
         in={showAlert}
@@ -98,7 +87,21 @@ const SolutionsModified = ({ handleSave }) => {
         </Alert>
       </Collapse>
       <Card
-        sx={{ borderRadius: '30px' }}
+        sx={{
+          borderRadius: '30px',
+          position: 'relative',
+          bottom: 0,
+          '@supports (width: -moz-available)': {
+            width: '-moz-available', // Firefox-specific rule
+          },
+          '@supports (-webkit-fill-available)': {
+            width: '-webkit-fill-available', // Webkit browsers (Chrome, etc.)
+          },
+          width: '100%', // Fallback for Safari and other browsers
+          boxSizing: 'border-box', // Prevent padding/border from affecting width
+          marginBottom: 2,
+          marginX: 1,
+        }}
         data-testid="solutions-modified-container"
         id="zip"
       >
@@ -116,7 +119,12 @@ const SolutionsModified = ({ handleSave }) => {
                 data-testid="cancel-button"
                 color="error"
                 variant="outlined"
-                sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+                sx={{
+                  borderRadius: '30px',
+                  display: 'flex',
+                  flex: 1,
+                  maxWidth: '125px',
+                }}
                 onClick={onCancel}
               >
                 Cancel
@@ -127,7 +135,12 @@ const SolutionsModified = ({ handleSave }) => {
                 data-testid="reorder-button"
                 color="secondary"
                 variant="outlined"
-                sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+                sx={{
+                  borderRadius: '30px',
+                  display: 'flex',
+                  flex: 1,
+                  maxWidth: '125px',
+                }}
                 onClick={onReorder}
               >
                 Reorder
@@ -139,7 +152,12 @@ const SolutionsModified = ({ handleSave }) => {
                 data-testid="apply-button"
                 color="secondary"
                 variant="contained"
-                sx={{ borderRadius: '30px', display: 'flex', width: '10%' }}
+                sx={{
+                  borderRadius: '30px',
+                  display: 'flex',
+                  flex: 1,
+                  maxWidth: '125px',
+                }}
                 onClick={onSave}
               >
                 Apply

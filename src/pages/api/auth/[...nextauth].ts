@@ -12,8 +12,8 @@ export const authOptions = {
   debug: isDebugging,
   providers: [
     OktaProvider({
-      clientId: process.env.OKTA_CLIENT_ID,
-      clientSecret: process.env.OKTA_CLIENT_SECRET,
+      clientId: process.env.OKTA_CLIENT_ID as string,
+      clientSecret: process.env.OKTA_CLIENT_SECRET as string,
       issuer: `${process.env.NEXT_PUBLIC_OKTA_ISSUER}${process.env.OKTA_ISSUER_PATH}`,
       idToken: true,
       authorization: { params: { scope: 'openid email profile' } },

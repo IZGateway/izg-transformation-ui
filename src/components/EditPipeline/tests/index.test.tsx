@@ -209,9 +209,14 @@ describe('EditPipeline Component', () => {
     const editButton = screen.getByTestId('edit-pipeline-description-button')
     fireEvent.click(editButton)
 
-    const input = screen
-      .getByTestId('edit-pipeline-description-input')
-      .querySelector('input')
+    const inputContainer = screen.getByTestId('edit-pipeline-description-input')
+    const input = inputContainer.querySelector('input')
+
+    // Make sure input was found before continuing
+    if (!input) {
+      throw new Error('Input element not found inside edit-pipeline-description-input')
+    }
+
     expect(input).toBeInTheDocument()
     expect(screen.getByText('16/75 Characters')).toBeInTheDocument()
 
@@ -246,9 +251,13 @@ describe('EditPipeline Component', () => {
     fireEvent.click(editButton)
 
     // Change the input
-    const input = screen
-      .getByTestId('edit-pipeline-description-input')
-      .querySelector('input')
+    const inputContainer = screen.getByTestId('edit-pipeline-description-input')
+    const input = inputContainer.querySelector('input')
+
+    if (!input) {
+      throw new Error('Input element not found')
+    }
+
     fireEvent.change(input, { target: { value: 'Canceled Description' } })
 
     // Click cancel

@@ -77,7 +77,7 @@ export const useFormattedPreconditions = (
     return {
       id: precondition.id || '',
       method: precondition.method || '',
-      value: precondition[valueKey] || '',
+      value: valueKey && precondition[valueKey] ? precondition[valueKey] : '',
     }
   })
 }

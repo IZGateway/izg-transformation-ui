@@ -14,13 +14,25 @@ import axios from 'axios'
  *       200:
  *         description: OK.
  */
+// Interface for result for null check workarounds
+interface HealthCheckResult {
+  component: string;
+  status: string;
+  statusAt: string;
+  reason: string;
+  url?: string;
+  healthy?: boolean;
+  exception?: string;
+  oktaGlobalStatusEndpoint?: string;
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const deepHealthCheckResults = []
+  const deepHealthCheckResults: HealthCheckResult[] = []
   const checkConnections = ['OKTA', 'XFORMSERVICE']
 
   // XFORM SERVICE
-  const xformServiceStatus = async () => {
-    let xformServiceHealthCheck = {}
+  const xformServiceStatus = async (): Promise<HealthCheckResult> => {
+    let xformServiceHealthCheck: HealthCheckResult
     const XFORM_SERVICE_HEALTHCHECK_ENDPOINT =
       process.env.XFORM_SERVICE_HEALTHCHECK_URL || 'unknown'
     const XFORM_SERVICE_ENDPOINT_CRT_PATH =
@@ -29,6 +41,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       process.env.XFORM_SERVICE_ENDPOINT_KEY_PATH || undefined
     const XFORM_SERVICE_ENDPOINT_PASSCODE =
       process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || undefined
+
+    // The read of the certificate and/or key, if those variables are undefined
+    // could cause issues.  Returning a configuration error for the healthcheck
+    if (!XFORM_SERVICE_ENDPOINT_CRT_PATH || !XFORM_SERVICE_ENDPOINT_KEY_PATH) {
+      return {
+        component: 'XFORMSERVICE',
+        status: 'configuration error',
+        statusAt: new Date(Date.now()).toISOString(),
+        reason: 'Missing certificate or key path configuration',
+        url: XFORM_SERVICE_HEALTHCHECK_ENDPOINT,
+      };
+    }
+
     const httpsAgentOptions = {
       cert: fs.readFileSync(
         path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
@@ -86,8 +111,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   // OKTA
-  const oktaStatus = async () => {
-    let oktaHealthCheck = {}
+  const oktaStatus = async (): Promise<HealthCheckResult> => {
+    let oktaHealthCheck: HealthCheckResult
     const oktaEndpoint =
       `${process.env.NEXT_PUBLIC_OKTA_ISSUER}${process.env.OKTA_ISSUER_PATH}/.well-known/openid-configuration` || 'unknown'
     try {

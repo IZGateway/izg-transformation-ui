@@ -46,13 +46,13 @@ export const getServerSideProps = async (context) => {
   }
 }
 
-const combineData = (organizationsData, pipeData) => {
-  const organizationsMap = {}
+const combineData = (organizationsData: any[], pipeData: any[]) => {
+  const organizationsMap: Record<string, any> = {}
   organizationsData.forEach((org) => {
     organizationsMap[org.id] = org
   })
 
-  const combinedData = []
+  const combinedData: any[] = []
   pipeData.forEach((pipe) => {
     const orgid = pipe.organizationId
     if (organizationsMap[orgid]) {

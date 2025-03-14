@@ -23,18 +23,24 @@ const logRequest: Middleware = async (req, res, next) => {
     req.cookies['__Secure-next-auth.session-token']
   const session = await decode({
     token: sessionToken,
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET as string,
   })
   logger.debug('Api request ' + req.url, {
     req,
     res,
-    user: session.email || null,
+    user: session?.email ?? null,
   })
   await next()
 }
 
 // check access to destination
 const checkAccessToDestId: Middleware = async (req, res, next) => {
+
+  // Add check if destination id is missing
+  if (!req.query.id) {
+    return res.status(400).send('Destination id is missing')
+  }
+
   const destId = req.query.id.toString()
   const session = await getServerSession(req, res, authOptions)
   const hasAccess = hasAccessToDestId(destId, session)
@@ -42,7 +48,7 @@ const checkAccessToDestId: Middleware = async (req, res, next) => {
     logger.debug('Api request ' + req.url, {
       req,
       res,
-      user: session.user.email,
+      user: session?.user.email,
     })
     await next()
   } else {
@@ -50,12 +56,17 @@ const checkAccessToDestId: Middleware = async (req, res, next) => {
     logger.debug('Api request ' + req.url, {
       req,
       res,
-      user: session.user.email,
+      user: session?.user.email,
     })
   }
 }
 const checkAccessToDestIdSlug: Middleware = async (req, res, next) => {
   const { slug } = req.query
+
+  if (!slug) {
+    return res.status(400).send('Destination id is missing')
+  }
+
   const destId = slug[1]
   const session = await getServerSession(req, res, authOptions)
   const hasAccess = hasAccessToDestId(destId, session)
@@ -63,7 +74,7 @@ const checkAccessToDestIdSlug: Middleware = async (req, res, next) => {
     logger.debug('Api request ' + req.url, {
       req,
       res,
-      user: session.user.email,
+      user: session?.user.email,
     })
     await next()
   } else {
@@ -71,7 +82,7 @@ const checkAccessToDestIdSlug: Middleware = async (req, res, next) => {
     logger.debug('Api request ' + req.url, {
       req,
       res,
-      user: session.user.email,
+      user: session?.user.email,
     })
   }
 }

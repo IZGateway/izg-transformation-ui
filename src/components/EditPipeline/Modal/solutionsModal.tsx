@@ -33,13 +33,13 @@ interface SolutionsModalProps {
 }
 
 const SolutionsModal = ({
-  selectedSolution,
-  isNewSolution,
-  initialHasPreconditions,
-  existingPreconditions = [{ id: '', method: '', value: '' }],
-  setOpen,
-  open,
-}: SolutionsModalProps) => {
+                          selectedSolution,
+                          isNewSolution,
+                          initialHasPreconditions,
+                          existingPreconditions = [{ id: '', method: '', value: '' }],
+                          setOpen,
+                          open,
+                        }: SolutionsModalProps) => {
   const { preconditionsData, preconditionMethodsData } =
     usePreconditionContext()
   const { pipeData, tempPipeData, setTempPipeData } = useUpdatePipeDataContext()
@@ -50,7 +50,7 @@ const SolutionsModal = ({
   const [preconditions, setPreconditions] = useState(existingPreconditions)
 
   const formattedPreconditions = useFormattedPreconditions(
-    hasPreconditions,
+    hasPreconditions || false,
     existingPreconditions ? preconditions : [{ id: '', method: '', value: '' }]
   )
 
@@ -78,26 +78,26 @@ const SolutionsModal = ({
       const transformedPreconditions = !hasPreconditions
         ? []
         : transformPreconditions(
-            preconditionsData,
-            preconditionMethodsData,
-            formattedPreconditions
-          )
+          preconditionsData,
+          preconditionMethodsData,
+          formattedPreconditions
+        )
       const currentPipeData = tempPipeData || pipeData
       const newPipeData = isNewSolution
         ? [
-            ...currentPipeData,
-            {
-              id: uuidv4(),
-              solutionId: selectedSolution.id,
-              solutionVersion: '1.0',
-              preconditions: transformedPreconditions,
-            },
-          ]
+          ...currentPipeData,
+          {
+            id: uuidv4(),
+            solutionId: selectedSolution.id,
+            solutionVersion: '1.0',
+            preconditions: transformedPreconditions,
+          },
+        ]
         : currentPipeData.map((solution) =>
-            solution.solutionId === selectedSolution.id
-              ? { ...solution, preconditions: transformedPreconditions }
-              : solution
-          )
+          solution.solutionId === selectedSolution.id
+            ? { ...solution, preconditions: transformedPreconditions }
+            : solution
+        )
 
       if (!isEqual(newPipeData, pipeData)) {
         setTempPipeData(newPipeData)
@@ -136,8 +136,8 @@ const SolutionsModal = ({
               mounted && closing
                 ? 'translateX(100%)' // Apply effect when closing
                 : mounted && open
-                ? 'translateX(0%)' // Normal slide-in effect when open
-                : 'translateX(100%)', // Default position when closed
+                  ? 'translateX(0%)' // Normal slide-in effect when open
+                  : 'translateX(100%)', // Default position when closed
             transition: 'transform 0.4s ease-in-out', // Smooth transition for both opening and closing
           },
         }}

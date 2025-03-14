@@ -19,7 +19,7 @@ const PipelineDataProvider: React.FC<{
   pipelineData: PipelineData | null
 }> = ({ children, pipelineData: initialPipelineData }) => {
   const [pipelineData, setPipelineData] =
-    useState<PipelineData>(initialPipelineData)
+    useState<PipelineData | null>(initialPipelineData)
   return (
     <pipelineDataContext.Provider value={{ pipelineData, setPipelineData }}>
       {children}

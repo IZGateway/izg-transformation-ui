@@ -35,7 +35,7 @@ const EditPipeline = ({ orgData }) => {
   const { isReady, query } = router
   const { pipelineData, setPipelineData } = usePipelineDataContext()
   const { pipeData, tempPipeData } = useUpdatePipeDataContext()
-  const [description, setDescription] = useState(pipelineData.description)
+  const [description, setDescription] = useState(pipelineData?.description || '')
   const [open, setOpen] = useState(false)
   const MAX_DESCRIPTION_LENGTH = 75
   const [showTopGradient, setShowTopGradient] = useState(true)
@@ -65,7 +65,20 @@ const EditPipeline = ({ orgData }) => {
 
   const handleDescriptionSave = async () => {
     try {
-      if (description === pipelineData.description) {
+      // Make sure pipelineData exists
+      if (!pipelineData) {
+        setAlertState({
+          show: true,
+          severity: 'error',
+          message: 'Pipeline data not available',
+        })
+        return
+      }
+
+      // Make sure description has a value
+      const currentDescription = description || ''
+
+      if (currentDescription === pipelineData.description) {
         setAlertState({
           show: true,
           severity: 'info',
@@ -73,9 +86,10 @@ const EditPipeline = ({ orgData }) => {
         })
         return
       }
+
       setPipelineData({
         ...pipelineData,
-        description: description,
+        description: currentDescription,
       })
       const response = await handleSave()
 
@@ -103,7 +117,7 @@ const EditPipeline = ({ orgData }) => {
   }
 
   const handleDescriptionCancel = () => {
-    setDescription(pipelineData.description)
+    setDescription(pipelineData?.description || "")
     setOpen(false)
   }
 
@@ -137,9 +151,9 @@ const EditPipeline = ({ orgData }) => {
               fontSize="32px"
               id="title-pipeline"
             >
-              {pipelineData.pipelineName.includes('Pipeline')
+              {pipelineData?.pipelineName.includes('Pipeline')
                 ? pipelineData.pipelineName
-                : `${pipelineData.pipelineName} Pipeline`}
+                : `${pipelineData?.pipelineName} Pipeline`}
             </Typography>
 
             <Box sx={{ position: 'relative', height: 0 }}>
@@ -202,7 +216,7 @@ const EditPipeline = ({ orgData }) => {
                   color="primary"
                   sx={{ color: 'primary', marginLeft: 2 }}
                 >
-                  {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
+                  {description?.length}/{MAX_DESCRIPTION_LENGTH} Characters
                 </Typography>
                 <Tooltip title="Save Description" arrow placement="bottom">
                   <IconButton
@@ -234,7 +248,7 @@ const EditPipeline = ({ orgData }) => {
                 alignItems={'center'}
               >
                 <Typography data-testid="pipeline-description" variant="body1">
-                  {pipelineData.description}
+                  {pipelineData?.description}
                 </Typography>
 
                 <Tooltip
@@ -291,9 +305,13 @@ const EditPipeline = ({ orgData }) => {
               />
               <Box
                 onScroll={handleScroll}
-                ref={(element) =>
-                  element && checkScrollability(element as HTMLDivElement)
-                }
+                // Issue after Next.js 15 move.  ref callback need to return void or a function
+                // was only returning result of checkScrollability
+                ref={(element) => {
+                  if (element) {
+                    checkScrollability(element as HTMLDivElement);
+                  }
+                }}
                 sx={{
                   width: '-webkit-fill-available',
                   position: 'relative',

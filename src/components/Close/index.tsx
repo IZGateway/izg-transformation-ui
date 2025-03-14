@@ -5,7 +5,14 @@ import CombinedContext from '../../contexts/app'
 import { useRouter } from 'next/router'
 
 const Close = () => {
-  const { clearValue } = React.useContext(CombinedContext)
+  const context = React.useContext(CombinedContext)
+
+  // Check if context exists before accessing clearValue
+  if (!context) {
+    throw new Error('CombinedContext is null or undefined in Close component')
+  }
+
+  const { clearValue } = context
   const router = useRouter()
   const handleClose = () => {
     clearValue()

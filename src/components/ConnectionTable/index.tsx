@@ -82,7 +82,14 @@ const actionButtonStyle = {
 }
 
 const ConnectionsTable = (props) => {
-  const { pageSize, setPageSize } = useContext(SessionContext)
+  const context = useContext(SessionContext)
+
+  // Check if context exists before accessing properties
+  if (!context) {
+    throw new Error('CombinedContext is null or undefined in ConnectionTable component')
+  }
+
+  const { pageSize, setPageSize } = context
   const columns: GridColDef[] = [
     {
       field: 'organizationName',

@@ -10,6 +10,7 @@ import {
 } from '@mui/material'
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
+import { PipeData } from '../../contexts/EditPipeline/pipelineDataContext'
 import { useState } from 'react'
 import { isEqual } from 'lodash'
 
@@ -28,7 +29,7 @@ const SolutionsModified = ({ handleSave }) => {
   }
 
   const onCancel = () => {
-    setTempPipeData(null)
+    setTempPipeData(null as unknown as React.SetStateAction<PipeData[]>)
     setIsReorder(false)
   }
 
@@ -45,7 +46,7 @@ const SolutionsModified = ({ handleSave }) => {
       const response = await handleSave()
       if (response.success) {
         setIsReorder(false)
-        setTempPipeData(null)
+        setTempPipeData(null as unknown as React.SetStateAction<PipeData[]>)
         setSeverity('success')
       } else {
         console.error('Save failed:', response.error)

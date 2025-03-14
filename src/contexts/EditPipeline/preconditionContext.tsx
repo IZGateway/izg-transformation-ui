@@ -1,8 +1,8 @@
 import React, { createContext, useContext } from 'react'
 
 type PreconditionContextType = {
-  preconditionsData: object
-  preconditionMethodsData: object
+  preconditionsData: object | null
+  preconditionMethodsData: object | null
 }
 
 const PreconditionContext = createContext<PreconditionContextType | undefined>(
@@ -10,10 +10,10 @@ const PreconditionContext = createContext<PreconditionContextType | undefined>(
 )
 
 const PreconditionProvider = ({
-  children,
-  preconditionsData,
-  preconditionMethodsData,
-}: {
+                                children,
+                                preconditionsData,
+                                preconditionMethodsData,
+                              }: {
   children: React.ReactNode
   preconditionsData: object | null
   preconditionMethodsData: object | null

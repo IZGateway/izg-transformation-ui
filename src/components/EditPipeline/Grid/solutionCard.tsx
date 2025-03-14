@@ -44,13 +44,13 @@ interface SolutionCardProps {
 
 const SolutionCard = memo(
   ({
-    id,
-    solution,
-    index,
-    preconditions,
-    isDragging,
-    activeId,
-  }: SolutionCardProps) => {
+     id,
+     solution,
+     index,
+     preconditions,
+     isDragging,
+     activeId,
+   }: SolutionCardProps) => {
     const { attributes, listeners, setNodeRef, transform, transition } =
       useSortable({ id })
     const { isReorder } = useReorderContext()
@@ -65,10 +65,10 @@ const SolutionCard = memo(
     }, [id, tempPipeData, setTempPipeData])
     const formattedPreconditions = preconditions?.length
       ? preconditions.map((precondition) => ({
-          id: precondition.id,
-          method: precondition.method,
-          value: precondition.comparisonValue || '',
-        }))
+        id: precondition.id,
+        method: precondition.method,
+        value: precondition.comparisonValue || '',
+      }))
       : undefined
 
     const handleButtonsHover = useCallback((isOver: boolean) => {
@@ -131,7 +131,7 @@ const SolutionCard = memo(
                     width: '100%',
                     position: 'relative',
                     textOverflow: 'clip',
-                    '&::after': isTruncated && {
+                    '&::after': isTruncated ? {
                       content: '""',
                       position: 'absolute',
                       right: 0,
@@ -141,7 +141,7 @@ const SolutionCard = memo(
                       background:
                         'linear-gradient(to right, transparent 0%, #ffffff 93%)',
                       pointerEvents: 'none',
-                    },
+                    } : undefined,
                   }}
                   ref={(el) => {
                     if (el) {
@@ -198,7 +198,7 @@ const SolutionCard = memo(
           <SolutionsModal
             selectedSolution={solution}
             isNewSolution={false}
-            initialHasPreconditions={formattedPreconditions?.length > 0}
+            initialHasPreconditions={formattedPreconditions !== undefined && formattedPreconditions.length > 0}
             existingPreconditions={formattedPreconditions}
             setOpen={setIsModalOpen}
             open={isModalOpen}

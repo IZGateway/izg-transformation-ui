@@ -21,7 +21,13 @@
       "cypress",
       "@types/gtag.js"
     ],
-    "target": "ES2017"
+    "target": "ES2017",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",

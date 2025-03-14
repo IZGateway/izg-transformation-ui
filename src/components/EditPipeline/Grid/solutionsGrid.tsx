@@ -39,7 +39,7 @@ const SolutionsGrid = () => {
     })
   )
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [activeSolution, setActiveSolution] = useState<Solution>(null)
+  const [activeSolution, setActiveSolution] = useState<Solution | null>(null)
   const [overIndex, setOverIndex] = useState<number | null>(null)
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -65,7 +65,7 @@ const SolutionsGrid = () => {
       const draggedSolution = solutionsData.find(
         (s) => s.id === tempPipeData.find((p) => p.id === active.id)?.solutionId
       )
-      setActiveSolution(draggedSolution)
+      setActiveSolution(draggedSolution || null)
     },
     [tempPipeData, solutionsData]
   )
@@ -83,6 +83,13 @@ const SolutionsGrid = () => {
   const renderSolutionCard = useCallback(
     (pipe: any, index: number, dataArray: any[]) => {
       const solution = solutionsData.find((s) => s.id === pipe.solutionId)
+
+      // If solution is not found, we can't render the card
+      if (!solution) {
+        console.error(`Solution not found for ID: ${pipe.solutionId}`)
+        return null
+      }
+
       let displayIndex = index + 1
 
       if (activeId) {
@@ -111,7 +118,7 @@ const SolutionsGrid = () => {
           id={pipe.id}
           index={displayIndex}
           preconditions={pipe.preconditions}
-          activeId={activeId}
+          {...(activeId !== null ? { activeId } : {})}
         />
       )
     },
@@ -130,7 +137,7 @@ const SolutionsGrid = () => {
       <SortableContext
         items={useMemo(
           () =>
-            tempPipeData
+            tempPipeData && tempPipeData.length > 0
               ? tempPipeData.map((item) => item.id)
               : pipeData.map((item) => item.id),
           [tempPipeData, pipeData]
@@ -147,8 +154,8 @@ const SolutionsGrid = () => {
             marginTop: 4,
           }}
         >
-          {(tempPipeData || pipeData).map((pipe, index) =>
-            renderSolutionCard(pipe, index, tempPipeData || pipeData)
+          {((tempPipeData && tempPipeData.length > 0) ? tempPipeData : pipeData).map((pipe, index) =>
+            renderSolutionCard(pipe, index, (tempPipeData && tempPipeData.length > 0) ? tempPipeData : pipeData)
           )}
           {solutionsData.length > 0 && (
             <Card
@@ -195,10 +202,10 @@ const SolutionsGrid = () => {
               overIndex !== null
                 ? overIndex + 1
                 : tempPipeData.findIndex(
-                    (p) => p.solutionId === activeSolution.id
-                  ) + 1
+                (p) => p.solutionId === activeSolution.id
+              ) + 1
             }
-            preconditions={activeSolution.requestOperations[0].preconditions}
+            preconditions={activeSolution.requestOperations[0].preconditions || []}
             isDragging={true}
           />
         ) : null}

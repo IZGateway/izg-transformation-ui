@@ -15,8 +15,8 @@ const UpdatePipeDataContext = createContext<
 const UpdatePipelineDataProvider: React.FC<{
   children: React.ReactNode
   currentOrder?: PipeData[]
-  tempOrder?: PipeData[] | null
-}> = ({ children, currentOrder = [], tempOrder = null }) => {
+  tempOrder?: PipeData[]
+}> = ({ children, currentOrder = [], tempOrder = [] }) => {
   const [pipeData, setPipeData] = useState<PipeData[]>(currentOrder)
   const [tempPipeData, setTempPipeData] = useState<PipeData[]>(tempOrder)
   return (

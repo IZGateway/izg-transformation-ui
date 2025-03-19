@@ -1,9 +1,9 @@
-FROM node:21-alpine3.20 AS deps
+FROM node:22-alpine3.20 AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --force
+RUN npm ci
 
-FROM node:21-alpine3.20 AS builder
+FROM node:22-alpine3.20 AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -33,7 +33,7 @@ RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
 COPY package.json package-lock.json ./
-RUN  npm ci --omit=dev --force
+RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml

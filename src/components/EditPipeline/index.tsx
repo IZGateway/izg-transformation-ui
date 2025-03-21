@@ -63,44 +63,43 @@ const EditPipeline = ({ orgData }) => {
     return response
   }, [tempPipeData, query, pipelineData])
 
-  const handleDescriptionSave = async () => {
-    try {
-      if (description === pipelineData.description) {
-        setAlertState({
-          show: true,
-          severity: 'info',
-          message: 'Description Not Changed',
-        })
-        return
-      }
-      setPipelineData({
-        ...pipelineData,
-        description: description,
+  const handleDescriptionSave = useCallback(async () => {
+    if (description === pipelineData.description) {
+      setAlertState({
+        show: true,
+        severity: 'info',
+        message: 'Description Not Changed',
       })
-      const response = await handleSave()
-
-      if (response.success) {
-        setAlertState({
-          show: true,
-          severity: 'success',
-          message: 'Description Saved Successfully!',
-        })
-      }
-    } catch (error) {
-      console.error('Error saving description:', error)
+      return
+    }
+    setPipelineData({
+      ...pipelineData,
+      description: description,
+    })
+    const response = await updateData(query.id as string, {
+      ...pipelineData,
+      description: description,
+    })
+    if (!response.success) {
+      console.error('Error saving description:', response.error)
       setAlertState({
         show: true,
         severity: 'error',
         message: 'Error! Could not save description!',
       })
-    } finally {
-      setOpen(false)
-      setShowAlert(true)
-      setTimeout(() => {
-        setShowAlert(false)
-      }, 2000)
+    } else {
+      setAlertState({
+        show: true,
+        severity: 'success',
+        message: 'Description Saved Successfully!',
+      })
     }
-  }
+    setOpen(false)
+    setShowAlert(true)
+    setTimeout(() => {
+      setShowAlert(false)
+    }, 2000)
+  }, [description, pipelineData, query.id, setPipelineData])
 
   const handleDescriptionCancel = () => {
     setDescription(pipelineData.description)
@@ -219,7 +218,7 @@ const EditPipeline = ({ orgData }) => {
                   <IconButton
                     data-testid="edit-pipeline-description-cancel-button"
                     aria-label="cancel"
-                    color="primary"
+                    color="error"
                     onClick={handleDescriptionCancel}
                   >
                     <CloseIcon fontSize="small" />

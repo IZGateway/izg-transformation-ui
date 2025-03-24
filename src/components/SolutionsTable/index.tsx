@@ -1,12 +1,22 @@
-import React, { useContext } from 'react'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import { Box, IconButton, Typography, Card, Tooltip } from '@mui/material'
+import React, { useContext, useState } from 'react'
+import { DataGrid, GridColDef, GridFooter, GridToolbar } from '@mui/x-data-grid'
+import {
+  Box,
+  IconButton,
+  Typography,
+  Card,
+  Tooltip,
+  Button,
+  FormControlLabel,
+  Switch,
+} from '@mui/material'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
+import ToggleOnIcon from '@mui/icons-material/ToggleOn'
+import ToggleOffIcon from '@mui/icons-material/ToggleOff'
 import Link from 'next/link'
+import AddIcon from '@mui/icons-material/Add'
 
 const dataGridCustom = {
   '&.MuiDataGrid-root.MuiDataGrid-autoHeight.MuiDataGrid-root--densityComfortable':
@@ -81,42 +91,84 @@ const actionButtonStyle = {
   marginRight: 2,
 }
 
-const ConnectionsTable = (props) => {
+const CustomFooter = () => {
+  return (
+    <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Button
+        variant="outlined"
+        // onClick={handleGoBack}
+        color="primary"
+        sx={{
+          borderRadius: '30px',
+        }}
+      >
+        <AddIcon sx={{ marginLeft: 1 }} />
+        Add Solution
+      </Button>
+      <GridFooter />
+    </Box>
+  )
+}
+const SolutionsTable = (props) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
+
+  console.log(props.data)
+
   const columns: GridColDef[] = [
     {
-      field: 'organizationName',
-      headerName: 'ORGANIZATION',
+      field: 'id',
+      headerName: 'ID',
       flex: 0.5,
       minWidth: 50,
     },
     {
-      field: 'pipelineName',
+      field: 'solutionName',
       headerName: 'NAME',
       flex: 0.5,
       minWidth: 50,
     },
     {
-      field: 'inboundEndpoint',
-      headerName: 'INBOUND ENDPOINT',
+      field: 'version',
+      headerName: 'VERSION',
       flex: 0.5,
       minWidth: 50,
-    },
-    {
-      field: 'outboundEndpoint',
-      headerName: 'OUTBOUND ENDPOINT',
-      flex: 0.5,
-      minWidth: 25,
     },
     {
       field: 'description',
       headerName: 'DESCRIPTION',
       flex: 0.5,
+      minWidth: 25,
+    },
+    {
+      field: 'active',
+      headerName: 'RULE ACTIVE',
+      flex: 0.5,
       minWidth: 50,
+      renderCell: (params) => {
+        const [isActive, setIsActive] = useState(params.value)
+        const handleToggle = () => {
+          setIsActive((prev) => !prev)
+        }
+        return (
+          <div>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isActive}
+                  onChange={handleToggle}
+                  color="primary"
+                />
+              }
+              label={isActive ? 'True' : 'False'}
+              labelPlacement="end"
+            />
+          </div>
+        )
+      },
     },
     {
       field: 'action',
-      headerName: 'ACTION',
+      headerName: 'ACTION(S)',
       sortable: false,
       filterable: false,
       flex: 0.5,
@@ -128,7 +180,7 @@ const ConnectionsTable = (props) => {
               prefetch={false}
               tabIndex={props.tabIndex}
               href={{
-                pathname: `/edit/${params.row.id}`,
+                pathname: `/editSolution/${params.row.id}`,
               }}
             >
               <Tooltip arrow placement="bottom" title="Edit">
@@ -142,20 +194,6 @@ const ConnectionsTable = (props) => {
                 </IconButton>
               </Tooltip>
             </Link>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <SyncDisabledIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
           </div>
         )
       },
@@ -181,7 +219,7 @@ const ConnectionsTable = (props) => {
             display="flex"
             align="center"
           >
-            My Pipelines
+            Solutions Creator
           </Typography>
         </Card>
       </Box>
@@ -210,6 +248,9 @@ const ConnectionsTable = (props) => {
         }}
         density={'comfortable'}
         pagination
+        slots={{
+          footer: () => <CustomFooter />,
+        }}
         components={{ Toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
@@ -271,4 +312,4 @@ const ConnectionsTable = (props) => {
   )
 }
 
-export default ConnectionsTable
+export default SolutionsTable

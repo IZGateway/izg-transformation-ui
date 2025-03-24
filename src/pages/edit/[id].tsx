@@ -21,7 +21,7 @@ const Edit = (props) => {
   return !isReady ? (
     <>Loading....</>
   ) : (
-    <Container title="Edit Connection">
+    <Container title="Edit Pipeline">
       <ErrorBoundary>
         <Box sx={{ position: 'relative' }}>
           <div>

@@ -1,12 +1,8 @@
 import TransformIcon from '@mui/icons-material/Transform'
 import { MenuItem } from '.'
+import RuleIcon from '@mui/icons-material/Rule'
 
 export const menuItems: MenuItem[] = [
-  // {
-  //   label: "User Profile",
-  //   icon: <AccountCircleIcon fontSize="large" />,
-  //   path: "/user",
-  // },
   {
     label: 'Manage Pipelines',
     icon: (
@@ -18,5 +14,10 @@ export const menuItems: MenuItem[] = [
       />
     ),
     path: '/manage',
+  },
+  {
+    label: 'Solutions Creator',
+    icon: <RuleIcon fontSize="large" />,
+    path: '/solutions',
   },
 ]

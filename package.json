@@ -1,7 +1,7 @@
 {
   "name": "izg-transformation-console",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.5.1",
   "scripts": {
     "dev": "next",
     "build": "next build",

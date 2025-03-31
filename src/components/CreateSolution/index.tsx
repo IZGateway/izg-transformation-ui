@@ -14,21 +14,75 @@ import {
   CardContent,
   CardHeader,
   Divider,
-  Alert,
+  Button,
   AlertTitle,
   Collapse,
+  Grid,
+  FormGroup,
+  FormControl,
 } from '@mui/material'
 import RuleInfo from './ruleInfo'
 import palette from '../../styles/theme/palette'
 import React from 'react'
 import CreateRule from './createRule'
 import _ from 'lodash'
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import Operations from './operations'
+import PreconditionsSection from '../EditPipeline/Modal/preconditionsSection'
+import { useFormattedPreconditions } from '../EditPipeline/Modal/utils'
 
 const CreateSolution = ({
   solutionData,
   requestOperations,
   responseOperations,
+  preconditionsData,
+  preconditionMethodsData,
+  operationTypeData,
+  operationFieldsData,
 }) => {
+  console.log(requestOperations.operationList)
+
+  const request = _.isEmpty(requestOperations) ? false : true
+  const response = _.isEmpty(responseOperations) ? false : true
+  const combination = request && response
+  let rule
+  let operations
+
+  const setRuleType = () => {
+    if (request) {
+      rule = 'request'
+    } else if (response) {
+      rule = 'response'
+    }
+  }
+
+  const setOperations = () => {
+    if (rule === 'request') {
+      operations = requestOperations
+    } else if (rule === 'response') {
+      operations = responseOperations
+    }
+  }
+
+  setRuleType()
+  setOperations()
+  const [preconditions, setPreconditions] = useState(
+    operations[0].preconditions
+  )
+  const [hasPreconditions, setHasPreconditions] = useState(
+    operations[0].preconditions?.length > 0
+  )
+  const formattedPreconditions = useFormattedPreconditions(
+    true,
+    operations[0].preconditions
+      ? preconditions
+      : [{ id: '', method: '', value: '' }]
+  )
+
+  const handleAddPrecondition = useCallback(() => {
+    setHasPreconditions(true)
+    setPreconditions((prev) => [...prev, { id: '', method: '', value: '' }])
+  }, [setHasPreconditions, setPreconditions])
   return (
     <Container title="Solution">
       <ErrorBoundary>
@@ -80,11 +134,125 @@ const CreateSolution = ({
                 overflowY: 'auto',
               }}
             >
-              <CreateRule
-                requestOperations={requestOperations}
-                responseOperations={responseOperations}
+              <CreateRule ruleType={rule} />
+            </Box>
+            <Box
+              // onScroll={handleScroll}
+              // ref={(element) =>
+              //   element && checkScrollability(element as HTMLDivElement)
+              // }
+              sx={{
+                width: '-webkit-fill-available',
+                position: 'relative',
+                paddingLeft: 1,
+                paddingRight: 1,
+                paddingBottom: 1,
+                maxHeight: 'calc(100vh - 275px)',
+                overflowY: 'auto',
+              }}
+            >
+              <Card
+                sx={{
+                  minWidth: 275,
+                  borderRadius: '0px 0px 30px 30px',
+                  marginTop: 4,
+                }}
+              >
+                <CardHeader title="Preconditions" />
+                <Divider />
+                <CardContent>
+                  <PreconditionsSection
+                    preconditions={formattedPreconditions}
+                    setPreconditions={(newPreconditions) =>
+                      setPreconditions(newPreconditions)
+                    }
+                    preconditionMethodsData={preconditionMethodsData}
+                    preconditionsData={preconditionsData}
+                    setHasPreconditions={true}
+                  />
+
+                  <Button
+                    data-testid="add-more-preconditions-button"
+                    sx={{
+                      marginBottom: 3,
+                      display: 'inline-flex',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      alignSelf: 'flex-start',
+                    }}
+                    onClick={handleAddPrecondition}
+                    variant="outlined"
+                  >
+                    Add New Precondition
+                    <PlaylistAddIcon />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Box>
+
+            <Box
+              // onScroll={handleScroll}
+              // ref={(element) =>
+              //   element && checkScrollability(element as HTMLDivElement)
+              // }
+              sx={{
+                width: '-webkit-fill-available',
+                position: 'relative',
+                paddingLeft: 1,
+                paddingRight: 1,
+                paddingBottom: 1,
+                maxHeight: 'calc(100vh - 275px)',
+                overflowY: 'auto',
+              }}
+            >
+              <Operations
+                operations={operations}
+                operationTypeData={operationTypeData}
+                operationFieldsData={operationFieldsData}
               />
             </Box>
+            <CardContent sx={{ padding: '16px !important' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                {combination && (
+                  <Button
+                    id="response"
+                    data-testid="response-button"
+                    color="error"
+                    variant="outlined"
+                    sx={{
+                      borderRadius: '30px',
+                      display: 'flex',
+                      flex: 1,
+                      maxWidth: '125px',
+                    }}
+                  >
+                    Go to Response rule
+                  </Button>
+                )}
+                <Tooltip title="Save rule" arrow placement="bottom">
+                  <Button
+                    id="save"
+                    data-testid="save-button"
+                    color="secondary"
+                    variant="contained"
+                    sx={{
+                      borderRadius: '30px',
+                      display: 'flex',
+                      flex: 1,
+                      maxWidth: '125px',
+                    }}
+                  >
+                    Save Rule
+                  </Button>
+                </Tooltip>
+              </Box>
+            </CardContent>
           </Box>
         </Box>
       </ErrorBoundary>

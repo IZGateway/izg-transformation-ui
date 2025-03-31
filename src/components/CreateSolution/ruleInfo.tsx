@@ -8,14 +8,9 @@ import {
   FormControl,
   Box,
   FormControlLabel,
-  Select,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   Switch,
 } from '@mui/material'
-import ToggleOnIcon from '@mui/icons-material/ToggleOn'
-import ToggleOffIcon from '@mui/icons-material/ToggleOff'
 import { useState } from 'react'
 
 const RuleInfo = (props: { solutionData }) => {

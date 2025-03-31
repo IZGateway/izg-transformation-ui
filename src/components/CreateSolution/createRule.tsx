@@ -10,20 +10,16 @@ import {
 import _ from 'lodash'
 
 const CreateRule = (props) => {
-  const request = _.isEmpty(props.requestOperations) ? false : true
-  const response = _.isEmpty(props.responseOperations) ? false : true
-  const combination = request && response
   return (
     <Box>
       <Card
         sx={{
           minWidth: 275,
-
           borderRadius: '0px 0px 30px 30px',
           marginTop: 4,
         }}
       >
-        {request && !combination && (
+        {props.ruleType === 'request' && (
           <div>
             <CardHeader title="Creating a Rule (Request)" />
             <Divider />
@@ -39,7 +35,7 @@ const CreateRule = (props) => {
             </CardContent>
           </div>
         )}
-        {response && !combination && (
+        {props.ruleType === 'response' && (
           <div>
             <CardHeader title="Creating a Rule (Response)" />
             <Divider />

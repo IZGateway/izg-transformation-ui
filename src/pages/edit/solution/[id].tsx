@@ -1,10 +1,10 @@
-import CreateSolution from '../../components/CreateSolution/index'
-import Container from '../../components/Container'
+import CreateSolution from '../../../components/CreateSolution/index'
+import Container from '../../../components/Container'
 import { Box } from '@mui/material'
-import ErrorBoundary from '../../components/ErrorBoundary'
+import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
+import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
 const EditSolution = (props) => {
   const router = useRouter()
   const { isReady, query } = router
@@ -66,7 +66,7 @@ export const getServerSideProps = async (context) => {
       props: {
         solutionData: {
           id: solutionData.id,
-          name: solutionData.solutionName,
+          solutionName: solutionData.solutionName,
           description: solutionData.description,
           version: solutionData.version,
           active: solutionData.active,

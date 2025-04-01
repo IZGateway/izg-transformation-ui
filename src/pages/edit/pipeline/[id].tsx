@@ -1,14 +1,14 @@
-import EditPipeline from '../../components/EditPipeline'
-import Container from '../../components/Container'
+import EditPipeline from '../../../components/EditPipeline'
+import Container from '../../../components/Container'
 import { Box } from '@mui/material'
-import ErrorBoundary from '../../components/ErrorBoundary'
+import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
-import PipelineDataProvider from '../../contexts/EditPipeline/pipelineDataContext'
-import PreconditionProvider from '../../contexts/EditPipeline/preconditionContext'
-import SolutionsDataProvider from '../../contexts/EditPipeline/solutionsDataContext'
-import UpdatePipelineDataProvider from '../../contexts/EditPipeline/updatePipeDataContext'
+import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
+import PipelineDataProvider from '../../../contexts/EditPipeline/pipelineDataContext'
+import PreconditionProvider from '../../../contexts/EditPipeline/preconditionContext'
+import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
+import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
 const Edit = (props) => {
   const router = useRouter()
   const { isReady, query } = router

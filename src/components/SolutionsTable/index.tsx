@@ -180,7 +180,7 @@ const SolutionsTable = (props) => {
               prefetch={false}
               tabIndex={props.tabIndex}
               href={{
-                pathname: `/editSolution/${params.row.id}`,
+                pathname: `/edit/solution/${params.row.id}`,
               }}
             >
               <Tooltip arrow placement="bottom" title="Edit">

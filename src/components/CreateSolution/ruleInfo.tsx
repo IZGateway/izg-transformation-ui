@@ -13,12 +13,16 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 
-const RuleInfo = (props: { solutionData }) => {
+const RuleInfo = (props: { solutionData; setSolutionData }) => {
   console.log(props.solutionData)
   const [isActive, setIsActive] = useState(props.solutionData.active)
 
   const handleToggle = () => {
     setIsActive((prev) => !prev)
+    props.setSolutionData((prev) => ({
+      ...prev,
+      active: !prev.active,
+    }))
   }
 
   return (

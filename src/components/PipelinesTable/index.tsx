@@ -128,7 +128,7 @@ const PipelinesTable = (props) => {
               prefetch={false}
               tabIndex={props.tabIndex}
               href={{
-                pathname: `/edit/${params.row.id}`,
+                pathname: `/edit/pipeline/${params.row.id}`,
               }}
             >
               <Tooltip arrow placement="bottom" title="Edit">

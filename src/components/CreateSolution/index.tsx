@@ -29,7 +29,11 @@ import _ from 'lodash'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import Operations from './operations'
 import PreconditionsSection from '../EditPipeline/Modal/preconditionsSection'
-import { useFormattedPreconditions } from '../EditPipeline/Modal/utils'
+import {
+  transformPreconditions,
+  useFormattedPreconditions,
+} from '../EditPipeline/Modal/utils'
+import { updateSolution } from './updateSolution'
 
 const CreateSolution = ({
   solutionData,
@@ -40,32 +44,21 @@ const CreateSolution = ({
   operationTypeData,
   operationFieldsData,
 }) => {
-  console.log(requestOperations.operationList)
-
+  const router = useRouter()
+  const { isReady, query } = router
+  console.log(solutionData)
+  const [currentsolution, setCurrentSolution] = useState(solutionData)
+  const [alertState, setAlertState] = useState<{
+    show: boolean
+    severity: 'success' | 'info' | 'error'
+    message: string
+  }>({ show: false, severity: 'info', message: '' })
   const request = _.isEmpty(requestOperations) ? false : true
   const response = _.isEmpty(responseOperations) ? false : true
   const combination = request && response
-  let rule
-  let operations
-
-  const setRuleType = () => {
-    if (request) {
-      rule = 'request'
-    } else if (response) {
-      rule = 'response'
-    }
-  }
-
-  const setOperations = () => {
-    if (rule === 'request') {
-      operations = requestOperations
-    } else if (rule === 'response') {
-      operations = responseOperations
-    }
-  }
-
-  setRuleType()
-  setOperations()
+  const rule = request ? 'request' : response ? 'response' : undefined
+  const operations = rule === 'request' ? requestOperations : responseOperations
+  const [operationList, setOperationList] = useState<any[]>(operations)
   const [preconditions, setPreconditions] = useState(
     operations[0].preconditions
   )
@@ -78,6 +71,44 @@ const CreateSolution = ({
       ? preconditions
       : [{ id: '', method: '', value: '' }]
   )
+  console.log(currentsolution)
+  console.log(solutionData)
+  const handleSave = async () => {
+    const transformedPreconditions = !hasPreconditions
+      ? []
+      : transformPreconditions(
+          preconditionsData,
+          preconditionMethodsData,
+          formattedPreconditions
+        )
+
+    const requestBody = {
+      ...currentsolution,
+      requestOperations: [],
+      responseOperations: [
+        {
+          preconditions: transformedPreconditions,
+          operationList: operationList,
+        },
+      ],
+    }
+    console.log(requestBody)
+    const response = await updateSolution(query.id as string, requestBody)
+    if (!response.success) {
+      console.error('Error saving description:', response.error)
+      setAlertState({
+        show: true,
+        severity: 'error',
+        message: 'Error! Could not save description!',
+      })
+    } else {
+      setAlertState({
+        show: true,
+        severity: 'success',
+        message: 'Description Saved Successfully!',
+      })
+    }
+  }
 
   const handleAddPrecondition = useCallback(() => {
     setHasPreconditions(true)
@@ -97,7 +128,10 @@ const CreateSolution = ({
           }}
         >
           <Box sx={{ position: 'relative', width: '35%' }}>
-            <RuleInfo solutionData={solutionData} />
+            <RuleInfo
+              solutionData={currentsolution}
+              setSolutionData={setCurrentSolution}
+            />
           </Box>
           <Box sx={{ position: 'relative', width: '100%' }}>
             <Box
@@ -206,7 +240,8 @@ const CreateSolution = ({
               }}
             >
               <Operations
-                operations={operations}
+                operations={operationList}
+                setOperations={setOperationList}
                 operationTypeData={operationTypeData}
                 operationFieldsData={operationFieldsData}
               />
@@ -241,6 +276,7 @@ const CreateSolution = ({
                     data-testid="save-button"
                     color="secondary"
                     variant="contained"
+                    onClick={handleSave}
                     sx={{
                       borderRadius: '30px',
                       display: 'flex',

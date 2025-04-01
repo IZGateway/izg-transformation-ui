@@ -17,6 +17,7 @@ import {
 import _ from 'lodash'
 import { useState } from 'react'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
+import { buildOperation } from './utils'
 const operationFormFields = {
   mapper: [
     {
@@ -32,7 +33,7 @@ const operationFormFields = {
       inputType: 'select',
     },
     {
-      name: 'fallbackCodeSystem',
+      name: 'codeSystemDefault',
       label: 'Fallback Code System',
       required: true,
       inputType: 'text',
@@ -72,12 +73,27 @@ const operationFormFields = {
   ],
 }
 
-const Operations = ({ operations, operationTypeData, operationFieldsData }) => {
-  const [operationType, setOperationType] = useState(operations.operation)
+const Operations = ({
+  operations,
+  setOperations,
+  operationTypeData,
+  operationFieldsData,
+}) => {
+  const [operationType, setOperationType] = useState(operations.operation || '')
   console.log(operationFieldsData)
-  const handleChange = (e) => {
-    setOperationType(e.target.value)
+  const handleChangeOperationType = (e) => {
+    const newType = e.target.value
+    setOperationType(newType)
+    setOperations([{ method: newType }])
   }
+
+  const handleFieldChange = (fieldName, value) => {
+    const updated = [
+      buildOperation(operations[0] || {}, fieldName, value, operationType),
+    ]
+    setOperations(updated)
+  }
+
   return (
     <Box>
       <Card
@@ -102,7 +118,7 @@ const Operations = ({ operations, operationTypeData, operationFieldsData }) => {
                 labelId="operation-type-label"
                 value={operationType}
                 label="Operation Type"
-                onChange={handleChange}
+                onChange={handleChangeOperationType}
               >
                 {operationTypeData.map((type) => (
                   <MenuItem key={type.method} value={type.method}>
@@ -129,7 +145,14 @@ const Operations = ({ operations, operationTypeData, operationFieldsData }) => {
                     {field.inputType === 'select' ? (
                       <FormControl fullWidth margin="normal">
                         <InputLabel>{field.label}</InputLabel>
-                        <Select label={field.label} displayEmpty required>
+                        <Select
+                          label={field.label}
+                          displayEmpty
+                          required
+                          onChange={(e) =>
+                            handleFieldChange(field.name, e.target.value)
+                          }
+                        >
                           {operationFieldsData.data.map((item) => (
                             <MenuItem
                               key={item.id || item.method}
@@ -147,6 +170,9 @@ const Operations = ({ operations, operationTypeData, operationFieldsData }) => {
                           required={field.required}
                           fullWidth
                           margin="normal"
+                          onChange={(e) =>
+                            handleFieldChange(field.name, e.target.value)
+                          }
                         />
                       </FormControl>
                     )}

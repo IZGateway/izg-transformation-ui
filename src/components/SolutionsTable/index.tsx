@@ -95,14 +95,19 @@ const CustomFooter = () => {
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center">
       <Button
-        variant="outlined"
+        sx={{
+          borderRadius: '60px',
+          float: 'right',
+          margin: '2em 0',
+          justifyContent: 'center',
+          boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+          backgroundColor: '#FFFFFF',
+        }}
+        variant="text"
         // onClick={handleGoBack}
         color="primary"
-        sx={{
-          borderRadius: '30px',
-        }}
+        endIcon={<AddIcon />}
       >
-        <AddIcon sx={{ marginLeft: 1 }} />
         Add Solution
       </Button>
       <GridFooter />
@@ -119,7 +124,7 @@ const SolutionsTable = (props) => {
       field: 'id',
       headerName: 'ID',
       flex: 0.5,
-      minWidth: 50,
+      minWidth: 300,
     },
     {
       field: 'solutionName',
@@ -131,19 +136,19 @@ const SolutionsTable = (props) => {
       field: 'version',
       headerName: 'VERSION',
       flex: 0.5,
-      minWidth: 50,
+      maxWidth: 100,
     },
     {
       field: 'description',
       headerName: 'DESCRIPTION',
-      flex: 0.5,
+      flex: 1,
       minWidth: 25,
     },
     {
       field: 'active',
       headerName: 'RULE ACTIVE',
       flex: 0.5,
-      minWidth: 50,
+      maxWidth: 250,
       renderCell: (params) => {
         const [isActive, setIsActive] = useState(params.value)
         const handleToggle = () => {

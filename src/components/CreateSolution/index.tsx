@@ -125,71 +125,43 @@ const CreateSolution = ({
             gap: 4,
             alignItems: 'flex-start',
             marginTop: 4,
+            width: '100%',
+            paddingTop: 2,
+            flexDirection: { xs: 'column', sm: 'column', md: 'row' },
           }}
         >
-          <Box sx={{ position: 'relative', width: '35%' }}>
+          {/* Rule Info */}
+          <Box sx={{ position: 'relative', width: { sm: '100%', md: '35%' } }}>
             <RuleInfo
               solutionData={currentsolution}
               setSolutionData={setCurrentSolution}
             />
           </Box>
           <Box sx={{ position: 'relative', width: '100%' }}>
+            {/* Rule Type */}
             <Box
-              sx={[
-                {
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  right: '1em',
-                  height: '5em',
-                  background: `linear-gradient(to top, rgb(from ${palette.background} r g b / 0) 0%,rgb(from ${palette.background} r g b / 1) 100%)`,
-                  // opacity: isScrollable ? (showTopGradient ? 0 : 1) : 0,
-                  // transition: showTopGradient
-                  //   ? 'opacity 100ms ease-in'
-                  //   : 'opacity 100ms ease-out',
-                  pointerEvents: 'none',
-                  zIndex: 50,
-                },
-                { zoom: '100% / ' },
-              ]}
-            />
-            <Box
-              // onScroll={handleScroll}
-              // ref={(element) =>
-              //   element && checkScrollability(element as HTMLDivElement)
-              // }
               sx={{
-                width: '-webkit-fill-available',
+                width: '100%',
                 position: 'relative',
-                paddingLeft: 1,
-                paddingRight: 1,
-                paddingBottom: 1,
-                maxHeight: 'calc(100vh - 275px)',
-                overflowY: 'auto',
+                mb: 2,
               }}
             >
               <CreateRule ruleType={rule} />
             </Box>
+            {/* Pre Conditions*/}
             <Box
-              // onScroll={handleScroll}
-              // ref={(element) =>
-              //   element && checkScrollability(element as HTMLDivElement)
-              // }
               sx={{
-                width: '-webkit-fill-available',
                 position: 'relative',
-                paddingLeft: 1,
-                paddingRight: 1,
-                paddingBottom: 1,
-                maxHeight: 'calc(100vh - 275px)',
-                overflowY: 'auto',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
               <Card
                 sx={{
-                  minWidth: 275,
+                  minWidth: 250,
                   borderRadius: '0px 0px 30px 30px',
-                  marginTop: 4,
+                  marginTop: 2,
                 }}
               >
                 <CardHeader title="Preconditions" />
@@ -216,27 +188,18 @@ const CreateSolution = ({
                     }}
                     onClick={handleAddPrecondition}
                     variant="outlined"
+                    endIcon={<PlaylistAddIcon />}
                   >
                     Add New Precondition
-                    <PlaylistAddIcon />
                   </Button>
                 </CardContent>
               </Card>
             </Box>
-
+            {/* Operations */}
             <Box
-              // onScroll={handleScroll}
-              // ref={(element) =>
-              //   element && checkScrollability(element as HTMLDivElement)
-              // }
               sx={{
-                width: '-webkit-fill-available',
+                width: '100%',
                 position: 'relative',
-                paddingLeft: 1,
-                paddingRight: 1,
-                paddingBottom: 1,
-                maxHeight: 'calc(100vh - 275px)',
-                overflowY: 'auto',
               }}
             >
               <Operations
@@ -246,7 +209,25 @@ const CreateSolution = ({
                 operationFieldsData={operationFieldsData}
               />
             </Box>
-            <CardContent sx={{ padding: '16px !important' }}>
+            {/* Action Bar */}
+            <Card
+              sx={{
+                borderRadius: '30px',
+                position: 'sticky',
+                zIndex: 100,
+                bottom: 0,
+                '@supports (width: -moz-available)': {
+                  width: '-moz-available',
+                },
+                '@supports (-webkit-fill-available)': {
+                  width: '-webkit-fill-available',
+                },
+                width: '100%',
+                boxSizing: 'border-box',
+                marginBottom: 2,
+                padding: 2,
+              }}
+            >
               <Box
                 sx={{
                   display: 'flex',
@@ -288,7 +269,7 @@ const CreateSolution = ({
                   </Button>
                 </Tooltip>
               </Box>
-            </CardContent>
+            </Card>
           </Box>
         </Box>
       </ErrorBoundary>

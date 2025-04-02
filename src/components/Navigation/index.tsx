@@ -15,6 +15,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Button,
 } from '@mui/material'
 import { menuItems } from './menuItems'
@@ -151,7 +152,9 @@ const MiniDrawer = () => {
                     color: 'white',
                   }}
                 >
-                  {item.icon}
+                  <Tooltip title={item.label} arrow placement="right">
+                    {item.icon}
+                  </Tooltip>
                 </ListItemIcon>
                 <ListItemText primary={item.label} />
               </ListItemButton>

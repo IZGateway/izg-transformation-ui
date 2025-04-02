@@ -1,18 +1,19 @@
 import * as React from 'react'
 import {
-  Typography,
-  CardHeader,
+  Box,
   Card,
   CardContent,
+  CardHeader,
   Divider,
-  Box,
   FormControl,
+  FormGroup,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
   TextField,
-  FormGroup,
-  IconButton,
+  Tooltip,
+  Typography,
 } from '@mui/material'
 import _ from 'lodash'
 import { useState } from 'react'
@@ -107,26 +108,28 @@ const Operations = ({
     <Box>
       <Card
         sx={{
-          minWidth: 275,
+          minWidth: 250,
           borderRadius: '0px 0px 30px 30px',
           marginTop: 4,
+          marginBottom: 4,
         }}
       >
         <div>
           <CardHeader title="Operations" />
           <Divider />
           <CardContent>
-            <Typography variant="body1">
+            <Typography pb={2} gutterBottom variant="body1">
               To add an operation, select the operation type from the dropdown
               list, which will initiate the configuration of the operation you
               wish to apply.
             </Typography>
-            <FormControl sx={{ width: '25%' }}>
+            <FormControl fullWidth>
               <InputLabel id="operation-type-label">Operation Type</InputLabel>
               <Select
                 labelId="operation-type-label"
                 value={operationType}
                 label="Operation Type"
+                fullWidth
                 onChange={handleChangeOperationType}
               >
                 {operationTypeData.map((type) => (
@@ -137,7 +140,16 @@ const Operations = ({
               </Select>
             </FormControl>
             {operationType && (
-              <>
+              <Box
+                display={'flex'}
+                gap={4}
+                justifyContent="space-between"
+                mt={4}
+                alignItems={{ xs: 'flex-end', md: 'center' }}
+                pr={{ xs: 0, md: 4 }}
+                pb={{ xs: 0, md: 2 }}
+                flexDirection={{ xs: 'column', md: 'row' }}
+              >
                 {operationFormFields[operationType]?.map((field) => (
                   <FormGroup
                     key={field.name}
@@ -147,12 +159,11 @@ const Operations = ({
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginBottom: 3,
-                      width: '25%',
+                      width: '100%',
                     }}
                   >
                     {field.inputType === 'select' ? (
-                      <FormControl fullWidth margin="normal">
+                      <FormControl fullWidth>
                         <InputLabel>{field.label}</InputLabel>
                         <Select
                           label={field.label}
@@ -173,24 +184,24 @@ const Operations = ({
                         </Select>
                       </FormControl>
                     ) : (
-                      <FormControl fullWidth margin="normal">
+                      <FormControl>
                         <TextField
                           label={field.label}
                           required={field.required}
-                          fullWidth
-                          margin="normal"
                           onChange={(e) =>
                             handleFieldChange(field.name, e.target.value)
                           }
                         />
                       </FormControl>
                     )}
-                    <IconButton aria-label="delete" color="error">
-                      <DeleteOutlinedIcon />
-                    </IconButton>
                   </FormGroup>
                 ))}
-              </>
+                <Tooltip arrow title="Delete Operation">
+                  <IconButton aria-label="delete" color="error">
+                    <DeleteOutlinedIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             )}
           </CardContent>
         </div>

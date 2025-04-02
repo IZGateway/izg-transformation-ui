@@ -44,14 +44,27 @@ const styles = {
     flexGrow: 1,
     overflowY: 'auto',
     overflowX: 'hidden',
-    maxHeight: 'calc(100vh - 459px)',
   },
   preconditionRow: {
     display: 'flex',
     flexDirection: 'row',
+    position: 'relative',
     justifyContent: 'space-between',
     alignItems: 'center',
+    zIndex: 10,
+    backgroundColor: '#FFF',
+    border: '1px solid #E0E0E0',
+    paddingX: 4,
+    paddingY: 2,
     marginBottom: 3,
+    borderRadius: '64px',
+    animation: 'fadeIn & fadeOut 0.3s ease-in-out',
+    '@media (max-width:600px)': {
+      borderRadius: '32px',
+      alignItems: 'flex-end',
+      gap: 2,
+      paddingX: 2,
+    },
   },
   divider: { marginBottom: 3 },
   saveButtonContainer: {
@@ -62,6 +75,14 @@ const styles = {
   saveButton: {
     borderRadius: '30px',
     width: '100%',
+  },
+  '@keyframes fadeIn': {
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+  },
+  '@keyframes fadeOut': {
+    from: { opacity: 1 },
+    to: { opacity: 0 },
   },
 }
 

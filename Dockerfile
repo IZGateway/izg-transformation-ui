@@ -32,6 +32,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
+# Install Nginx and Supervisor
+RUN apk add --no-cache nginx supervisor
+
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
@@ -42,7 +45,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/start-app.sh ./start-app.sh
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
 
 # Install filebeat
-
 RUN apk add curl libc6-compat
 ENV FILEBEAT_VERSION=8.17.4
 RUN curl https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${FILEBEAT_VERSION}-linux-x86_64.tar.gz -o ./filebeat.tar.gz && \
@@ -59,11 +61,25 @@ RUN cd ../metricbeat && \
     rm -rf /metricbeat/metricbeat.yml && \
     cp ../app/metricbeat.yml ./metricbeat.yml
 
-#USER nextjs
+# Configure Nginx
+RUN mkdir -p /etc/nginx/conf.d
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Configure Supervisor
+RUN mkdir -p /etc/supervisor.d
+RUN mkdir -p /var/log/supervisor/
+COPY supervisord.conf /etc/supervisor.d/supervisord.conf
+
+# Set up proper permissions
 RUN chmod a+x replace-variable.sh
 RUN chmod a+x start-app.sh
-EXPOSE 3000
 
+# Expose only 443 (to nginx)
+EXPOSE 443
+
+# This is only an environment variable telling NextJS which port to use.
+# THis DOES NOT expose port 3000
 ENV PORT 3000
 
-ENTRYPOINT ["bash", "start-app.sh"]
+# Change entrypoint to use supervisor
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor.d/supervisord.conf"]

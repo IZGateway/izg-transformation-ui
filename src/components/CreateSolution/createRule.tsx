@@ -14,9 +14,9 @@ const CreateRule = (props) => {
     <Box>
       <Card
         sx={{
-          minWidth: 275,
+          minWidth: 250,
           borderRadius: '0px 0px 30px 30px',
-          marginTop: 4,
+          marginTop: 0,
         }}
       >
         {props.ruleType === 'request' && (

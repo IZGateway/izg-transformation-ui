@@ -112,8 +112,6 @@ const CustomFooter = () => {
 const SolutionsTable = (props) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
 
-  console.log(props.data)
-
   const columns: GridColDef[] = [
     {
       field: 'id',

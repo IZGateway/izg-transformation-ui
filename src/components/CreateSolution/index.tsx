@@ -46,33 +46,47 @@ const CreateSolution = ({
 }) => {
   const router = useRouter()
   const { isReady, query } = router
-  console.log(solutionData)
   const [currentsolution, setCurrentSolution] = useState(solutionData)
   const [alertState, setAlertState] = useState<{
     show: boolean
     severity: 'success' | 'info' | 'error'
     message: string
   }>({ show: false, severity: 'info', message: '' })
+
   const request = _.isEmpty(requestOperations) ? false : true
   const response = _.isEmpty(responseOperations) ? false : true
-  const combination = request && response
-  const rule = request ? 'request' : response ? 'response' : undefined
-  const operations = rule === 'request' ? requestOperations : responseOperations
+  const [activeRule, setActiveRule] = useState<
+    'request' | 'response' | undefined
+  >(() => {
+    if (request) return 'request'
+    if (!request && response) return 'response'
+    return undefined
+  })
+  const operations =
+    activeRule === 'request' ? requestOperations : responseOperations
   const [operationList, setOperationList] = useState<any[]>(operations)
-  const [preconditions, setPreconditions] = useState(
-    operations[0].preconditions
+  const [preconditions, setPreconditions] = useState<any[]>(
+    operations[0]?.preconditions || []
   )
   const [hasPreconditions, setHasPreconditions] = useState(
-    operations[0].preconditions?.length > 0
+    preconditions.length > 0
   )
+  const [isDirty, setIsDirty] = useState(false)
+
+  const handleSwitchRule = () => {
+    if (activeRule === 'request' && response) {
+      setActiveRule('response')
+    } else if (activeRule === 'response' && request) {
+      setActiveRule('request')
+    }
+  }
+
   const formattedPreconditions = useFormattedPreconditions(
     true,
     operations[0].preconditions
       ? preconditions
       : [{ id: '', method: '', value: '' }]
   )
-  console.log(currentsolution)
-  console.log(solutionData)
   const handleSave = async () => {
     const transformedPreconditions = !hasPreconditions
       ? []
@@ -81,31 +95,45 @@ const CreateSolution = ({
           preconditionMethodsData,
           formattedPreconditions
         )
-
-    const requestBody = {
-      ...currentsolution,
-      requestOperations: [],
-      responseOperations: [
-        {
-          preconditions: transformedPreconditions,
-          operationList: operationList,
-        },
-      ],
+    let requestBody
+    if (request) {
+      requestBody = {
+        ...currentsolution,
+        responseOperations: [],
+        requestOperations: [
+          {
+            preconditions: transformedPreconditions,
+            operationList: operationList,
+          },
+        ],
+      }
     }
-    console.log(requestBody)
-    const response = await updateSolution(query.id as string, requestBody)
-    if (!response.success) {
-      console.error('Error saving description:', response.error)
+    if (response) {
+      requestBody = {
+        ...currentsolution,
+        requestOperations: [],
+        responseOperations: [
+          {
+            preconditions: transformedPreconditions,
+            operationList: operationList,
+          },
+        ],
+      }
+    }
+    const res = await updateSolution(query.id as string, requestBody)
+    if (!res.success) {
+      console.error('Error saving description:', res.error)
       setAlertState({
         show: true,
         severity: 'error',
-        message: 'Error! Could not save description!',
+        message: 'Error! Could not save solution!',
       })
     } else {
+      setIsDirty(false)
       setAlertState({
         show: true,
         severity: 'success',
-        message: 'Description Saved Successfully!',
+        message: 'Solution Saved Successfully!',
       })
     }
   }
@@ -130,7 +158,10 @@ const CreateSolution = ({
           <Box sx={{ position: 'relative', width: '35%' }}>
             <RuleInfo
               solutionData={currentsolution}
-              setSolutionData={setCurrentSolution}
+              setSolutionData={(updatedSolution) => {
+                setCurrentSolution(updatedSolution)
+                setIsDirty(true)
+              }}
             />
           </Box>
           <Box sx={{ position: 'relative', width: '100%' }}>
@@ -168,7 +199,7 @@ const CreateSolution = ({
                 overflowY: 'auto',
               }}
             >
-              <CreateRule ruleType={rule} />
+              <CreateRule ruleType={activeRule} />
             </Box>
             <Box
               // onScroll={handleScroll}
@@ -197,9 +228,10 @@ const CreateSolution = ({
                 <CardContent>
                   <PreconditionsSection
                     preconditions={formattedPreconditions}
-                    setPreconditions={(newPreconditions) =>
+                    setPreconditions={(newPreconditions) => {
                       setPreconditions(newPreconditions)
-                    }
+                      setIsDirty(true)
+                    }}
                     preconditionMethodsData={preconditionMethodsData}
                     preconditionsData={preconditionsData}
                     setHasPreconditions={true}
@@ -241,7 +273,10 @@ const CreateSolution = ({
             >
               <Operations
                 operations={operationList}
-                setOperations={setOperationList}
+                setOperations={(newOperations) => {
+                  setOperationList(newOperations)
+                  setIsDirty(true)
+                }}
                 operationTypeData={operationTypeData}
                 operationFieldsData={operationFieldsData}
               />
@@ -254,12 +289,14 @@ const CreateSolution = ({
                   alignItems: 'center',
                 }}
               >
-                {combination && (
+                {request && response && (
                   <Button
                     id="response"
                     data-testid="response-button"
                     color="error"
                     variant="outlined"
+                    onClick={handleSwitchRule}
+                    disabled={isDirty}
                     sx={{
                       borderRadius: '30px',
                       display: 'flex',
@@ -267,7 +304,9 @@ const CreateSolution = ({
                       maxWidth: '125px',
                     }}
                   >
-                    Go to Response rule
+                    {activeRule === 'request'
+                      ? 'Go to Response Rule'
+                      : 'Go to Request Rule'}
                   </Button>
                 )}
                 <Tooltip title="Save rule" arrow placement="bottom">

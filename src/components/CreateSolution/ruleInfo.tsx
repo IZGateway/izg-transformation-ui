@@ -13,13 +13,18 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 
-const RuleInfo = (props: { solutionData; setSolutionData }) => {
-  console.log(props.solutionData)
-  const [isActive, setIsActive] = useState(props.solutionData.active)
+const RuleInfo = ({ solutionData, setSolutionData }) => {
+  const onFieldChange =
+    (field: keyof typeof solutionData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSolutionData((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }))
+    }
 
   const handleToggle = () => {
-    setIsActive((prev) => !prev)
-    props.setSolutionData((prev) => ({
+    setSolutionData((prev) => ({
       ...prev,
       active: !prev.active,
     }))
@@ -47,34 +52,34 @@ const RuleInfo = (props: { solutionData; setSolutionData }) => {
             required
             id="id-uuid"
             label="ID / UUID"
-            defaultValue={props.solutionData.id}
+            value={solutionData.id}
           />
         </FormControl>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
           <TextField
-            disabled
             required
             id="name"
             label="Name"
-            defaultValue={props.solutionData.name}
+            value={solutionData.solutionName}
+            onChange={onFieldChange('solutionName')}
           />
         </FormControl>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
           <TextField
-            disabled
             required
             id="version"
             label="Version"
-            defaultValue={props.solutionData.version}
+            value={solutionData.version}
+            onChange={onFieldChange('version')}
           />
         </FormControl>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
           <TextField
-            disabled
             required
             id="description"
             label="Description"
-            defaultValue={props.solutionData.description}
+            value={solutionData.description}
+            onChange={onFieldChange('description')}
           />
         </FormControl>
         <Box display="flex" alignItems="center" gap={1} p={2}>
@@ -82,12 +87,12 @@ const RuleInfo = (props: { solutionData; setSolutionData }) => {
           <FormControlLabel
             control={
               <Switch
-                checked={isActive}
+                checked={solutionData.active}
                 onChange={handleToggle}
                 color="primary"
               />
             }
-            label={isActive ? 'True' : 'False'}
+            label={solutionData.active ? 'True' : 'False'}
             labelPlacement="end"
           />
         </Box>

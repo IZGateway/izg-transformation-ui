@@ -10,9 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const data = req.body
 
   const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
-  console.log('reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq')
-  console.log(req)
-  console.log(XFORM_SERVICE_ENDPOINT)
+
   setTimeout(async () => {
     try {
       const updatedPipeData = await pushDataToEndpoint(

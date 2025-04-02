@@ -3,7 +3,6 @@ import https from 'https'
 
 export async function updateSolution(id: string, data: any) {
   try {
-    console.log(data)
     const response = await axios.put(`/api/solutions/${id}`, data, {
       httpsAgent: new https.Agent({
         rejectUnauthorized: false,

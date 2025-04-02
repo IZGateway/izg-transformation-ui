@@ -40,9 +40,14 @@ const operationFormFields = {
     },
   ],
   copy: [
-    { name: 'source', label: 'Source', required: true, inputType: 'select' },
     {
-      name: 'destination',
+      name: 'sourceField',
+      label: 'Source',
+      required: true,
+      inputType: 'select',
+    },
+    {
+      name: 'destinationField',
       label: 'Destination',
       required: true,
       inputType: 'select',
@@ -60,12 +65,17 @@ const operationFormFields = {
   regex_replace: [
     { name: 'field', label: 'Field', required: true, inputType: 'text' },
     { name: 'regex', label: 'Regex', required: true, inputType: 'text' },
-    { name: 'replace', label: 'Replace', required: false, inputType: 'text' },
+    {
+      name: 'replacement',
+      label: 'Replace',
+      required: false,
+      inputType: 'text',
+    },
   ],
   save_state: [
     { name: 'field', label: 'Field', required: true, inputType: 'select' },
     {
-      name: 'lookupKey',
+      name: 'key',
       label: 'Lookup Key',
       required: true,
       inputType: 'text',
@@ -80,7 +90,6 @@ const Operations = ({
   operationFieldsData,
 }) => {
   const [operationType, setOperationType] = useState(operations.operation || '')
-  console.log(operationFieldsData)
   const handleChangeOperationType = (e) => {
     const newType = e.target.value
     setOperationType(newType)

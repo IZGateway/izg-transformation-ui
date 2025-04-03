@@ -42,6 +42,7 @@ COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
+COPY --from=builder /app/kill_supervisor.sh ./kill_supervisor.sh
 
 # Install filebeat
 RUN apk add curl libc6-compat
@@ -74,6 +75,7 @@ COPY supervisord.conf /etc/supervisor.d/supervisord.conf
 
 # Set up proper permissions
 RUN chmod a+x replace-variable.sh
+RUN chmod a+x kill_supervisor.sh
 
 # Expose only 443 (to nginx)
 EXPOSE 443

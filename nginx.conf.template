@@ -21,9 +21,8 @@ http {
         server_name localhost;
 
         # SSL configuration
-        # TODO - can we do this via ENV variable for help with running locally?
-        ssl_certificate /Users/moodya/Dev/Fed/izg/my_certs/amoody_testing_izgateway_org.crt;
-        ssl_certificate_key /Users/moodya/Dev/Fed/izg/my_certs/amoody_testing_izgateway_org.private.key;
+        ssl_certificate ${XFORM_SERVICE_ENDPOINT_CRT_PATH};
+        ssl_certificate_key ${XFORM_SERVICE_ENDPOINT_KEY_PATH};
 
         # TODO - need to match specific setup we have in AWS?
         ssl_protocols TLSv1.2 TLSv1.3;

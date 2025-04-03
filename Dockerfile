@@ -32,8 +32,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
-# Install Nginx and Supervisor
-RUN apk add --no-cache nginx supervisor
+# Install Nginx, Supervisor, and gettest (for envsubst)
+RUN apk add --no-cache nginx supervisor gettext
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
@@ -62,7 +62,7 @@ RUN cd ../metricbeat && \
 
 # Configure Nginx
 RUN mkdir -p /etc/nginx/conf.d
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Configure Supervisor
 RUN mkdir -p /etc/supervisor.d

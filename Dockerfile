@@ -42,7 +42,7 @@ COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
-COPY --from=builder /app/run_and_monitor.sh ./docker/run_and_monitor.sh
+COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
 # Install filebeat
 RUN apk add curl libc6-compat

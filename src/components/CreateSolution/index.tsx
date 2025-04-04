@@ -282,7 +282,11 @@ const CreateSolution = ({
               >
                 <CardHeader title="Preconditions" />
                 <Divider />
-                <CardContent>
+                <CardContent
+                  sx={{
+                    pb: '0!important',
+                  }}
+                >
                   <PreconditionsSection
                     preconditions={formattedPreconditions}
                     setPreconditions={(newPreconditions) => {
@@ -323,12 +327,18 @@ const CreateSolution = ({
                   minWidth: 250,
                   borderRadius: '0px 0px 30px 30px',
                   marginTop: 2,
+                  pb: 0,
+                  mb: 6,
                 }}
               >
                 <CardHeader title="Operations" />
                 <Divider />
-                <CardContent>
-                  <Typography pb={2} gutterBottom variant="body1">
+                <CardContent
+                  sx={{
+                    pb: '0!important',
+                  }}
+                >
+                  <Typography gutterBottom variant="body1">
                     To add multiple operations, select add new operation and
                     fill in the type and required fields.
                   </Typography>
@@ -349,6 +359,11 @@ const CreateSolution = ({
                       justifyContent: 'flex-start',
                       alignItems: 'center',
                       alignSelf: 'flex-start',
+                      zIndex: 10,
+                      bgcolor: 'white',
+                      ':hover': {
+                        bgcolor: 'white',
+                      },
                     }}
                     onClick={handleAddOperation}
                     variant="outlined"
@@ -365,6 +380,7 @@ const CreateSolution = ({
                 position: 'sticky',
                 zIndex: 100,
                 bottom: 0,
+                border: `1px solid #CCC`,
                 '@supports (width: -moz-available)': {
                   width: '-moz-available',
                 },

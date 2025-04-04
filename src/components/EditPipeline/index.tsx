@@ -128,7 +128,7 @@ const EditPipeline = ({ orgData }) => {
     <ReorderProvider>
       <Container title="Pipeline">
         <ErrorBoundary>
-          <Close />
+          <Close path={'/manage'} />
           <Box data-testid="pipeline-name-container">
             <Typography
               variant="h1"

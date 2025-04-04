@@ -1,7 +1,15 @@
 import Container from '../../components/Container'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect, useState, useCallback, ChangeEvent } from 'react'
+import {
+  useEffect,
+  useState,
+  useCallback,
+  ChangeEvent,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react'
 import Close from '../Close'
 import EditIcon from '@mui/icons-material/Edit'
 import {
@@ -27,13 +35,16 @@ import React from 'react'
 import CreateRule from './createRule'
 import _ from 'lodash'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
-import Operations from './operations'
+import Operations, { operationFormFields } from './operations'
 import PreconditionsSection from '../EditPipeline/Modal/preconditionsSection'
 import {
   transformPreconditions,
   useFormattedPreconditions,
 } from '../EditPipeline/Modal/utils'
 import { updateSolution } from './updateSolution'
+import { transformOperations } from './utils'
+import CombinedContext from '../../contexts/app'
+import CustomSnackbar from '../SnackBar'
 
 const CreateSolution = ({
   solutionData,
@@ -46,12 +57,9 @@ const CreateSolution = ({
 }) => {
   const router = useRouter()
   const { isReady, query } = router
+  const { alert, setAlert } = useContext(CombinedContext)
+  const [showSnackbar, setShowSnackbar] = useState(false)
   const [currentsolution, setCurrentSolution] = useState(solutionData)
-  const [alertState, setAlertState] = useState<{
-    show: boolean
-    severity: 'success' | 'info' | 'error'
-    message: string
-  }>({ show: false, severity: 'info', message: '' })
 
   const request = _.isEmpty(requestOperations) ? false : true
   const response = _.isEmpty(responseOperations) ? false : true
@@ -64,14 +72,92 @@ const CreateSolution = ({
   })
   const operations =
     activeRule === 'request' ? requestOperations : responseOperations
-  const [operationList, setOperationList] = useState<any[]>(operations)
+  const [operationList, setOperationList] = useState<any[]>(
+    operations[0]?.operationList || []
+  )
   const [preconditions, setPreconditions] = useState<any[]>(
     operations[0]?.preconditions || []
   )
   const [hasPreconditions, setHasPreconditions] = useState(
     preconditions.length > 0
   )
+  const [hasOperations, setHasOperations] = useState(operationList.length > 0)
   const [isDirty, setIsDirty] = useState(false)
+  const initialSolutionRef = useRef(currentsolution)
+  const initialOperationsRef = useRef(operationList)
+  const initialPreconditionsRef = useRef(preconditions)
+
+  useEffect(() => {
+    const solutionChanged = !_.isEqual(
+      currentsolution,
+      initialSolutionRef.current
+    )
+    const operationsChanged = !_.isEqual(
+      operationList,
+      initialOperationsRef.current
+    )
+    const preconditionsChanged = !_.isEqual(
+      preconditions,
+      initialPreconditionsRef.current
+    )
+    setIsDirty(solutionChanged || operationsChanged || preconditionsChanged)
+  }, [currentsolution, operationList, preconditions])
+  const formattedPreconditions = useFormattedPreconditions(
+    true,
+    operations[0].preconditions
+      ? preconditions
+      : [{ id: '', method: '', value: '' }]
+  )
+  const isOperationsValid = useMemo(() => {
+    if (!hasOperations) return true
+
+    return operationList.every((op) => {
+      if (!op.method) return false
+
+      const requiredFields = operationFormFields[op.method] || []
+      return requiredFields.every((field) => {
+        const value = op[field.name]
+        return value !== undefined && value !== ''
+      })
+    })
+  }, [hasOperations, operationList])
+
+  const isFormValid = useMemo(() => {
+    const arePreconditionsValid =
+      !hasPreconditions ||
+      formattedPreconditions.every((precondition) => {
+        if (!precondition.id || !precondition.method) return false
+        if (
+          !['exists', 'not_exists'].includes(precondition.method) &&
+          !precondition.value
+        )
+          return false
+        return true
+      })
+    return arePreconditionsValid && isOperationsValid
+  }, [hasPreconditions, formattedPreconditions, isOperationsValid])
+  useEffect(() => {
+    const newOperations =
+      activeRule === 'request' ? requestOperations : responseOperations
+
+    setOperationList(newOperations[0]?.operationList || [])
+    setPreconditions(newOperations[0]?.preconditions || [])
+  }, [activeRule, requestOperations, responseOperations])
+
+  useEffect(() => {
+    if (!_.isEmpty(alert.level)) {
+      setShowSnackbar(true)
+    } else {
+      setShowSnackbar(false)
+    }
+  }, [alert])
+  const handleClose = () => {
+    setShowSnackbar(false)
+    setAlert({
+      level: '',
+      message: '',
+    })
+  }
 
   const handleSwitchRule = () => {
     if (activeRule === 'request' && response) {
@@ -81,12 +167,6 @@ const CreateSolution = ({
     }
   }
 
-  const formattedPreconditions = useFormattedPreconditions(
-    true,
-    operations[0].preconditions
-      ? preconditions
-      : [{ id: '', method: '', value: '' }]
-  )
   const handleSave = async () => {
     const transformedPreconditions = !hasPreconditions
       ? []
@@ -95,20 +175,24 @@ const CreateSolution = ({
           preconditionMethodsData,
           formattedPreconditions
         )
+    const transformedOperationList = transformOperations(
+      operationList,
+      operationFieldsData
+    )
     let requestBody
-    if (request) {
+    if (activeRule === 'request') {
       requestBody = {
         ...currentsolution,
         responseOperations: [],
         requestOperations: [
           {
             preconditions: transformedPreconditions,
-            operationList: operationList,
+            operationList: transformedOperationList,
           },
         ],
       }
     }
-    if (response) {
+    if (activeRule === 'response') {
       requestBody = {
         ...currentsolution,
         requestOperations: [],
@@ -122,17 +206,15 @@ const CreateSolution = ({
     }
     const res = await updateSolution(query.id as string, requestBody)
     if (!res.success) {
-      console.error('Error saving description:', res.error)
-      setAlertState({
-        show: true,
-        severity: 'error',
+      console.error('Error saving solution:', res.error)
+      setAlert({
+        level: 'error',
         message: 'Error! Could not save solution!',
       })
     } else {
       setIsDirty(false)
-      setAlertState({
-        show: true,
-        severity: 'success',
+      setAlert({
+        level: 'success',
         message: 'Solution Saved Successfully!',
       })
     }
@@ -142,10 +224,16 @@ const CreateSolution = ({
     setHasPreconditions(true)
     setPreconditions((prev) => [...prev, { id: '', method: '', value: '' }])
   }, [setHasPreconditions, setPreconditions])
+
+  const handleAddOperation = () => {
+    setHasOperations(true)
+    setOperationList((prev) => [...prev, { method: '' }])
+  }
+
   return (
     <Container title="Solution">
       <ErrorBoundary>
-        <Close />
+        <Close path={'/solutions'} />
         <Box
           sx={{
             display: 'flex',
@@ -158,7 +246,6 @@ const CreateSolution = ({
             flexDirection: { xs: 'column', sm: 'column', md: 'row' },
           }}
         >
-          {/* Rule Info */}
           <Box sx={{ position: 'relative', width: { sm: '100%', md: '35%' } }}>
             <RuleInfo
               solutionData={currentsolution}
@@ -169,7 +256,6 @@ const CreateSolution = ({
             />
           </Box>
           <Box sx={{ position: 'relative', width: '100%' }}>
-            {/* Rule Type */}
             <Box
               sx={{
                 width: '100%',
@@ -179,7 +265,6 @@ const CreateSolution = ({
             >
               <CreateRule ruleType={activeRule} />
             </Box>
-            {/* Pre Conditions*/}
             <Box
               sx={{
                 position: 'relative',
@@ -227,24 +312,53 @@ const CreateSolution = ({
                 </CardContent>
               </Card>
             </Box>
-            {/* Operations */}
             <Box
               sx={{
                 width: '100%',
                 position: 'relative',
               }}
             >
-              <Operations
-                operations={operationList}
-                setOperations={(newOperations) => {
-                  setOperationList(newOperations)
-                  setIsDirty(true)
+              <Card
+                sx={{
+                  minWidth: 250,
+                  borderRadius: '0px 0px 30px 30px',
+                  marginTop: 2,
                 }}
-                operationTypeData={operationTypeData}
-                operationFieldsData={operationFieldsData}
-              />
+              >
+                <CardHeader title="Operations" />
+                <Divider />
+                <CardContent>
+                  <Typography pb={2} gutterBottom variant="body1">
+                    To add multiple operations, select add new operation and
+                    fill in the type and required fields.
+                  </Typography>
+                  <Operations
+                    operations={operationList}
+                    setOperations={(newOperationList) => {
+                      setOperationList(newOperationList)
+                    }}
+                    operationTypeData={operationTypeData}
+                    operationFieldsData={operationFieldsData}
+                    setHasOperations={setHasOperations}
+                  />
+                  <Button
+                    data-testid="add-more-operation-button"
+                    sx={{
+                      marginBottom: 3,
+                      display: 'inline-flex',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      alignSelf: 'flex-start',
+                    }}
+                    onClick={handleAddOperation}
+                    variant="outlined"
+                    endIcon={<PlaylistAddIcon />}
+                  >
+                    Add New Operation
+                  </Button>
+                </CardContent>
+              </Card>
             </Box>
-            {/* Action Bar */}
             <Card
               sx={{
                 borderRadius: '30px',
@@ -297,6 +411,7 @@ const CreateSolution = ({
                     color="secondary"
                     variant="contained"
                     onClick={handleSave}
+                    disabled={!isDirty || !isFormValid}
                     sx={{
                       borderRadius: '30px',
                       display: 'flex',
@@ -311,6 +426,12 @@ const CreateSolution = ({
             </Card>
           </Box>
         </Box>
+        <CustomSnackbar
+          open={showSnackbar}
+          severity={alert.level}
+          message={alert.message}
+          onClose={handleClose}
+        />
       </ErrorBoundary>
     </Container>
   )

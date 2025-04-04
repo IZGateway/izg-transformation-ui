@@ -14,12 +14,15 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Button,
 } from '@mui/material'
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import { buildOperation, removeOperation } from './utils'
 import _ from 'lodash'
 import { useState } from 'react'
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import { buildOperation } from './utils'
-const operationFormFields = {
+
+export const operationFormFields = {
   mapper: [
     {
       name: 'codeField',
@@ -75,12 +78,7 @@ const operationFormFields = {
   ],
   save_state: [
     { name: 'field', label: 'Field', required: true, inputType: 'select' },
-    {
-      name: 'key',
-      label: 'Lookup Key',
-      required: true,
-      inputType: 'text',
-    },
+    { name: 'key', label: 'Lookup Key', required: true, inputType: 'text' },
   ],
 }
 
@@ -89,123 +87,123 @@ const Operations = ({
   setOperations,
   operationTypeData,
   operationFieldsData,
+  setHasOperations,
 }) => {
-  const [operationType, setOperationType] = useState(operations.operation || '')
-  const handleChangeOperationType = (e) => {
-    const newType = e.target.value
-    setOperationType(newType)
-    setOperations([{ method: newType }])
+  const [fadeOutIndex, setFadeOutIndex] = useState(null)
+  const handleRemoveOperation = (index) => {
+    setFadeOutIndex(index)
+    setTimeout(() => {
+      removeOperation(index, operations, setOperations, setHasOperations)
+      setFadeOutIndex(null)
+    }, 300)
   }
-
-  const handleFieldChange = (fieldName, value) => {
-    const updated = [
-      buildOperation(operations[0] || {}, fieldName, value, operationType),
-    ]
+  const handleChangeOperationType = (index, newType) => {
+    const updated = [...operations]
+    updated[index] = { method: newType }
     setOperations(updated)
   }
-
+  const handleFieldChange = (index, fieldName, value) => {
+    const updated = [...operations]
+    updated[index] = buildOperation(
+      updated[index] || {},
+      fieldName,
+      value,
+      updated[index].method
+    )
+    setOperations(updated)
+  }
   return (
     <Box>
-      <Card
-        sx={{
-          minWidth: 250,
-          borderRadius: '0px 0px 30px 30px',
-          marginTop: 4,
-          marginBottom: 4,
-        }}
-      >
-        <div>
-          <CardHeader title="Operations" />
-          <Divider />
-          <CardContent>
-            <Typography pb={2} gutterBottom variant="body1">
-              To add an operation, select the operation type from the dropdown
-              list, which will initiate the configuration of the operation you
-              wish to apply.
-            </Typography>
-            <FormControl fullWidth>
-              <InputLabel id="operation-type-label">Operation Type</InputLabel>
-              <Select
-                labelId="operation-type-label"
-                value={operationType}
-                label="Operation Type"
-                fullWidth
-                onChange={handleChangeOperationType}
+      {operations.map((operation, index) => (
+        <Box
+          key={index}
+          sx={{
+            border: '1px solid #ccc',
+            borderRadius: '10px',
+            padding: 2,
+            marginBottom: 2,
+          }}
+        >
+          <FormControl fullWidth sx={{ marginBottom: 2 }}>
+            <InputLabel>Operation Type</InputLabel>
+            <Select
+              value={operation.method || ''}
+              label="Operation Type"
+              onChange={(e) => handleChangeOperationType(index, e.target.value)}
+              displayEmpty
+            >
+              {operationTypeData.map((type) => (
+                <MenuItem key={type.method} value={type.method}>
+                  {type.method}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Box display={'flex'} gap={2} flexWrap="wrap">
+            {operation.method &&
+              operationFormFields[operation.method]?.map((field) => (
+                <FormGroup
+                  key={field.name}
+                  row
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    width: '100%',
+                    maxWidth: '300px',
+                    animation:
+                      fadeOutIndex === index
+                        ? 'fadeOut 0.3s ease-in-out'
+                        : 'fadeIn 0.3s ease-in-out',
+                  }}
+                >
+                  {field.inputType === 'select' ? (
+                    <FormControl fullWidth>
+                      <InputLabel>{field.label}</InputLabel>
+                      <Select
+                        value={operation[field.name] || ''}
+                        onChange={(e) =>
+                          handleFieldChange(index, field.name, e.target.value)
+                        }
+                        required={field.required}
+                      >
+                        {operationFieldsData.data.map((item) => (
+                          <MenuItem
+                            key={item.id || item.method}
+                            value={item.id || item.method}
+                          >
+                            {item.fieldName || item.method}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <FormControl fullWidth>
+                      <TextField
+                        label={field.label}
+                        required={field.required}
+                        value={operation[field.name] || ''}
+                        onChange={(e) =>
+                          handleFieldChange(index, field.name, e.target.value)
+                        }
+                      />
+                    </FormControl>
+                  )}
+                </FormGroup>
+              ))}
+            <Tooltip arrow title="Delete Operation">
+              <IconButton
+                aria-label="delete"
+                color="error"
+                onClick={() => handleRemoveOperation(index)}
               >
-                {operationTypeData.map((type) => (
-                  <MenuItem key={type.method} value={type.method}>
-                    {type.method}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {operationType && (
-              <Box
-                display={'flex'}
-                gap={4}
-                justifyContent="space-between"
-                mt={4}
-                alignItems={{ xs: 'flex-end', md: 'center' }}
-                pr={{ xs: 0, md: 4 }}
-                pb={{ xs: 0, md: 2 }}
-                flexDirection={{ xs: 'column', md: 'row' }}
-              >
-                {operationFormFields[operationType]?.map((field) => (
-                  <FormGroup
-                    key={field.name}
-                    row
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      width: '100%',
-                    }}
-                  >
-                    {field.inputType === 'select' ? (
-                      <FormControl fullWidth>
-                        <InputLabel>{field.label}</InputLabel>
-                        <Select
-                          label={field.label}
-                          displayEmpty
-                          required
-                          onChange={(e) =>
-                            handleFieldChange(field.name, e.target.value)
-                          }
-                        >
-                          {operationFieldsData.data.map((item) => (
-                            <MenuItem
-                              key={item.id || item.method}
-                              value={item.id || item.method}
-                            >
-                              {item.fieldName || item.method}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    ) : (
-                      <FormControl>
-                        <TextField
-                          label={field.label}
-                          required={field.required}
-                          onChange={(e) =>
-                            handleFieldChange(field.name, e.target.value)
-                          }
-                        />
-                      </FormControl>
-                    )}
-                  </FormGroup>
-                ))}
-                <Tooltip arrow title="Delete Operation">
-                  <IconButton aria-label="delete" color="error">
-                    <DeleteOutlinedIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            )}
-          </CardContent>
-        </div>
-      </Card>
+                <DeleteOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+      ))}
     </Box>
   )
 }

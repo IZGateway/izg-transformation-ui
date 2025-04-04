@@ -34,8 +34,6 @@ export const AppProvider = ({ children }) => {
   }
   const [alert, setAlert] = useState<Alert>({
     level: '',
-    jurisdiction: '',
-    dest_type: '',
     message: '',
   })
   const combinedContextValue: CombinedContextType = {

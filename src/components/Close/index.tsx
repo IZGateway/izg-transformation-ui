@@ -4,12 +4,12 @@ import CloseIcon from '@mui/icons-material/Close'
 import CombinedContext from '../../contexts/app'
 import { useRouter } from 'next/router'
 
-const Close = () => {
+const Close = ({ path }) => {
   const { clearValue } = React.useContext(CombinedContext)
   const router = useRouter()
   const handleClose = () => {
     clearValue()
-    router.push('/manage')
+    router.push(path)
   }
 
   return (

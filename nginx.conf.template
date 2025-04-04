@@ -24,9 +24,11 @@ http {
         server_name localhost;
 
         # SSL configuration
+        # TODO - this is likely different than the cert used to communicate w/ backend service
         ssl_certificate ${XFORM_SERVICE_ENDPOINT_CRT_PATH};
         ssl_certificate_key ${XFORM_SERVICE_ENDPOINT_KEY_PATH};
-        ssl_dhparam /etc/nginx/ssl/dhparam.pem;
+        # TODO - uncomment when done troubleshootin
+        #ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_prefer_server_ciphers on;

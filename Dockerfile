@@ -32,8 +32,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
-# Install Nginx, Supervisor, gettest (for envsubst), openssl to create dh file
-RUN apk add --no-cache nginx supervisor gettext openssl
+# Install Nginx, gettext (for envsubst), and tini
+RUN apk add --no-cache nginx gettext tini
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
@@ -42,7 +42,7 @@ COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
-COPY --from=builder /app/kill_supervisor.sh ./kill_supervisor.sh
+COPY --from=builder /app/tini.sh ./tini.sh
 
 # Install filebeat
 RUN apk add curl libc6-compat
@@ -66,16 +66,12 @@ RUN mkdir -p /etc/nginx/conf.d
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 # Create diffie-hellman file
 RUN mkdir -p /etc/nginx/ssl
-RUN openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
-
-# Configure Supervisor
-RUN mkdir -p /etc/supervisor.d
-RUN mkdir -p /var/log/supervisor/
-COPY supervisord.conf /etc/supervisor.d/supervisord.conf
+# TODO uncomment after troubleshooting
+#RUN openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
 
 # Set up proper permissions
 RUN chmod a+x replace-variable.sh
-RUN chmod a+x kill_supervisor.sh
+RUN chmod a+x tini.sh
 
 # Expose only 443 (to nginx)
 EXPOSE 443
@@ -84,5 +80,5 @@ EXPOSE 443
 # THis DOES NOT expose port 3000
 ENV PORT 3000
 
-# Change entrypoint to use supervisor
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisor.d/supervisord.conf"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/app/tini.sh"]

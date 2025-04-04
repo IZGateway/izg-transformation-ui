@@ -1,3 +1,8 @@
+filebeat.config:
+  modules:
+    path: /app/filebeat/modules.d/*.yml # enable all modules (nginx, kafka, redis, etc)
+    reload.enabled: false
+
 # Filebeat Inputs section
 # Add another item to the "filebeat.inputs" object.
 
@@ -31,7 +36,10 @@ filebeat.modules:
     error:
       enabled: true
       var.paths: ["/var/log/nginx/error.log"]
-    tags: ['${ELASTIC_ENV_TAG:dev}']
+    processors:
+      - add_host_metadata: ~
+      - add_cloud_metadata: ~
+    tags: ['${ELASTIC_ENV_TAG:dev}',"nginx"]
 
 # The Kibana section can be enabled to import dashboards and visualizations for specific Elastic Beats.
 # The ILM and Template settings are not recommended, as you should be controlling those from within Kibana and Elasticsearch itself.

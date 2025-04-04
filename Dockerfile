@@ -42,7 +42,7 @@ COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
-COPY --from=builder /app/tini.sh ./tini.sh
+COPY --from=builder /app/run_and_monitor.sh ./docker/run_and_monitor.sh
 
 # Install filebeat
 RUN apk add curl libc6-compat
@@ -66,12 +66,11 @@ RUN mkdir -p /etc/nginx/conf.d
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 # Create diffie-hellman file
 RUN mkdir -p /etc/nginx/ssl
-# TODO uncomment after troubleshooting
-#RUN openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
+RUN openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
 
 # Set up proper permissions
 RUN chmod a+x replace-variable.sh
-RUN chmod a+x tini.sh
+RUN chmod a+x run_and_monitor.sh
 
 # Expose only 443 (to nginx)
 EXPOSE 443
@@ -81,4 +80,4 @@ EXPOSE 443
 ENV PORT 3000
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/app/tini.sh"]
+CMD ["/app/run_and_monitor.sh"]

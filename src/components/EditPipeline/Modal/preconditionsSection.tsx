@@ -53,7 +53,6 @@ const PreconditionsSection = ({
             setPreconditions
           )
         }
-        displayEmpty
         required
       >
         {data.map((item) => (
@@ -115,8 +114,8 @@ const PreconditionsSection = ({
           >
             <TextField
               value={precondition.value || ''}
-              label={precondition.value ? '' : 'Value'}
-              InputLabelProps={{ shrink: false }}
+              label={precondition.value || 'Value'}
+              InputLabelProps={{ shrink: true }}
               onChange={(e) =>
                 updatePrecondition(
                   index,

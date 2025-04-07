@@ -1,10 +1,6 @@
 import * as React from 'react'
 import {
   Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
   FormControl,
   FormGroup,
   IconButton,
@@ -13,13 +9,9 @@ import {
   Select,
   TextField,
   Tooltip,
-  Typography,
-  Button,
 } from '@mui/material'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
-import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import { buildOperation, removeOperation } from './utils'
-import _ from 'lodash'
 import { useState } from 'react'
 
 export const operationFormFields = {
@@ -123,10 +115,10 @@ const Operations = ({
           position: 'absolute',
           top: '142px',
           bottom: '64px',
-          left: { xs: '21%', md: '4.5%' }, // Center the line horizontally
-          width: '2px', // Thickness of the line
-          backgroundColor: '#177B8F', // Blue color for the line
-          zIndex: 0, // Place the line behind the content
+          left: { xs: '21%', md: '4.5%' },
+          width: '2px',
+          backgroundColor: '#177B8F',
+          zIndex: 0,
         },
       }}
     >
@@ -184,9 +176,8 @@ const Operations = ({
           <Box display={'flex'} gap={2} justifyContent={'flex-end'} mr={'60px'}>
             {operation.method &&
               operationFormFields[operation.method]?.map((field) => (
-                <Box width={'100%'}>
+                <Box key={field.name} width={'100%'}>
                   <FormGroup
-                    key={field.name}
                     row
                     sx={{
                       display: 'flex',

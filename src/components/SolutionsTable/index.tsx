@@ -94,22 +94,23 @@ const actionButtonStyle = {
 const CustomFooter = () => {
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center">
-      <Button
-        sx={{
-          borderRadius: '60px',
-          float: 'right',
-          margin: '2em 0',
-          justifyContent: 'center',
-          boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
-          backgroundColor: '#FFFFFF',
-        }}
-        variant="text"
-        // onClick={handleGoBack}
-        color="primary"
-        endIcon={<AddIcon />}
-      >
-        Add Solution
-      </Button>
+      <Link href="/add/solution" passHref>
+        <Button
+          sx={{
+            borderRadius: '60px',
+            float: 'right',
+            margin: '2em 0',
+            justifyContent: 'center',
+            boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+            backgroundColor: '#FFFFFF',
+          }}
+          variant="text"
+          color="primary"
+          endIcon={<AddIcon />}
+        >
+          Add Solution
+        </Button>
+      </Link>
       <GridFooter />
     </Box>
   )

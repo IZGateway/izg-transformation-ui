@@ -11,7 +11,6 @@ import {
   TextField,
   Switch,
 } from '@mui/material'
-import { useState } from 'react'
 
 const RuleInfo = ({ solutionData, setSolutionData }) => {
   const onFieldChange =
@@ -47,8 +46,8 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
         <Typography variant="body1" component="div">
           The Rule Info section provides key details about the rule, including
           its identification, description, version, and current status. This
-          high-level overview helps users quickly understand the rule's function
-          and state
+          high-level overview helps users quickly understand the rule&apos;s
+          function and state
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 2 }}>
           <TextField
@@ -57,7 +56,7 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
             id="id-uuid"
             label="ID / UUID"
             aria-disabled="true"
-            value={solutionData.id}
+            value={solutionData?.id}
             helperText="This is the unique identifier for the rule. It cannot be changed."
           />
         </FormControl>
@@ -66,7 +65,7 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
             required
             id="name"
             label="Name"
-            value={solutionData.solutionName}
+            value={solutionData?.solutionName}
             onChange={onFieldChange('solutionName')}
           />
         </FormControl>
@@ -75,7 +74,7 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
             required
             id="version"
             label="Version"
-            value={solutionData.version}
+            value={solutionData?.version}
             onChange={onFieldChange('version')}
           />
         </FormControl>
@@ -84,7 +83,7 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
             required
             id="description"
             label="Description"
-            value={solutionData.description}
+            value={solutionData?.description}
             onChange={onFieldChange('description')}
             multiline
             minRows={4}
@@ -96,12 +95,12 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
           <FormControlLabel
             control={
               <Switch
-                checked={solutionData.active}
+                checked={solutionData?.active}
                 onChange={handleToggle}
                 color="primary"
               />
             }
-            label={solutionData.active ? 'True' : 'False'}
+            label={solutionData?.active ? 'True' : 'False'}
             labelPlacement="end"
           />
         </Box>

@@ -7,7 +7,6 @@ import {
   Divider,
   Box,
 } from '@mui/material'
-import _ from 'lodash'
 
 const CreateRule = (props) => {
   return (
@@ -19,7 +18,7 @@ const CreateRule = (props) => {
           marginTop: 0,
         }}
       >
-        {props.ruleType === 'request' && (
+        {props.currentRuleTab === 'request' && (
           <div>
             <CardHeader title="Creating a Rule (Request)" />
             <Divider />
@@ -35,7 +34,7 @@ const CreateRule = (props) => {
             </CardContent>
           </div>
         )}
-        {props.ruleType === 'response' && (
+        {props.currentRuleTab === 'response' && (
           <div>
             <CardHeader title="Creating a Rule (Response)" />
             <Divider />

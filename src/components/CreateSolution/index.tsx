@@ -5,32 +5,22 @@ import {
   useEffect,
   useState,
   useCallback,
-  ChangeEvent,
   useContext,
   useMemo,
   useRef,
 } from 'react'
 import Close from '../Close'
-import EditIcon from '@mui/icons-material/Edit'
 import {
   Typography,
   Tooltip,
   Box,
-  IconButton,
-  TextField,
   Card,
   CardContent,
   CardHeader,
   Divider,
   Button,
-  AlertTitle,
-  Collapse,
-  Grid,
-  FormGroup,
-  FormControl,
 } from '@mui/material'
 import RuleInfo from './ruleInfo'
-import palette from '../../styles/theme/palette'
 import React from 'react'
 import CreateRule from './createRule'
 import _ from 'lodash'
@@ -45,6 +35,8 @@ import { updateSolution } from './updateSolution'
 import { transformOperations } from './utils'
 import CombinedContext from '../../contexts/app'
 import CustomSnackbar from '../SnackBar'
+import { createSolution } from './createSolution'
+import SelectRule from './selectRule'
 
 const CreateSolution = ({
   solutionData,
@@ -56,37 +48,62 @@ const CreateSolution = ({
   operationFieldsData,
 }) => {
   const router = useRouter()
-  const { isReady, query } = router
+  const { query } = router
   const { alert, setAlert } = useContext(CombinedContext)
-  const [showSnackbar, setShowSnackbar] = useState(false)
-  const [currentsolution, setCurrentSolution] = useState(solutionData)
-
+  const isEditMode = !!solutionData?.id
+  const [hasSelectedRule, setHasSelectedRule] = useState(isEditMode)
   const request = _.isEmpty(requestOperations) ? false : true
   const response = _.isEmpty(responseOperations) ? false : true
-  const [activeRule, setActiveRule] = useState<
-    'request' | 'response' | undefined
-  >(() => {
-    if (request) return 'request'
-    if (!request && response) return 'response'
+  const [activeRule, setActiveRule] = useState(() => {
+    if (isEditMode) {
+      if (request && response) return 'combination'
+      if (request) return 'request'
+      if (response) return 'response'
+    }
     return undefined
   })
+  const [currentRuleTab, setCurrentRuleTab] = useState(() => {
+    if (activeRule === 'response') return 'response'
+    return 'request'
+  })
+
   const operations =
-    activeRule === 'request' ? requestOperations : responseOperations
-  const [operationList, setOperationList] = useState<any[]>(
-    operations[0]?.operationList || []
+    activeRule === 'combination'
+      ? currentRuleTab === 'request'
+        ? requestOperations
+        : responseOperations
+      : activeRule === 'request'
+      ? requestOperations
+      : responseOperations
+  const [currentsolution, setCurrentSolution] = useState(() =>
+    isEditMode
+      ? solutionData
+      : {
+          solutionName: '',
+          description: '',
+          version: '',
+          active: true,
+        }
   )
-  const [preconditions, setPreconditions] = useState<any[]>(
-    operations[0]?.preconditions || []
+  const [operationList, setOperationList] = useState(() =>
+    isEditMode && operations?.[0]?.operationList
+      ? operations[0].operationList
+      : []
+  )
+  const [preconditions, setPreconditions] = useState(() =>
+    isEditMode && operations?.[0]?.preconditions
+      ? operations[0].preconditions
+      : []
   )
   const [hasPreconditions, setHasPreconditions] = useState(
     preconditions.length > 0
   )
-  console.log(hasPreconditions)
   const [hasOperations, setHasOperations] = useState(operationList.length > 0)
   const [isDirty, setIsDirty] = useState(false)
   const initialSolutionRef = useRef(currentsolution)
   const initialOperationsRef = useRef(operationList)
   const initialPreconditionsRef = useRef(preconditions)
+  const [showSnackbar, setShowSnackbar] = useState(false)
 
   useEffect(() => {
     const solutionChanged = !_.isEqual(
@@ -103,12 +120,31 @@ const CreateSolution = ({
     )
     setIsDirty(solutionChanged || operationsChanged || preconditionsChanged)
   }, [currentsolution, operationList, preconditions])
+
+  useEffect(() => {
+    if (!isEditMode) return
+    const newOperations =
+      activeRule === 'request' ? requestOperations : responseOperations
+
+    setOperationList(newOperations[0]?.operationList || [])
+    setPreconditions(newOperations[0]?.preconditions || [])
+  }, [activeRule, requestOperations, responseOperations, isEditMode])
+
+  useEffect(() => {
+    if (!_.isEmpty(alert.level)) {
+      setShowSnackbar(true)
+    } else {
+      setShowSnackbar(false)
+    }
+  }, [alert])
+
   const formattedPreconditions = useFormattedPreconditions(
-    true,
-    operations[0].preconditions
+    hasPreconditions,
+    operations?.[0]?.preconditions
       ? preconditions
       : [{ id: '', method: '', value: '' }]
   )
+
   const isOperationsValid = useMemo(() => {
     if (!hasOperations) return true
 
@@ -137,21 +173,18 @@ const CreateSolution = ({
       })
     return arePreconditionsValid && isOperationsValid
   }, [hasPreconditions, formattedPreconditions, isOperationsValid])
-  useEffect(() => {
-    const newOperations =
-      activeRule === 'request' ? requestOperations : responseOperations
 
-    setOperationList(newOperations[0]?.operationList || [])
-    setPreconditions(newOperations[0]?.preconditions || [])
-  }, [activeRule, requestOperations, responseOperations])
-
-  useEffect(() => {
-    if (!_.isEmpty(alert.level)) {
-      setShowSnackbar(true)
+  const handleRuleSelection = (ruleType) => {
+    setActiveRule(ruleType)
+    if (ruleType === 'combination') {
+      setCurrentRuleTab('request')
     } else {
-      setShowSnackbar(false)
+      setCurrentRuleTab(ruleType)
     }
-  }, [alert])
+
+    setHasSelectedRule(true)
+  }
+
   const handleClose = () => {
     setShowSnackbar(false)
     setAlert({
@@ -161,11 +194,7 @@ const CreateSolution = ({
   }
 
   const handleSwitchRule = () => {
-    if (activeRule === 'request' && response) {
-      setActiveRule('response')
-    } else if (activeRule === 'response' && request) {
-      setActiveRule('request')
-    }
+    setCurrentRuleTab((prev) => (prev === 'request' ? 'response' : 'request'))
   }
 
   const handleSave = async () => {
@@ -176,38 +205,37 @@ const CreateSolution = ({
           preconditionMethodsData,
           formattedPreconditions
         )
+
     const transformedOperationList = transformOperations(
       operationList,
       operationFieldsData
     )
-    let requestBody
+
+    const requestBody = {
+      ...currentsolution,
+      requestOperations: [],
+      responseOperations: [],
+    }
+
+    const ruleOperations = {
+      preconditions: transformedPreconditions,
+      operationList: transformedOperationList,
+    }
+
     if (activeRule === 'request') {
-      requestBody = {
-        ...currentsolution,
-        responseOperations: [],
-        requestOperations: [
-          {
-            preconditions: transformedPreconditions,
-            operationList: transformedOperationList,
-          },
-        ],
-      }
+      requestBody.requestOperations = [ruleOperations]
+    } else {
+      requestBody.responseOperations = [ruleOperations]
     }
-    if (activeRule === 'response') {
-      requestBody = {
-        ...currentsolution,
-        requestOperations: [],
-        responseOperations: [
-          {
-            preconditions: transformedPreconditions,
-            operationList: operationList,
-          },
-        ],
-      }
+
+    let res
+    if (isEditMode) {
+      res = await updateSolution(query.id as string, requestBody)
+    } else {
+      res = await createSolution(requestBody)
     }
-    const res = await updateSolution(query.id as string, requestBody)
+
     if (!res.success) {
-      console.error('Error saving solution:', res.error)
       setAlert({
         level: 'error',
         message: 'Error! Could not save solution!',
@@ -218,6 +246,10 @@ const CreateSolution = ({
         level: 'success',
         message: 'Solution Saved Successfully!',
       })
+
+      if (!isEditMode) {
+        router.push('/solutions')
+      }
     }
   }
 
@@ -256,193 +288,198 @@ const CreateSolution = ({
               }}
             />
           </Box>
-          <Box sx={{ position: 'relative', width: '100%' }}>
-            <Box
-              sx={{
-                width: '100%',
-                position: 'relative',
-                mb: 2,
-              }}
-            >
-              <CreateRule ruleType={activeRule} />
-            </Box>
-            <Box
-              sx={{
-                position: 'relative',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <Card
-                sx={{
-                  minWidth: 250,
-                  borderRadius: '0px 0px 30px 30px',
-                  marginTop: 2,
-                }}
-              >
-                <CardHeader title="Preconditions" />
-                <Divider />
-                <CardContent
-                  sx={{
-                    pb: '0!important',
-                  }}
-                >
-                  {preconditions.length > 0 && (
-                    <PreconditionsSection
-                      preconditions={formattedPreconditions}
-                      setPreconditions={(newPreconditions) => {
-                        setPreconditions(newPreconditions)
-                        setIsDirty(true)
-                      }}
-                      preconditionMethodsData={preconditionMethodsData}
-                      preconditionsData={preconditionsData}
-                      setHasPreconditions={setHasPreconditions}
-                    />
-                  )}
-                  <Button
-                    data-testid="add-more-preconditions-button"
-                    sx={{
-                      marginBottom: 3,
-                      display: 'inline-flex',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      alignSelf: 'flex-start',
-                    }}
-                    onClick={handleAddPrecondition}
-                    variant="outlined"
-                    endIcon={<PlaylistAddIcon />}
-                  >
-                    Add New Precondition
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
-            <Box
-              sx={{
-                width: '100%',
-                position: 'relative',
-              }}
-            >
-              <Card
-                sx={{
-                  minWidth: 250,
-                  borderRadius: '0px 0px 30px 30px',
-                  marginTop: 2,
-                  pb: 0,
-                  mb: 6,
-                }}
-              >
-                <CardHeader title="Operations" />
-                <Divider />
-                <CardContent
-                  sx={{
-                    pb: '0!important',
-                  }}
-                >
-                  <Typography gutterBottom variant="body1">
-                    To add multiple operations, select add new operation and
-                    fill in the type and required fields.
-                  </Typography>
-                  <Operations
-                    operations={operationList}
-                    setOperations={(newOperationList) => {
-                      setOperationList(newOperationList)
-                    }}
-                    operationTypeData={operationTypeData}
-                    operationFieldsData={operationFieldsData}
-                    setHasOperations={setHasOperations}
-                  />
-                  <Button
-                    data-testid="add-more-operation-button"
-                    sx={{
-                      marginBottom: 3,
-                      display: 'inline-flex',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      alignSelf: 'flex-start',
-                      zIndex: 10,
-                      bgcolor: 'white',
-                      ':hover': {
-                        bgcolor: 'white',
-                      },
-                    }}
-                    onClick={handleAddOperation}
-                    variant="outlined"
-                    endIcon={<PlaylistAddIcon />}
-                  >
-                    Add New Operation
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
-            <Card
-              sx={{
-                borderRadius: '30px',
-                position: 'sticky',
-                zIndex: 100,
-                bottom: 0,
-                border: `1px solid #CCC`,
-                '@supports (width: -moz-available)': {
-                  width: '-moz-available',
-                },
-                '@supports (-webkit-fill-available)': {
-                  width: '-webkit-fill-available',
-                },
-                width: '100%',
-                boxSizing: 'border-box',
-                marginBottom: 2,
-                padding: 2,
-              }}
-            >
+          {!hasSelectedRule && (
+            <SelectRule handleRuleSelection={handleRuleSelection} />
+          )}
+          {hasSelectedRule && (
+            <Box sx={{ position: 'relative', width: '100%' }}>
               <Box
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  width: '100%',
+                  position: 'relative',
+                  mb: 2,
                 }}
               >
-                {request && response && (
-                  <Button
-                    id="response"
-                    data-testid="response-button"
-                    color="error"
-                    variant="outlined"
-                    onClick={handleSwitchRule}
-                    disabled={isDirty}
-                    sx={{
-                      borderRadius: '30px',
-                      display: 'flex',
-                      flex: 1,
-                      maxWidth: '125px',
-                    }}
-                  >
-                    {activeRule === 'request'
-                      ? 'Go to Response Rule'
-                      : 'Go to Request Rule'}
-                  </Button>
-                )}
-                <Tooltip title="Save rule" arrow placement="bottom">
-                  <Button
-                    id="save"
-                    data-testid="save-button"
-                    color="secondary"
-                    variant="contained"
-                    onClick={handleSave}
-                    disabled={!isDirty || !isFormValid}
-                    sx={{
-                      borderRadius: '30px',
-                      display: 'flex',
-                      flex: 1,
-                      maxWidth: '125px',
-                    }}
-                  >
-                    Save Rule
-                  </Button>
-                </Tooltip>
+                <CreateRule currentRuleTab={currentRuleTab} />
               </Box>
-            </Card>
-          </Box>
+              <Box
+                sx={{
+                  position: 'relative',
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <Card
+                  sx={{
+                    minWidth: 250,
+                    borderRadius: '0px 0px 30px 30px',
+                    marginTop: 2,
+                  }}
+                >
+                  <CardHeader title="Preconditions" />
+                  <Divider />
+                  <CardContent
+                    sx={{
+                      pb: '0!important',
+                    }}
+                  >
+                    {preconditions.length > 0 && (
+                      <PreconditionsSection
+                        preconditions={formattedPreconditions}
+                        setPreconditions={(newPreconditions) => {
+                          setPreconditions(newPreconditions)
+                          setIsDirty(true)
+                        }}
+                        preconditionMethodsData={preconditionMethodsData}
+                        preconditionsData={preconditionsData}
+                        setHasPreconditions={setHasPreconditions}
+                      />
+                    )}
+                    <Button
+                      data-testid="add-more-preconditions-button"
+                      sx={{
+                        marginBottom: 3,
+                        display: 'inline-flex',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        alignSelf: 'flex-start',
+                      }}
+                      onClick={handleAddPrecondition}
+                      variant="outlined"
+                      endIcon={<PlaylistAddIcon />}
+                    >
+                      Add New Precondition
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Box>
+              <Box
+                sx={{
+                  width: '100%',
+                  position: 'relative',
+                }}
+              >
+                <Card
+                  sx={{
+                    minWidth: 250,
+                    borderRadius: '0px 0px 30px 30px',
+                    marginTop: 2,
+                    pb: 0,
+                    mb: 6,
+                  }}
+                >
+                  <CardHeader title="Operations" />
+                  <Divider />
+                  <CardContent
+                    sx={{
+                      pb: '0!important',
+                    }}
+                  >
+                    <Typography gutterBottom variant="body1">
+                      To add multiple operations, select add new operation and
+                      fill in the type and required fields.
+                    </Typography>
+                    <Operations
+                      operations={operationList}
+                      setOperations={(newOperationList) => {
+                        setOperationList(newOperationList)
+                      }}
+                      operationTypeData={operationTypeData}
+                      operationFieldsData={operationFieldsData}
+                      setHasOperations={setHasOperations}
+                    />
+                    <Button
+                      data-testid="add-more-operation-button"
+                      sx={{
+                        marginBottom: 3,
+                        display: 'inline-flex',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        alignSelf: 'flex-start',
+                        zIndex: 10,
+                        bgcolor: 'white',
+                        ':hover': {
+                          bgcolor: 'white',
+                        },
+                      }}
+                      onClick={handleAddOperation}
+                      variant="outlined"
+                      endIcon={<PlaylistAddIcon />}
+                    >
+                      Add New Operation
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Box>
+              <Card
+                sx={{
+                  borderRadius: '30px',
+                  position: 'sticky',
+                  zIndex: 100,
+                  bottom: 0,
+                  border: `1px solid #CCC`,
+                  '@supports (width: -moz-available)': {
+                    width: '-moz-available',
+                  },
+                  '@supports (-webkit-fill-available)': {
+                    width: '-webkit-fill-available',
+                  },
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  marginBottom: 2,
+                  padding: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  {activeRule === 'combination' && (
+                    <Button
+                      id="response"
+                      data-testid="response-button"
+                      color="error"
+                      variant="outlined"
+                      onClick={handleSwitchRule}
+                      disabled={isDirty}
+                      sx={{
+                        borderRadius: '30px',
+                        display: 'flex',
+                        flex: 1,
+                        maxWidth: '125px',
+                      }}
+                    >
+                      {currentRuleTab === 'request'
+                        ? 'Go to Response Rule'
+                        : 'Go to Request Rule'}
+                    </Button>
+                  )}
+                  <Tooltip title="Save rule" arrow placement="bottom">
+                    <Button
+                      id="save"
+                      data-testid="save-button"
+                      color="secondary"
+                      variant="contained"
+                      onClick={handleSave}
+                      disabled={!isDirty || !isFormValid}
+                      sx={{
+                        borderRadius: '30px',
+                        display: 'flex',
+                        flex: 1,
+                        maxWidth: '125px',
+                      }}
+                    >
+                      Save Rule
+                    </Button>
+                  </Tooltip>
+                </Box>
+              </Card>
+            </Box>
+          )}
         </Box>
         <CustomSnackbar
           open={showSnackbar}

@@ -81,6 +81,7 @@ const CreateSolution = ({
   const [hasPreconditions, setHasPreconditions] = useState(
     preconditions.length > 0
   )
+  console.log(hasPreconditions)
   const [hasOperations, setHasOperations] = useState(operationList.length > 0)
   const [isDirty, setIsDirty] = useState(false)
   const initialSolutionRef = useRef(currentsolution)
@@ -287,17 +288,18 @@ const CreateSolution = ({
                     pb: '0!important',
                   }}
                 >
-                  <PreconditionsSection
-                    preconditions={formattedPreconditions}
-                    setPreconditions={(newPreconditions) => {
-                      setPreconditions(newPreconditions)
-                      setIsDirty(true)
-                    }}
-                    preconditionMethodsData={preconditionMethodsData}
-                    preconditionsData={preconditionsData}
-                    setHasPreconditions={true}
-                  />
-
+                  {preconditions.length > 0 && (
+                    <PreconditionsSection
+                      preconditions={formattedPreconditions}
+                      setPreconditions={(newPreconditions) => {
+                        setPreconditions(newPreconditions)
+                        setIsDirty(true)
+                      }}
+                      preconditionMethodsData={preconditionMethodsData}
+                      preconditionsData={preconditionsData}
+                      setHasPreconditions={setHasPreconditions}
+                    />
+                  )}
                   <Button
                     data-testid="add-more-preconditions-button"
                     sx={{

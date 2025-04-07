@@ -1,8 +1,18 @@
 #!/bin/bash
 set -e
 
-# Setup nginx configuration by replacing environment variable placeholders
-envsubst '${XFORM_SERVICE_ENDPOINT_CRT_PATH} ${XFORM_SERVICE_ENDPOINT_KEY_PATH}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+# **************************************
+# * Generate Self-Signed SSL for nginx *
+# **************************************
+mkdir -p /etc/nginx/ssl
+
+# Create diffie-hellman file
+openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+-keyout /etc/nginx/ssl/key.pem \
+-out /etc/nginx/ssl/cert.pem \
+-subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
 
 # Start nginx
 nginx -g 'daemon off;' &

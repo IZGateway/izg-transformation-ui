@@ -63,10 +63,7 @@ RUN cd ../metricbeat && \
 
 # Configure Nginx
 RUN mkdir -p /etc/nginx/conf.d
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
-# Create diffie-hellman file
-RUN mkdir -p /etc/nginx/ssl
-RUN openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Set up proper permissions
 RUN chmod a+x replace-variable.sh

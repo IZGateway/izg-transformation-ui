@@ -150,8 +150,30 @@ const SolutionsTable = (props) => {
       maxWidth: 250,
       renderCell: (params) => {
         const [isActive, setIsActive] = useState(params.value)
-        const handleToggle = () => {
-          setIsActive((prev) => !prev)
+        const handleToggle = async () => {
+          const newActiveValue = !isActive
+          setIsActive(newActiveValue)
+          try {
+            const getRes = await fetch(`/api/solutions/${params.row.id}`)
+            if (!getRes.ok) throw new Error('Failed to fetch solution')
+            const fullSolution = await getRes.json()
+            const updatedSolution = {
+              ...fullSolution,
+              active: newActiveValue,
+            }
+            const putRes = await fetch(`/api/solutions/${params.row.id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updatedSolution),
+            })
+
+            if (!putRes.ok) throw new Error('Failed to update solution')
+          } catch (err) {
+            console.error(err)
+            setIsActive((prev) => !prev)
+          }
         }
         return (
           <div>

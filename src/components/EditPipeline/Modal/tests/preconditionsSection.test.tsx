@@ -1,9 +1,9 @@
-import React from 'react'
+import React, { act } from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import PreconditionsSection from '../preconditionsSection'
 
 const mockSetHasPreconditions = jest.fn()
-
+jest.useFakeTimers()
 const mockPreconditions = [
   { id: 'field1', method: 'equals', value: 'value1' },
   { id: 'field2', method: 'exists', value: '' },
@@ -86,9 +86,12 @@ describe('PreconditionsSection', () => {
     expect(mockSetPreconditions).toHaveBeenCalled()
   })
 
-  it('calls setPreconditions when delete button is clicked', () => {
+  it('calls setPreconditions when delete button is clicked', async () => {
     const deleteButton = screen.getByTestId('delete-precondition-button-0')
-    fireEvent.click(deleteButton)
+    await act(async () => {
+      fireEvent.click(deleteButton)
+      jest.runAllTimers()
+    })
 
     expect(mockSetPreconditions).toHaveBeenCalled()
   })

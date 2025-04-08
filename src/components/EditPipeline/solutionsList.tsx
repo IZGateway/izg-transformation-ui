@@ -107,6 +107,7 @@ const SolutionsList = () => {
             id="solutions-select"
             value={selectItem}
             onChange={(event) => setSelectItem(event.target.value as string)}
+            displayEmpty
           >
             {Object.keys(solutionsArray).length > 0 ? (
               Object.entries(solutionsArray).map(([id, solution]) => (

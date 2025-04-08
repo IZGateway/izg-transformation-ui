@@ -33,7 +33,7 @@ RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
 # Install Nginx, gettext (for envsubst), and tini
-RUN apk add --no-cache nginx gettext tini
+RUN apk add --no-cache nginx tini
 
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete

@@ -279,7 +279,13 @@ const CreateSolution = ({
             flexDirection: { xs: 'column', sm: 'column', md: 'row' },
           }}
         >
-          <Box sx={{ position: 'relative', width: { sm: '100%', md: '35%' } }}>
+          <Box
+            sx={{
+              position: 'relative',
+              width: { sm: '100%', md: '35%' },
+              minWidth: 350,
+            }}
+          >
             <RuleInfo
               solutionData={currentsolution}
               setSolutionData={(updatedSolution) => {

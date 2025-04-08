@@ -94,6 +94,7 @@
   },
   "overrides": {
     "@types/react": "19.0.10",
-    "prismjs": "1.30.0"
+    "prismjs": "1.30.0",
+    "dompurify": "3.2.5"
   }
 }

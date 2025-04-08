@@ -29,9 +29,3 @@ services:
       - type: bind
         source: ${SSL_SOURCE}
         target: /ssl
-    networks:
-      - izg-shared-network
-
-networks:
-  izg-shared-network:
-    external: true

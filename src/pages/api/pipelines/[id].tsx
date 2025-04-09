@@ -15,7 +15,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const updatedPipeData = await pushDataToEndpoint(
       `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines/${id}`,
       data,
-      req
+      req,
+      'PUT'
     )
     res.status(200).json(updatedPipeData)
   } catch (error) {

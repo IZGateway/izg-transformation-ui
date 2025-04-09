@@ -2,11 +2,15 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import https from 'https'
-import { getToken } from "next-auth/jwt"
+import { getToken } from 'next-auth/jwt'
 import { getTokenStore } from '../../../lib/tokenStore'
 
-const pushWithToken = async (endpoint, data, access_token : unknown) => {
-
+const pushWithToken = async (
+  endpoint,
+  data,
+  access_token: unknown,
+  method: 'POST' | 'PUT' = 'POST'
+) => {
   if (typeof access_token !== 'string') {
     throw new Error('access_token must be a string')
   }
@@ -17,7 +21,8 @@ const pushWithToken = async (endpoint, data, access_token : unknown) => {
     process.env.XFORM_SERVICE_ENDPOINT_KEY_PATH || ''
   const XFORM_SERVICE_ENDPOINT_PASSCODE =
     process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || ''
-  const XFORM_SERVICE_ENDPOINT_USE_CERT : boolean = process.env.XFORM_SERVICE_ENDPOINT_USE_CERT === 'true'
+  const XFORM_SERVICE_ENDPOINT_USE_CERT: boolean =
+    process.env.XFORM_SERVICE_ENDPOINT_USE_CERT === 'true'
 
   const httpsAgentOptions: https.AgentOptions = {
     rejectUnauthorized: false,
@@ -39,8 +44,13 @@ const pushWithToken = async (endpoint, data, access_token : unknown) => {
   }
 
   try {
-    const headers = XFORM_SERVICE_ENDPOINT_USE_CERT ? {} : { Authorization: `Bearer ${access_token}` }
-    const response = await axios.put(endpoint, data, {
+    const headers = XFORM_SERVICE_ENDPOINT_USE_CERT
+      ? {}
+      : { Authorization: `Bearer ${access_token}` }
+    const response = await axios.request({
+      url: endpoint,
+      method: method,
+      data: data,
       httpsAgent: new https.Agent(httpsAgentOptions),
       headers,
       timeout: 30000,
@@ -52,20 +62,24 @@ const pushWithToken = async (endpoint, data, access_token : unknown) => {
   }
 }
 
-const pushDataToEndpoint = async (endpoint: string, data: any, request: any) => {
-
-  const token = await getToken({ req: request });
+const pushDataToEndpoint = async (
+  endpoint: string,
+  data: any,
+  request: any,
+  method: any
+) => {
+  const token = await getToken({ req: request })
   if (!token?.sub) {
-    throw new Error('No user ID available');
+    throw new Error('No user ID available')
   }
 
-  const store = getTokenStore();
-  const access_token = store.get(token.sub);
+  const store = getTokenStore()
+  const access_token = store.get(token.sub)
   if (!access_token) {
-    throw new Error('No access token available');
+    throw new Error('No access token available')
   }
 
-  return pushWithToken(endpoint, data, access_token)
+  return pushWithToken(endpoint, data, access_token, method)
 }
 
 export default pushDataToEndpoint

@@ -14,7 +14,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       const createdSolution = await pushDataToEndpoint(
         `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions`,
         data,
-        req
+        req,
+        'POST'
       )
       res.status(201).json(createdSolution)
     } catch (error) {

@@ -37,6 +37,7 @@ import CombinedContext from '../../contexts/app'
 import CustomSnackbar from '../SnackBar'
 import { createSolution } from './createSolution'
 import SelectRule from './selectRule'
+import { v4 as uuidv4 } from 'uuid'
 
 const CreateSolution = ({
   solutionData,
@@ -140,9 +141,7 @@ const CreateSolution = ({
 
   const formattedPreconditions = useFormattedPreconditions(
     hasPreconditions,
-    operations?.[0]?.preconditions
-      ? preconditions
-      : [{ id: '', method: '', value: '' }]
+    preconditions
   )
 
   const isOperationsValid = useMemo(() => {
@@ -216,18 +215,20 @@ const CreateSolution = ({
       requestOperations: [],
       responseOperations: [],
     }
-
+    if (!isEditMode && !requestBody.id) {
+      requestBody.id = uuidv4()
+    }
     const ruleOperations = {
       preconditions: transformedPreconditions,
       operationList: transformedOperationList,
     }
 
-    if (activeRule === 'request') {
+    if (currentRuleTab === 'request') {
       requestBody.requestOperations = [ruleOperations]
     } else {
       requestBody.responseOperations = [ruleOperations]
     }
-
+    console.log(requestBody)
     let res
     if (isEditMode) {
       res = await updateSolution(query.id as string, requestBody)
@@ -246,12 +247,20 @@ const CreateSolution = ({
         level: 'success',
         message: 'Solution Saved Successfully!',
       })
+      router.push('/solutions')
 
       if (!isEditMode) {
         router.push('/solutions')
       }
     }
   }
+  const isSolutionInfoValid = useMemo(() => {
+    return (
+      currentsolution.solutionName?.trim() &&
+      currentsolution.description?.trim() &&
+      currentsolution.version?.trim()
+    )
+  }, [currentsolution])
 
   const handleAddPrecondition = useCallback(() => {
     setHasPreconditions(true)
@@ -471,7 +480,9 @@ const CreateSolution = ({
                       color="secondary"
                       variant="contained"
                       onClick={handleSave}
-                      disabled={!isDirty || !isFormValid}
+                      disabled={
+                        !isDirty || !isFormValid || !isSolutionInfoValid
+                      }
                       sx={{
                         borderRadius: '30px',
                         display: 'flex',

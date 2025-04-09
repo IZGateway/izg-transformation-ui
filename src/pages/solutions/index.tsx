@@ -27,7 +27,7 @@ export const getServerSideProps = async (context) => {
   const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
   try {
     const solutionsResponse = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions?includeInactive=true`,
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions?includeInactive=true&limit=100`,
       context.req
     )
     const organizationsData = await solutionsResponse.data

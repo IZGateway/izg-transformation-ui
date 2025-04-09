@@ -59,7 +59,7 @@ export const operationFormFields = {
     { name: 'setValue', label: 'Set Value', required: true, inputType: 'text' },
   ],
   regex_replace: [
-    { name: 'field', label: 'Field', required: true, inputType: 'text' },
+    { name: 'field', label: 'Field', required: true, inputType: 'select' },
     { name: 'regex', label: 'Regex', required: true, inputType: 'text' },
     {
       name: 'replacement',

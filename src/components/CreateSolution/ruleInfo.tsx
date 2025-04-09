@@ -35,7 +35,11 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
       id="settings"
       data-testid="settings-container"
     >
-      <CardHeader title="Rule Info" />
+      <CardHeader
+        disableTypography
+        sx={{ fontWeight: '500', fontSize: '1.5rem' }}
+        title="Rule Info"
+      />
 
       <Divider />
       <CardContent

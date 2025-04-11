@@ -28,4 +28,4 @@ services:
     volumes:
       - type: bind
         source: ${SSL_SOURCE}
-        target: /ssl
+        target: ${SSL_SOURCE}

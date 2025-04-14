@@ -20,7 +20,10 @@ const solutionHeader = (props) => {
       >
         {props.currentSolutionTab === 'request' && (
           <div>
-            <CardHeader title="Creating a Solution (Request)" />
+            <CardHeader
+              titleTypographyProps={{ fontWeight: 500 }}
+              title="Creating a Solution (Request)"
+            />
             <Divider />
             <CardContent>
               <Typography variant="body1">
@@ -34,7 +37,10 @@ const solutionHeader = (props) => {
         )}
         {props.currentSolutionTab === 'response' && (
           <div>
-            <CardHeader title="Creating a Solution (Response)" />
+            <CardHeader
+              titleTypographyProps={{ fontWeight: 500 }}
+              title="Creating a Solution (Response)"
+            />
             <Divider />
             <CardContent>
               <Typography variant="body1">

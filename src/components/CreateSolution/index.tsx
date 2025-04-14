@@ -24,6 +24,7 @@ import SolutionInfo from './solutionInfo'
 import React from 'react'
 import _ from 'lodash'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import Operations, { operationFormFields } from './operations'
 import PreconditionsSection from '../EditPipeline/Modal/preconditionsSection'
 import {
@@ -457,15 +458,25 @@ const CreateSolution = ({
                 <Button
                   id="response"
                   data-testid="response-button"
-                  color="error"
+                  color="primary"
                   variant="outlined"
                   onClick={handleSwitchSolution}
                   disabled={isDirty}
+                  endIcon={
+                    <ArrowForwardIcon
+                      sx={{
+                        transform:
+                          currentSolutionTab === 'request'
+                            ? 'rotate(0deg)'
+                            : 'rotate(180deg)',
+                        transition: 'transform 0.3s ease',
+                      }}
+                    />
+                  }
                   sx={{
                     borderRadius: '30px',
                     display: 'flex',
-                    flex: 1,
-                    maxWidth: '125px',
+                    mr: 'auto',
                   }}
                 >
                   {currentSolutionTab === 'request'
@@ -483,8 +494,6 @@ const CreateSolution = ({
                     sx={{
                       borderRadius: '30px',
                       display: 'flex',
-                      flex: 1,
-                      maxWidth: '125px',
                     }}
                   >
                     Save Solution

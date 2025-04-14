@@ -85,7 +85,7 @@ const PreconditionsSection = ({
       {preconditions.length > 0 &&
         preconditions.map((precondition, index) => (
           <React.Fragment key={index}>
-            {index > 0 && <Divider sx={styles.divider} />}
+            {index > 0 && <Box sx={{ marginBottom: 3 }} />}
             <FormGroup row sx={styles.preconditionRow}>
               {renderFormControl(
                 index,

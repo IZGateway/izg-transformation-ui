@@ -18,7 +18,7 @@ const solutionHeader = (props) => {
           marginTop: 0,
         }}
       >
-        {props.currentRuleTab === 'request' && (
+        {props.currentSolutionTab === 'request' && (
           <div>
             <CardHeader title="Creating a Solution (Request)" />
             <Divider />
@@ -32,7 +32,7 @@ const solutionHeader = (props) => {
             </CardContent>
           </div>
         )}
-        {props.currentRuleTab === 'response' && (
+        {props.currentSolutionTab === 'response' && (
           <div>
             <CardHeader title="Creating a Solution (Response)" />
             <Divider />

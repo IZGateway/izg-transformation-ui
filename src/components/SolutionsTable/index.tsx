@@ -259,7 +259,7 @@ const SolutionsTable = (props) => {
         autoHeight
         initialState={{
           sorting: {
-            sortModel: [{ field: 'organizationName', sort: 'asc' }],
+            sortModel: [{ field: 'solutionName', sort: 'asc' }],
           },
           pagination: { paginationModel: { pageSize } },
         }}

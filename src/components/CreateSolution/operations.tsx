@@ -193,6 +193,7 @@ const Operations = ({
                     {field.inputType === 'select' ? (
                       <FormControl sx={{ mt: 2 }} fullWidth>
                         <InputLabel id={field.label}>{field.label}</InputLabel>
+
                         <Select
                           value={operation[field.name] || ''}
                           onChange={(e) =>

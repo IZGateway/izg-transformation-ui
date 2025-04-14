@@ -59,7 +59,7 @@ export const getServerSideProps = async (context) => {
       context.req
     )
     const operationFieldsData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/operations/fields`,
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/operation/fields`,
       context.req
     )
     return {

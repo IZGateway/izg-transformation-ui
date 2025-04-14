@@ -1,7 +1,7 @@
 import axios from 'axios'
 import https from 'https'
 
-export async function createSolution(data: any) {
+export async function addSolution(data: any) {
   try {
     const response = await axios.post(`/api/solutions`, data, {
       httpsAgent: new https.Agent({

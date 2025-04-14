@@ -9,6 +9,7 @@ import {
   TextField,
   Tooltip,
   IconButton,
+  Divider,
 } from '@mui/material'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import { updatePrecondition, removePrecondition } from './utils'
@@ -24,7 +25,7 @@ const PreconditionsSection = ({
   const [fadeOutIndex, setFadeOutIndex] = useState(null) // Track which row is fading out
 
   const handleRemovePrecondition = (index) => {
-    setFadeOutIndex(index) // Trigger fade-out animation for the row
+    setFadeOutIndex(index)
     setTimeout(() => {
       removePrecondition(
         index,
@@ -32,8 +33,8 @@ const PreconditionsSection = ({
         setPreconditions,
         setHasPreconditions
       )
-      setFadeOutIndex(null) // Reset fade-out index after removal
-    }, 300) // Match the duration of the fade-out animation
+      setFadeOutIndex(null)
+    }, 300)
   }
 
   const renderFormControl = (index, field, value, label, data) => (
@@ -81,67 +82,67 @@ const PreconditionsSection = ({
         },
       }}
     >
-      {preconditions.map((precondition, index) => (
-        <FormGroup
-          key={index}
-          row
-          sx={{
-            ...styles.preconditionRow,
-            flexFlow: { xs: 'column', sm: 'column', md: 'row' },
-            animation:
-              fadeOutIndex === index
-                ? 'fadeOut 0.3s ease-in-out'
-                : 'fadeIn 0.3s ease-in-out',
-          }}
-        >
-          {renderFormControl(
-            index,
-            'id',
-            precondition.id,
-            'Field',
-            preconditionsData.data
-          )}
-          {renderFormControl(
-            index,
-            'method',
-            precondition.method,
-            'Conditional',
-            preconditionMethodsData
-          )}
-          <FormControl
-            data-testid={`precondition-form-control-value-${index}`}
-            sx={{ minWidth: '150px' }}
-          >
-            <TextField
-              value={precondition.value || ''}
-              label={precondition.value || 'Value'}
-              InputLabelProps={{ shrink: true }}
-              onChange={(e) =>
-                updatePrecondition(
-                  index,
-                  'value',
-                  e.target.value,
-                  preconditions,
-                  setPreconditions
-                )
-              }
-              placeholder="Value"
-              required
-              disabled={['exists', 'not_exists'].includes(precondition.method)}
-            />
-          </FormControl>
-          <Tooltip title="Delete precondition" arrow>
-            <IconButton
-              data-testid={`delete-precondition-button-${index}`}
-              onClick={() => handleRemovePrecondition(index)}
-              aria-label="delete"
-              color="error"
-            >
-              <DeleteOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-        </FormGroup>
-      ))}
+      {preconditions.length > 0 &&
+        preconditions.map((precondition, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <Divider sx={styles.divider} />}
+            <FormGroup row sx={styles.preconditionRow}>
+              {renderFormControl(
+                index,
+                'id',
+                precondition.id,
+                'Field',
+                preconditionsData.data
+              )}
+              {renderFormControl(
+                index,
+                'method',
+                precondition.method,
+                'Conditional',
+                preconditionMethodsData
+              )}
+              <FormControl
+                data-testid={`precondition-form-control-value-${index}`}
+                sx={{ width: '25%' }}
+              >
+                <TextField
+                  value={precondition.value || ''}
+                  label={precondition.value ? '' : 'Value'}
+                  InputLabelProps={{ shrink: false }}
+                  onChange={(e) =>
+                    updatePrecondition(
+                      index,
+                      'value',
+                      e.target.value,
+                      preconditions,
+                      setPreconditions
+                    )
+                  }
+                  placeholder="Value"
+                  required
+                  disabled={['exists', 'not_exists'].includes(
+                    precondition.method
+                  )}
+                />
+              </FormControl>
+              <IconButton
+                data-testid={`delete-precondition-button-${index}`}
+                onClick={() =>
+                  removePrecondition(
+                    index,
+                    preconditions,
+                    setPreconditions,
+                    setHasPreconditions
+                  )
+                }
+                aria-label="delete"
+                color="error"
+              >
+                <DeleteOutlinedIcon />
+              </IconButton>
+            </FormGroup>
+          </React.Fragment>
+        ))}
     </Box>
   )
 }

@@ -12,7 +12,7 @@ import {
   Switch,
 } from '@mui/material'
 
-const RuleInfo = ({ solutionData, setSolutionData }) => {
+const SolutionInfo = ({ solutionData, setSolutionData }) => {
   const onFieldChange =
     (field: keyof typeof solutionData) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +38,7 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
       <CardHeader
         disableTypography
         sx={{ fontWeight: '500', fontSize: '1.5rem' }}
-        title="Rule Info"
+        title="Solution Info"
       />
 
       <Divider />
@@ -48,10 +48,10 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
         }}
       >
         <Typography variant="body1" component="div">
-          The Rule Info section provides key details about the rule, including
-          its identification, description, version, and current status. This
-          high-level overview helps users quickly understand the rule&apos;s
-          function and state
+          The Solution Info section provides key details about the Solution,
+          including its identification, description, version, and current
+          status. This high-level overview helps users quickly understand the
+          Solution&apos;s function and state
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 2 }}>
           <TextField
@@ -61,7 +61,7 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
             label="ID / UUID"
             aria-disabled="true"
             value={solutionData?.id}
-            helperText="This is the unique identifier for the rule. It cannot be changed."
+            helperText="This is the unique identifier for the Solution. It cannot be changed."
           />
         </FormControl>
         <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
@@ -91,11 +91,11 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
             onChange={onFieldChange('description')}
             multiline
             minRows={4}
-            aria-label='"Description of the rule"'
+            aria-label='"Description of the solution"'
           />
         </FormControl>
         <Box display="flex" alignItems="center" gap={1} p={2}>
-          <Typography variant="body1">Is this rule active?</Typography>
+          <Typography variant="body1">Is this solution active?</Typography>
           <FormControlLabel
             control={
               <Switch
@@ -113,4 +113,4 @@ const RuleInfo = ({ solutionData, setSolutionData }) => {
   )
 }
 
-export default RuleInfo
+export default SolutionInfo

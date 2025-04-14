@@ -20,9 +20,8 @@ import {
   Divider,
   Button,
 } from '@mui/material'
-import RuleInfo from './ruleInfo'
+import SolutionInfo from './solutionInfo'
 import React from 'react'
-import CreateRule from './createRule'
 import _ from 'lodash'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import Operations, { operationFormFields } from './operations'
@@ -32,12 +31,13 @@ import {
   useFormattedPreconditions,
 } from '../EditPipeline/Modal/utils'
 import { updateSolution } from './updateSolution'
-import { transformOperations } from './utils'
+import { reverseTransformOperations, transformOperations } from './utils'
 import CombinedContext from '../../contexts/app'
 import CustomSnackbar from '../SnackBar'
-import { createSolution } from './createSolution'
+import { addSolution } from './addSolution'
 import SelectRule from './selectRule'
 import { v4 as uuidv4 } from 'uuid'
+import SolutionHeader from './solutionHeader'
 
 const CreateSolution = ({
   solutionData,
@@ -47,6 +47,7 @@ const CreateSolution = ({
   preconditionMethodsData,
   operationTypeData,
   operationFieldsData,
+  existingPreconditions = [{ id: '', method: '', value: '' }],
 }) => {
   const router = useRouter()
   const { query } = router
@@ -88,8 +89,14 @@ const CreateSolution = ({
   )
   const [operationList, setOperationList] = useState(() =>
     isEditMode && operations?.[0]?.operationList
-      ? operations[0].operationList
+      ? reverseTransformOperations(
+          operations[0].operationList,
+          operationFieldsData
+        )
       : []
+  )
+  console.log(
+    reverseTransformOperations(operations[0].operationList, operationFieldsData)
   )
   const [preconditions, setPreconditions] = useState(() =>
     isEditMode && operations?.[0]?.preconditions
@@ -127,7 +134,12 @@ const CreateSolution = ({
     const newOperations =
       activeRule === 'request' ? requestOperations : responseOperations
 
-    setOperationList(newOperations[0]?.operationList || [])
+    setOperationList(
+      reverseTransformOperations(
+        newOperations[0]?.operationList || [],
+        operationFieldsData
+      )
+    )
     setPreconditions(newOperations[0]?.preconditions || [])
   }, [activeRule, requestOperations, responseOperations, isEditMode])
 
@@ -141,7 +153,7 @@ const CreateSolution = ({
 
   const formattedPreconditions = useFormattedPreconditions(
     hasPreconditions,
-    preconditions
+    existingPreconditions ? preconditions : [{ id: '', method: '', value: '' }]
   )
 
   const isOperationsValid = useMemo(() => {
@@ -233,7 +245,7 @@ const CreateSolution = ({
     if (isEditMode) {
       res = await updateSolution(query.id as string, requestBody)
     } else {
-      res = await createSolution(requestBody)
+      res = await addSolution(requestBody)
     }
 
     if (!res.success) {
@@ -295,7 +307,7 @@ const CreateSolution = ({
               minWidth: 350,
             }}
           >
-            <RuleInfo
+            <SolutionInfo
               solutionData={currentsolution}
               setSolutionData={(updatedSolution) => {
                 setCurrentSolution(updatedSolution)
@@ -315,7 +327,7 @@ const CreateSolution = ({
                   mb: 2,
                 }}
               >
-                <CreateRule currentRuleTab={currentRuleTab} />
+                <SolutionHeader currentRuleTab={currentRuleTab} />
               </Box>
               <Box
                 sx={{

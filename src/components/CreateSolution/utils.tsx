@@ -49,3 +49,20 @@ export const transformOperations = (operations, operationFieldsData) => {
     return transformedOperation
   })
 }
+
+export const reverseTransformOperations = (operations, operationFieldsData) => {
+  return operations.map((operation) => {
+    const newOp = { ...operation }
+    Object.keys(operation).forEach((key) => {
+      if (key.endsWith('Field') && operation[key]) {
+        const matching = operationFieldsData.data.find(
+          (field) => field.dataPath === operation[key]
+        )
+        if (matching) {
+          newOp[key] = matching.id
+        }
+      }
+    })
+    return newOp
+  })
+}

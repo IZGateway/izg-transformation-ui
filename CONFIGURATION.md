@@ -1,7 +1,7 @@
 # Configurable Environment variables for Xform Console
 
 | KEY                             | DESCRIPTION                                                                                                                                             | DEFAULT VALUE | REQUIRED |
-| :------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------ | :-----------: | :------: |
+|:--------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|:-------------:|:--------:|
 | OKTA_CLIENT_SECRET              | Secret generated when creating a client in Okta. Used for Okta authentication.                                                                          |   undefined   |   true   |
 | OKTA_CLIENT_ID                  | ID for a particular Okta client. Used for Okta authentication.                                                                                          |   undefined   |   true   |
 | NEXT_PUBLIC_OKTA_ISSUER         | URL to the Okta instance.                                                                                                                               |   undefined   |   true   |
@@ -13,6 +13,7 @@
 | NEXTAUTH_URL                    | When deploying to production, set the NEXTAUTH_URL environment variable to the canonical URL of your site.                                              |   undefined   |   true   |
 | ELASTIC_API_KEY                 | Key for elastic search endpoint.                                                                                                                        |   undefined   |   true   |
 | ELASTIC_HOST                    | Elastic Search endpoint used Monitoring.                                                                                                                |   undefined   |   true   |
-| ELASTIC_INDEX                   | Elastic Search Index to be used for xform console.                                                                                                      |   undefined   |   true   |
+| ELASTIC_INDEX                   | Elastic Search Index to be used for xform console node application.                                                                                     |   undefined   |   true   |
+| ELASTIC_INDEX_NGINX             | Elastic Search Index to be used for nginx.                                                                                                              |   undefined   |   true   |
 | ELASTIC_ENV_TAG                 | Environment tag if is dev or prod.                                                                                                                      |   undefined   |   true   |
 | LOG_LEVEL                       | Logging level, eg : error,warn,info,http,verbose,debug,silly                                                                                            |     info      |  false   |

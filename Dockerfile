@@ -1,9 +1,9 @@
-FROM node:22-alpine3.20 AS deps
+FROM node:22-alpine3.21 AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:22-alpine3.20 AS builder
+FROM node:22-alpine3.21 AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -32,17 +32,19 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
+# Install Nginx, gettext (for envsubst), and tini
+RUN apk add --no-cache nginx tini
+
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml
 COPY --from=builder /app/next.config.js ./next.config.js
-COPY --from=builder --chown=nextjs:nodejs /app/start-app.sh ./start-app.sh
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
+COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
 # Install filebeat
-
 RUN apk add curl libc6-compat
 ENV FILEBEAT_VERSION=8.17.4
 RUN curl https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${FILEBEAT_VERSION}-linux-x86_64.tar.gz -o ./filebeat.tar.gz && \
@@ -59,11 +61,20 @@ RUN cd ../metricbeat && \
     rm -rf /metricbeat/metricbeat.yml && \
     cp ../app/metricbeat.yml ./metricbeat.yml
 
-#USER nextjs
-RUN chmod a+x replace-variable.sh
-RUN chmod a+x start-app.sh
-EXPOSE 3000
+# Configure Nginx
+RUN mkdir -p /etc/nginx/conf.d
+COPY nginx.conf /etc/nginx/nginx.conf
 
+# Set up proper permissions
+RUN chmod a+x replace-variable.sh
+RUN chmod a+x run_and_monitor.sh
+
+# Expose only 443 (to nginx)
+EXPOSE 443
+
+# This is only an environment variable telling NextJS which port to use.
+# THis DOES NOT expose port 3000
 ENV PORT 3000
 
-ENTRYPOINT ["bash", "start-app.sh"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/app/run_and_monitor.sh"]

@@ -6,8 +6,8 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "start:local-dev": "./start-app-local-docker.sh --dev",
-    "start:local-docker": "./start-app-local-docker.sh",
+    "start:local-dev": "docker compose -f ./local-docker/docker-compose.yml up --build -d && npm run dev && docker compose -f ./local-docker/docker-compose.yml down",
+    "start:local-docker": "docker compose up --build && docker compose down",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "code-quality-check": "next lint && npm run type-check",
@@ -94,6 +94,7 @@
   },
   "overrides": {
     "@types/react": "19.0.10",
-    "prismjs": "1.30.0"
+    "prismjs": "1.30.0",
+    "dompurify": "3.2.5"
   }
 }

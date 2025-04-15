@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 export function buildOperation(
@@ -66,3 +67,12 @@ export const reverseTransformOperations = (operations, operationFieldsData) => {
     return newOp
   })
 }
+
+export function isFormChanged(current, initial) {
+  return !_.isEqual(current, initial)
+}
+
+export const fetcher = (url: string) =>
+  fetch(url, {
+    credentials: 'include',
+  }).then((res) => res.json())

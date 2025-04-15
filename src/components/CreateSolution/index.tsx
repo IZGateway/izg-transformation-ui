@@ -40,6 +40,7 @@ import SolutionHeader from './solutionHeader'
 
 const CreateSolution = ({
   solutionData,
+  mutateSolution,
   requestOperations,
   responseOperations,
   preconditionsData,
@@ -222,32 +223,30 @@ const CreateSolution = ({
       operationList,
       operationFieldsData
     )
-
-    const requestBody = {
-      ...currentsolution,
-      requestOperations: [],
-      responseOperations: [],
-    }
-    if (!isEditMode && !requestBody.id) {
-      requestBody.id = uuidv4()
-    }
     const solutionOperations = {
       preconditions: transformedPreconditions,
       operationList: transformedOperationList,
     }
 
-    if (currentSolutionTab === 'request') {
-      requestBody.requestOperations = [solutionOperations]
-    } else {
-      requestBody.responseOperations = [solutionOperations]
+    const requestBody = {
+      ...currentsolution,
+      requestOperations:
+        currentSolutionTab === 'request'
+          ? [solutionOperations]
+          : requestOperations,
+      responseOperations:
+        currentSolutionTab === 'response'
+          ? [solutionOperations]
+          : responseOperations,
     }
 
-    let res
-    if (isEditMode) {
-      res = await updateSolution(query.id as string, requestBody)
-    } else {
-      res = await addSolution(requestBody)
+    if (!isEditMode && !requestBody.id) {
+      requestBody.id = uuidv4()
     }
+
+    const res = isEditMode
+      ? await updateSolution(query.id as string, requestBody)
+      : await addSolution(requestBody)
 
     if (!res.success) {
       setAlert({
@@ -260,6 +259,7 @@ const CreateSolution = ({
         level: 'success',
         message: 'Solution Saved Successfully!',
       })
+      mutateSolution()
     }
   }
   const isSolutionInfoValid =

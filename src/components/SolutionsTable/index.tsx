@@ -145,7 +145,7 @@ const SolutionsTable = (props) => {
     },
     {
       field: 'active',
-      headerName: 'RULE ACTIVE',
+      headerName: 'SOLUTION ACTIVE',
       flex: 0.5,
       maxWidth: 250,
       renderCell: (params) => {

@@ -22,21 +22,6 @@ const PreconditionsSection = ({
   preconditionsData,
   setHasPreconditions,
 }) => {
-  const [fadeOutIndex, setFadeOutIndex] = useState(null) // Track which row is fading out
-
-  const handleRemovePrecondition = (index) => {
-    setFadeOutIndex(index)
-    setTimeout(() => {
-      removePrecondition(
-        index,
-        preconditions,
-        setPreconditions,
-        setHasPreconditions
-      )
-      setFadeOutIndex(null)
-    }, 300)
-  }
-
   const renderFormControl = (index, field, value, label, data) => (
     <FormControl
       data-testid={`precondition-form-control-${label}-${index}`}

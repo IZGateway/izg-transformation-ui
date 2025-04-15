@@ -3,33 +3,61 @@ import Container from '../../../components/Container'
 import { Box } from '@mui/material'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
-import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
+import { fetcher } from '../../../components/CreateSolution/utils'
+import useSWR from 'swr'
 
-const AddSolution = (props) => {
+const AddSolution = () => {
   const router = useRouter()
   const { isReady, query } = router
 
-  useEffect(() => {
-    if (!isReady) return
-  }),
-    [isReady, query]
+  const { id } = query
 
-  return !isReady ? (
-    <>Loading....</>
-  ) : (
+  const {
+    data: solutionData,
+    isLoading: isLoadingSolution,
+    mutate: mutateSolutionData,
+  } = useSWR(isReady ? `/api/solutions/${id}` : null, fetcher)
+
+  const { data: preconditionsData } = useSWR(
+    `/api/preconditions/fields`,
+    fetcher
+  )
+
+  const { data: preconditionMethodsData } = useSWR(
+    `/api/preconditions/available`,
+    fetcher
+  )
+  const { data: operationTypeData } = useSWR(
+    `/api/operations/available`,
+    fetcher
+  )
+  const { data: operationFieldsData } = useSWR(
+    `/api/operations/fields`,
+    fetcher
+  )
+
+  if (!isReady || isLoadingSolution || !solutionData) return <>Loading...</>
+
+  return (
     <Container title="Add Solution">
       <ErrorBoundary>
         <Box sx={{ position: 'relative' }}>
           <div>
             <CreateSolution
-              solutionData={null}
-              requestOperations={{}}
-              responseOperations={{}}
-              preconditionsData={props.preconditionsData}
-              preconditionMethodsData={props.preconditionMethodsData}
-              operationTypeData={props.operationTypeData}
-              operationFieldsData={props.operationFieldsData}
+              solutionData={{
+                id: solutionData.id,
+                solutionName: solutionData.solutionName,
+                description: solutionData.description,
+                version: solutionData.version,
+                active: solutionData.active,
+              }}
+              mutateSolution={mutateSolutionData}
+              requestOperations={solutionData.requestOperations || []}
+              responseOperations={solutionData.responseOperations || []}
+              preconditionsData={preconditionsData || []}
+              preconditionMethodsData={preconditionMethodsData || []}
+              operationTypeData={operationTypeData || []}
+              operationFieldsData={operationFieldsData || []}
             />
           </div>
         </Box>
@@ -39,36 +67,3 @@ const AddSolution = (props) => {
 }
 
 export default AddSolution
-
-export const getServerSideProps = async (context) => {
-  const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
-  try {
-    const preconditionsData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/preconditions/fields`,
-      context.req
-    )
-    const preconditionMethodsData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/preconditions/available`,
-      context.req
-    )
-    const operationTypeData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/operations/available`,
-      context.req
-    )
-    const operationFieldsData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/operation/fields`,
-      context.req
-    )
-    return {
-      props: {
-        preconditionsData: preconditionsData,
-        preconditionMethodsData: preconditionMethodsData,
-        operationTypeData: operationTypeData,
-        operationFieldsData: operationFieldsData,
-      },
-    }
-  } catch (error) {
-    console.error('Error fetching data:', error)
-    throw new Error(error)
-  }
-}

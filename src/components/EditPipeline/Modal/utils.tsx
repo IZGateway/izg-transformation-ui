@@ -51,7 +51,6 @@ export const transformPreconditions = (
         const additionalProp = Object.keys(methodData.properties).find(
           (key) => key !== 'id' && key !== 'dataPath'
         )
-        console.log('additionalProp', additionalProp)
         if (additionalProp) {
           transformedPrecondition[additionalProp] = precondition.value
         }

@@ -103,6 +103,9 @@ const CustomFooter = () => {
             justifyContent: 'center',
             boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
             backgroundColor: '#FFFFFF',
+            py: 1.7,
+            px: 3,
+            border: `1px solid ${palette.border}`,
           }}
           variant="text"
           color="primary"

@@ -79,13 +79,12 @@ const Operations = ({
   setOperations,
   operationTypeData,
   operationFieldsData,
-  setHasOperations,
 }) => {
   const [fadeOutIndex, setFadeOutIndex] = useState(null)
   const handleRemoveOperation = (index) => {
     setFadeOutIndex(index)
     setTimeout(() => {
-      removeOperation(index, operations, setOperations, setHasOperations)
+      removeOperation(index, operations, setOperations)
       setFadeOutIndex(null)
     }, 300)
   }

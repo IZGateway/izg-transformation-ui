@@ -60,7 +60,7 @@ export const transformPreconditions = (
   )
 }
 
-export const useFormattedPreconditions = (
+export const formatPreconditions = (
   hasPreconditions: boolean,
   existingPreconditions: Array<{ [key: string]: string }>
 ): Array<{ id: string; method: string; value: string }> => {

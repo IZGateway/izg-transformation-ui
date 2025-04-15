@@ -29,7 +29,7 @@ import Operations, { operationFormFields } from './operations'
 import PreconditionsSection from '../EditPipeline/Modal/preconditionsSection'
 import {
   transformPreconditions,
-  useFormattedPreconditions,
+  formatPreconditions,
 } from '../EditPipeline/Modal/utils'
 import { updateSolution } from './updateSolution'
 import { reverseTransformOperations, transformOperations } from './utils'
@@ -38,6 +38,17 @@ import CustomSnackbar from '../SnackBar'
 import { addSolution } from './addSolution'
 import { v4 as uuidv4 } from 'uuid'
 import SolutionHeader from './solutionHeader'
+
+type CreateSolutionProps = {
+  solutionData: any
+  mutateSolution?: () => void
+  requestOperations: any[]
+  responseOperations: any[]
+  preconditionsData: any[]
+  preconditionMethodsData: any[]
+  operationTypeData: any[]
+  operationFieldsData: any[]
+}
 
 const CreateSolution = ({
   solutionData,
@@ -48,8 +59,7 @@ const CreateSolution = ({
   preconditionMethodsData,
   operationTypeData,
   operationFieldsData,
-  existingPreconditions = [{ id: '', method: '', value: '' }],
-}) => {
+}: CreateSolutionProps) => {
   const router = useRouter()
   const { query } = router
   const { alert, setAlert } = useContext(CombinedContext)
@@ -93,29 +103,31 @@ const CreateSolution = ({
   const [hasPreconditions, setHasPreconditions] = useState(
     preconditions.length > 0
   )
-  const [hasOperations, setHasOperations] = useState(operationList.length > 0)
-  const [isDirty, setIsDirty] = useState(false)
+  const [showSnackbar, setShowSnackbar] = useState(false)
   const initialSolutionRef = useRef(currentsolution)
   const initialOperationsRef = useRef(operationList)
   const initialPreconditionsRef = useRef(preconditions)
-  const [showSnackbar, setShowSnackbar] = useState(false)
 
   useEffect(() => {
     if (!isEditMode) return
 
-    const selected =
+    const selectedTab =
       currentSolutionTab === 'request' ? requestOperations : responseOperations
     const reversedOps = reverseTransformOperations(
-      selected?.[0]?.operationList || [],
+      selectedTab?.[0]?.operationList || [],
       operationFieldsData
     )
-    const initialPreconds = selected?.[0]?.preconditions || []
-
+    const initialPrecondsRaw = selectedTab?.[0]?.preconditions || []
+    const formattedInitialPreconditions = formatPreconditions(
+      initialPrecondsRaw.length > 0,
+      initialPrecondsRaw
+    )
+    setCurrentSolution(solutionData)
     setOperationList(reversedOps)
-    setPreconditions(initialPreconds)
-
+    setPreconditions(initialPrecondsRaw)
+    setHasPreconditions(initialPrecondsRaw.length > 0)
     initialOperationsRef.current = reversedOps
-    initialPreconditionsRef.current = initialPreconds
+    initialPreconditionsRef.current = formattedInitialPreconditions
     initialSolutionRef.current = solutionData
   }, [
     currentSolutionTab,
@@ -126,6 +138,26 @@ const CreateSolution = ({
   ])
 
   useEffect(() => {
+    if (!_.isEmpty(alert.level)) {
+      setShowSnackbar(true)
+    } else {
+      setShowSnackbar(false)
+    }
+  }, [alert])
+  useEffect(() => {
+    setAlert({ level: '', message: '' })
+  }, [])
+
+  const formattedPreconditions = useMemo(
+    () =>
+      formatPreconditions(
+        hasPreconditions,
+        hasPreconditions ? preconditions : []
+      ),
+    [hasPreconditions, preconditions]
+  )
+
+  const isDirty = useMemo(() => {
     const solutionChanged = !_.isEqual(
       currentsolution,
       initialSolutionRef.current
@@ -135,39 +167,18 @@ const CreateSolution = ({
       initialOperationsRef.current
     )
     const preconditionsChanged = !_.isEqual(
-      preconditions,
+      formattedPreconditions,
       initialPreconditionsRef.current
     )
-
-    setIsDirty(solutionChanged || operationsChanged || preconditionsChanged)
-  }, [currentsolution, operationList, preconditions])
-
-  useEffect(() => {
-    if (!_.isEmpty(alert.level)) {
-      setShowSnackbar(true)
-    } else {
-      setShowSnackbar(false)
-    }
-  }, [alert])
-
-  const formattedPreconditions = useFormattedPreconditions(
-    hasPreconditions,
-    existingPreconditions ? preconditions : [{ id: '', method: '', value: '' }]
-  )
-
-  const isOperationsValid = useMemo(() => {
-    if (!hasOperations) return true
-
-    return operationList.every((op) => {
-      if (!op.method) return false
-
-      const requiredFields = operationFormFields[op.method] || []
-      return requiredFields.every((field) => {
-        const value = op[field.name]
-        return value !== undefined && value !== ''
-      })
-    })
-  }, [hasOperations, operationList])
+    return solutionChanged || operationsChanged || preconditionsChanged
+  }, [
+    currentsolution,
+    operationList,
+    formattedPreconditions,
+    initialSolutionRef.current,
+    initialOperationsRef.current,
+    initialPreconditionsRef.current,
+  ])
 
   const isFormValid = useMemo(() => {
     const isOperationsValid =
@@ -196,6 +207,19 @@ const CreateSolution = ({
 
     return arePreconditionsValid && isOperationsValid
   }, [operationList, preconditions, formattedPreconditions])
+
+  const isSolutionInfoValid =
+    !_.isEmpty(currentsolution.solutionName) &&
+    !_.isEmpty(currentsolution.description) &&
+    !_.isEmpty(currentsolution.version)
+
+  const updateOperations = useCallback((newList) => {
+    setOperationList(newList)
+  }, [])
+
+  const updatePreconditions = useCallback((newList) => {
+    setPreconditions(newList)
+  }, [])
 
   const handleClose = () => {
     setShowSnackbar(false)
@@ -255,18 +279,18 @@ const CreateSolution = ({
         message: 'Error! Could not save solution!',
       })
     } else {
-      setIsDirty(false)
       setAlert({
         level: 'success',
         message: 'Solution Saved Successfully!',
       })
-      mutateSolution()
+
+      if (isEditMode) {
+        mutateSolution?.()
+      } else {
+        router.push(`/edit/solution/${requestBody.id}`)
+      }
     }
   }
-  const isSolutionInfoValid =
-    !_.isEmpty(currentsolution.solutionName) &&
-    !_.isEmpty(currentsolution.description) &&
-    !_.isEmpty(currentsolution.solutionName)
 
   const handleAddPrecondition = useCallback(() => {
     setHasPreconditions(true)
@@ -274,7 +298,6 @@ const CreateSolution = ({
   }, [setHasPreconditions, setPreconditions])
 
   const handleAddOperation = () => {
-    setHasOperations(true)
     setOperationList((prev) => [...prev, { method: '' }])
   }
   return (
@@ -304,7 +327,6 @@ const CreateSolution = ({
               solutionData={currentsolution}
               setSolutionData={(updatedSolution) => {
                 setCurrentSolution(updatedSolution)
-                setIsDirty(true)
               }}
             />
           </Box>
@@ -343,10 +365,7 @@ const CreateSolution = ({
                   {preconditions.length > 0 && (
                     <PreconditionsSection
                       preconditions={formattedPreconditions}
-                      setPreconditions={(newPreconditions) => {
-                        setPreconditions(newPreconditions)
-                        setIsDirty(true)
-                      }}
+                      setPreconditions={updatePreconditions}
                       preconditionMethodsData={preconditionMethodsData}
                       preconditionsData={preconditionsData}
                       setHasPreconditions={setHasPreconditions}
@@ -398,13 +417,9 @@ const CreateSolution = ({
                   </Typography>
                   <Operations
                     operations={operationList}
-                    setOperations={(newOperationList) => {
-                      setOperationList(newOperationList)
-                      setIsDirty(true)
-                    }}
+                    setOperations={updateOperations}
                     operationTypeData={operationTypeData}
                     operationFieldsData={operationFieldsData}
-                    setHasOperations={setHasOperations}
                   />
                   <Button
                     data-testid="add-more-operation-button"

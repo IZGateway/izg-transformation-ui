@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Box,
   FormControl,
@@ -7,9 +7,7 @@ import {
   MenuItem,
   Select,
   TextField,
-  Tooltip,
   IconButton,
-  Divider,
 } from '@mui/material'
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined'
 import { updatePrecondition, removePrecondition } from './utils'
@@ -60,10 +58,10 @@ const PreconditionsSection = ({
           position: 'absolute',
           top: 0,
           bottom: 0,
-          left: { xs: '21%', md: '3.3%' }, // Center the line horizontally
-          width: '2px', // Thickness of the line
-          backgroundColor: '#177B8F', // Blue color for the line
-          zIndex: 0, // Place the line behind the content
+          left: { xs: '21%', md: '3.3%' },
+          width: '2px',
+          backgroundColor: '#177B8F',
+          zIndex: 0,
         },
       }}
     >

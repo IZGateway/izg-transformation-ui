@@ -13,8 +13,6 @@ import {
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
-import ToggleOnIcon from '@mui/icons-material/ToggleOn'
-import ToggleOffIcon from '@mui/icons-material/ToggleOff'
 import Link from 'next/link'
 import AddIcon from '@mui/icons-material/Add'
 
@@ -120,6 +118,47 @@ const CustomFooter = () => {
 }
 const SolutionsTable = (props) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
+  const ToggleCell = ({ value, rowId }) => {
+    const [isActive, setIsActive] = useState(value)
+
+    const handleToggle = async () => {
+      const newActiveValue = !isActive
+      setIsActive(newActiveValue)
+
+      try {
+        const getRes = await fetch(`/api/solutions/${rowId}`)
+        if (!getRes.ok) throw new Error('Failed to fetch solution')
+        const fullSolution = await getRes.json()
+
+        const updatedSolution = {
+          ...fullSolution,
+          active: newActiveValue,
+        }
+
+        const putRes = await fetch(`/api/solutions/${rowId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedSolution),
+        })
+
+        if (!putRes.ok) throw new Error('Failed to update solution')
+      } catch (err) {
+        console.error(err)
+        setIsActive((prev) => !prev)
+      }
+    }
+
+    return (
+      <FormControlLabel
+        control={
+          <Switch checked={isActive} onChange={handleToggle} color="primary" />
+        }
+        label={isActive ? 'True' : 'False'}
+        labelPlacement="end"
+      />
+    )
+  }
+
 
   const columns: GridColDef[] = [
     {
@@ -151,49 +190,9 @@ const SolutionsTable = (props) => {
       headerName: 'SOLUTION ACTIVE',
       flex: 0.5,
       maxWidth: 250,
-      renderCell: (params) => {
-        const [isActive, setIsActive] = useState(params.value)
-        const handleToggle = async () => {
-          const newActiveValue = !isActive
-          setIsActive(newActiveValue)
-          try {
-            const getRes = await fetch(`/api/solutions/${params.row.id}`)
-            if (!getRes.ok) throw new Error('Failed to fetch solution')
-            const fullSolution = await getRes.json()
-            const updatedSolution = {
-              ...fullSolution,
-              active: newActiveValue,
-            }
-            const putRes = await fetch(`/api/solutions/${params.row.id}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(updatedSolution),
-            })
-
-            if (!putRes.ok) throw new Error('Failed to update solution')
-          } catch (err) {
-            console.error(err)
-            setIsActive((prev) => !prev)
-          }
-        }
-        return (
-          <div>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isActive}
-                  onChange={handleToggle}
-                  color="primary"
-                />
-              }
-              label={isActive ? 'True' : 'False'}
-              labelPlacement="end"
-            />
-          </div>
-        )
-      },
+      renderCell: (params) => (
+        <ToggleCell value={params.value} rowId={params.row.id} />
+      ),
     },
     {
       field: 'action',

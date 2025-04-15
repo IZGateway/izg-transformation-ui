@@ -16,17 +16,9 @@ export function buildOperation(
   }
 }
 
-export const removeOperation = (
-  index,
-  operations,
-  setOperations,
-  setHasOperations
-) => {
+export const removeOperation = (index, operations, setOperations) => {
   const newOperations = operations.filter((_, i) => i !== index)
   setOperations(newOperations)
-  if (newOperations.length === 0) {
-    setHasOperations(false)
-  }
 }
 
 export const transformOperations = (operations, operationFieldsData) => {

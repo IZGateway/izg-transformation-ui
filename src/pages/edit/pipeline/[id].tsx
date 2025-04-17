@@ -60,7 +60,7 @@ export const getServerSideProps = async (context) => {
       context.req
     )
     const solutionsData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions`,
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions?limit=1000000`,
       context.req
     )
     const preconditionsData = await fetchDataFromEndpoint(

@@ -11,7 +11,7 @@ export function buildOperation(
     ...existingOperation,
     id: existingOperation.id || uuidv4(),
     method: operationType,
-    order: existingOperation.order || 1073741824,
+    order: existingOperation?.order || _.random(1_000_000_000, 2_000_000_000),
     [fieldName]: value,
   }
 }
@@ -25,7 +25,7 @@ export const transformOperations = (operations, operationFieldsData) => {
   return operations.map((operation, index) => {
     const transformedOperation = {
       ...operation,
-      order: operation.order ?? index * 1073741824,
+      order: operation.order ?? index * _.random(1_000_000_000, 2_000_000_000),
     }
 
     Object.keys(operation).forEach((key) => {

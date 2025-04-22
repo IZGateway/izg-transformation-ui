@@ -99,7 +99,8 @@ const Operations = ({
       updated[index] || {},
       fieldName,
       value,
-      updated[index].method
+      updated[index].method,
+      updated
     )
     setOperations(updated)
   }

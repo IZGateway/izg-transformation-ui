@@ -5,13 +5,29 @@ export function buildOperation(
   existingOperation,
   fieldName,
   value,
-  operationType
+  operationType,
+  allOperations = []
 ) {
+  if (existingOperation?.order !== undefined) {
+    return {
+      ...existingOperation,
+      id: existingOperation.id || uuidv4(),
+      method: operationType,
+      [fieldName]: value,
+    }
+  }
+
+  const orders = allOperations
+    .map((op) => op.order)
+    .filter((order) => typeof order === 'number')
+  const maxOrder = orders.length > 0 ? Math.max(...orders) : 1
+  const nextOrder = maxOrder + 1
+
   return {
     ...existingOperation,
-    id: existingOperation.id || uuidv4(),
+    id: existingOperation?.id || uuidv4(),
     method: operationType,
-    order: existingOperation?.order || _.random(1_000_000_000, 2_000_000_000),
+    order: nextOrder,
     [fieldName]: value,
   }
 }
@@ -25,7 +41,7 @@ export const transformOperations = (operations, operationFieldsData) => {
   return operations.map((operation, index) => {
     const transformedOperation = {
       ...operation,
-      order: operation.order ?? index * _.random(1_000_000_000, 2_000_000_000),
+      order: operation.order ?? index + 1,
     }
 
     Object.keys(operation).forEach((key) => {

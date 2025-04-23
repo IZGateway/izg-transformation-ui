@@ -17,7 +17,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { v4 as uuidv4 } from 'uuid'
 import styles from './styles'
 import PreconditionsSection from './preconditionsSection'
-import { transformPreconditions, useFormattedPreconditions } from './utils'
+import { transformPreconditions, formatPreconditions } from './utils'
 import { usePreconditionContext } from '../../../contexts/EditPipeline/preconditionContext'
 import { useReorderContext } from '../../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../../contexts/EditPipeline/updatePipeDataContext'
@@ -49,7 +49,7 @@ const SolutionsModal = ({
   )
   const [preconditions, setPreconditions] = useState(existingPreconditions)
 
-  const formattedPreconditions = useFormattedPreconditions(
+  const formattedPreconditions = formatPreconditions(
     hasPreconditions,
     existingPreconditions ? preconditions : [{ id: '', method: '', value: '' }]
   )

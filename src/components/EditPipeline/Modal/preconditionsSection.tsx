@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Box,
-  Divider,
   FormControl,
   FormGroup,
   InputLabel,
@@ -24,7 +23,7 @@ const PreconditionsSection = ({
   const renderFormControl = (index, field, value, label, data) => (
     <FormControl
       data-testid={`precondition-form-control-${label}-${index}`}
-      sx={{ width: '25%' }}
+      sx={{ width: { xs: '100%', md: '33.3%' } }}
     >
       <InputLabel shrink={false}>{value ? '' : label}</InputLabel>
       <Select
@@ -38,7 +37,6 @@ const PreconditionsSection = ({
             setPreconditions
           )
         }
-        displayEmpty
         required
       >
         {data.map((item) => (
@@ -51,11 +49,26 @@ const PreconditionsSection = ({
   )
 
   return (
-    <Box sx={styles.preconditionsContainer}>
+    <Box
+      sx={{
+        ...styles.preconditionsContainer,
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: { xs: '21%', md: '3.3%' },
+          width: '2px',
+          backgroundColor: '#177B8F',
+          zIndex: 0,
+        },
+      }}
+    >
       {preconditions.length > 0 &&
         preconditions.map((precondition, index) => (
           <React.Fragment key={index}>
-            {index > 0 && <Divider sx={styles.divider} />}
+            {index > 0 && <Box sx={{ marginBottom: 3 }} />}
             <FormGroup row sx={styles.preconditionRow}>
               {renderFormControl(
                 index,

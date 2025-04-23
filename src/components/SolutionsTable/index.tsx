@@ -1,12 +1,20 @@
-import React, { useContext } from 'react'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import { Box, IconButton, Typography, Card, Tooltip } from '@mui/material'
+import React, { useContext, useState } from 'react'
+import { DataGrid, GridColDef, GridFooter, GridToolbar } from '@mui/x-data-grid'
+import {
+  Box,
+  IconButton,
+  Typography,
+  Card,
+  Tooltip,
+  Button,
+  FormControlLabel,
+  Switch,
+} from '@mui/material'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
 import Link from 'next/link'
+import AddIcon from '@mui/icons-material/Add'
 
 const dataGridCustom = {
   '&.MuiDataGrid-root.MuiDataGrid-autoHeight.MuiDataGrid-root--densityComfortable':
@@ -81,42 +89,114 @@ const actionButtonStyle = {
   marginRight: 2,
 }
 
-const ConnectionsTable = (props) => {
+const CustomFooter = () => {
+  return (
+    <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Link href="/add/solution" passHref>
+        <Button
+          sx={{
+            borderRadius: '60px',
+            float: 'right',
+            margin: '2em 0',
+            justifyContent: 'center',
+            boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+            backgroundColor: '#FFFFFF',
+            py: 1.7,
+            px: 3,
+            border: `1px solid ${palette.border}`,
+          }}
+          variant="text"
+          color="primary"
+          endIcon={<AddIcon />}
+        >
+          Add Solution
+        </Button>
+      </Link>
+      <GridFooter />
+    </Box>
+  )
+}
+const SolutionsTable = (props) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
+  const ToggleCell = ({ value, rowId }) => {
+    const [isActive, setIsActive] = useState(value)
+
+    const handleToggle = async () => {
+      const newActiveValue = !isActive
+      setIsActive(newActiveValue)
+
+      try {
+        const getRes = await fetch(`/api/solutions/${rowId}`)
+        if (!getRes.ok) throw new Error('Failed to fetch solution')
+        const fullSolution = await getRes.json()
+
+        const updatedSolution = {
+          ...fullSolution,
+          active: newActiveValue,
+        }
+
+        const putRes = await fetch(`/api/solutions/${rowId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedSolution),
+        })
+
+        if (!putRes.ok) throw new Error('Failed to update solution')
+      } catch (err) {
+        console.error(err)
+        setIsActive((prev) => !prev)
+      }
+    }
+
+    return (
+      <FormControlLabel
+        control={
+          <Switch checked={isActive} onChange={handleToggle} color="primary" />
+        }
+        label={isActive ? 'True' : 'False'}
+        labelPlacement="end"
+      />
+    )
+  }
+
+
   const columns: GridColDef[] = [
     {
-      field: 'organizationName',
-      headerName: 'ORGANIZATION',
+      field: 'id',
+      headerName: 'ID',
       flex: 0.5,
-      minWidth: 50,
+      minWidth: 300,
     },
     {
-      field: 'pipelineName',
+      field: 'solutionName',
       headerName: 'NAME',
       flex: 0.5,
       minWidth: 50,
     },
     {
-      field: 'inboundEndpoint',
-      headerName: 'INBOUND ENDPOINT',
+      field: 'version',
+      headerName: 'VERSION',
       flex: 0.5,
-      minWidth: 50,
-    },
-    {
-      field: 'outboundEndpoint',
-      headerName: 'OUTBOUND ENDPOINT',
-      flex: 0.5,
-      minWidth: 25,
+      maxWidth: 100,
     },
     {
       field: 'description',
       headerName: 'DESCRIPTION',
+      flex: 1,
+      minWidth: 25,
+    },
+    {
+      field: 'active',
+      headerName: 'SOLUTION ACTIVE',
       flex: 0.5,
-      minWidth: 50,
+      maxWidth: 250,
+      renderCell: (params) => (
+        <ToggleCell value={params.value} rowId={params.row.id} />
+      ),
     },
     {
       field: 'action',
-      headerName: 'ACTION',
+      headerName: 'ACTION(S)',
       sortable: false,
       filterable: false,
       flex: 0.5,
@@ -128,7 +208,7 @@ const ConnectionsTable = (props) => {
               prefetch={false}
               tabIndex={props.tabIndex}
               href={{
-                pathname: `/edit/${params.row.id}`,
+                pathname: `/edit/solution/${params.row.id}`,
               }}
             >
               <Tooltip arrow placement="bottom" title="Edit">
@@ -142,20 +222,6 @@ const ConnectionsTable = (props) => {
                 </IconButton>
               </Tooltip>
             </Link>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <SyncDisabledIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
           </div>
         )
       },
@@ -181,7 +247,7 @@ const ConnectionsTable = (props) => {
             display="flex"
             align="center"
           >
-            My Pipelines
+            Solutions Creator
           </Typography>
         </Card>
       </Box>
@@ -195,7 +261,7 @@ const ConnectionsTable = (props) => {
         autoHeight
         initialState={{
           sorting: {
-            sortModel: [{ field: 'organizationName', sort: 'asc' }],
+            sortModel: [{ field: 'solutionName', sort: 'asc' }],
           },
           pagination: { paginationModel: { pageSize } },
         }}
@@ -210,6 +276,9 @@ const ConnectionsTable = (props) => {
         }}
         density={'comfortable'}
         pagination
+        slots={{
+          footer: () => <CustomFooter />,
+        }}
         components={{ Toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
@@ -271,4 +340,4 @@ const ConnectionsTable = (props) => {
   )
 }
 
-export default ConnectionsTable
+export default SolutionsTable

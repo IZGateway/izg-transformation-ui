@@ -1,5 +1,5 @@
 import * as React from 'react'
-import ConnectionsTable from '../../components/ConnectionTable'
+import PipelinesTable from '../../components/PipelinesTable'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import Container from '../../components/Container'
 import { InferGetServerSidePropsType } from 'next'
@@ -14,7 +14,7 @@ const Manage = (
     <Container title="Manage Pipelines">
       <AppHeaderBar open />
       <ErrorBoundary>
-        <ConnectionsTable data={props.data} />
+        <PipelinesTable data={props.data} />
       </ErrorBoundary>
       <Footer />
     </Container>

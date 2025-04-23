@@ -1,14 +1,14 @@
-import EditPipeline from '../../components/EditPipeline'
-import Container from '../../components/Container'
+import EditPipeline from '../../../components/EditPipeline'
+import Container from '../../../components/Container'
 import { Box } from '@mui/material'
-import ErrorBoundary from '../../components/ErrorBoundary'
+import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
-import PipelineDataProvider from '../../contexts/EditPipeline/pipelineDataContext'
-import PreconditionProvider from '../../contexts/EditPipeline/preconditionContext'
-import SolutionsDataProvider from '../../contexts/EditPipeline/solutionsDataContext'
-import UpdatePipelineDataProvider from '../../contexts/EditPipeline/updatePipeDataContext'
+import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
+import PipelineDataProvider from '../../../contexts/EditPipeline/pipelineDataContext'
+import PreconditionProvider from '../../../contexts/EditPipeline/preconditionContext'
+import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
+import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
 const Edit = (props) => {
   const router = useRouter()
   const { isReady, query } = router
@@ -21,7 +21,7 @@ const Edit = (props) => {
   return !isReady ? (
     <>Loading....</>
   ) : (
-    <Container title="Edit Connection">
+    <Container title="Edit Pipeline">
       <ErrorBoundary>
         <Box sx={{ position: 'relative' }}>
           <div>
@@ -60,7 +60,7 @@ export const getServerSideProps = async (context) => {
       context.req
     )
     const solutionsData = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions`,
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/solutions?limit=1000000`,
       context.req
     )
     const preconditionsData = await fetchDataFromEndpoint(

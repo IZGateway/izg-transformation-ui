@@ -5,7 +5,6 @@ import React from 'react'
 
 describe('Operations Component', () => {
   const mockSetOperations = jest.fn()
-  const mockSetHasOperations = jest.fn()
 
   const operationTypeData = [{ method: 'copy' }, { method: 'set' }]
 
@@ -29,7 +28,6 @@ describe('Operations Component', () => {
         setOperations={mockSetOperations}
         operationTypeData={operationTypeData}
         operationFieldsData={operationFieldsData}
-        setHasOperations={mockSetHasOperations}
       />
     )
 
@@ -43,7 +41,6 @@ describe('Operations Component', () => {
         setOperations={mockSetOperations}
         operationTypeData={operationTypeData}
         operationFieldsData={operationFieldsData}
-        setHasOperations={mockSetHasOperations}
       />
     )
 
@@ -60,7 +57,6 @@ describe('Operations Component', () => {
         setOperations={mockSetOperations}
         operationTypeData={operationTypeData}
         operationFieldsData={operationFieldsData}
-        setHasOperations={mockSetHasOperations}
       />
     )
 
@@ -70,7 +66,7 @@ describe('Operations Component', () => {
     expect(mockSetOperations).toHaveBeenCalled()
   })
 
-  it('calls setOperations and setHasOperations when deleting', () => {
+  it('calls setOperations when deleting', () => {
     jest.useFakeTimers()
 
     render(
@@ -79,7 +75,6 @@ describe('Operations Component', () => {
         setOperations={mockSetOperations}
         operationTypeData={operationTypeData}
         operationFieldsData={operationFieldsData}
-        setHasOperations={mockSetHasOperations}
       />
     )
 
@@ -87,6 +82,5 @@ describe('Operations Component', () => {
     jest.runAllTimers()
 
     expect(mockSetOperations).toHaveBeenCalled()
-    expect(mockSetHasOperations).toHaveBeenCalled()
   })
 })

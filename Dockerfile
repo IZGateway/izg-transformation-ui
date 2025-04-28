@@ -46,15 +46,11 @@ COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
 # Install filebeat
 RUN apk add curl libc6-compat
-ENV FILEBEAT_VERSION=8.17.4
-RUN curl https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-${FILEBEAT_VERSION}-linux-x86_64.tar.gz -o ./filebeat.tar.gz && \
-    tar xzvf filebeat.tar.gz && \
-    rm filebeat.tar.gz && \
-    mv filebeat-${FILEBEAT_VERSION}-linux-x86_64 filebeat && \
-    cd filebeat && \
-    cp filebeat /usr/bin && \
-    rm -rf /filebeat/filebeat.yml && \
-    cp ../filebeat.yml ./filebeat.yml
+
+# Replace default filebeat config with custom config file 
+ RUN cd ../filebeat && \
+     rm -rf /filebeat.yml && \
+     cp ../app/filebeat.yml ./filebeat.yml
 
 # Replace default metricbeat config with custom config file
 RUN cd ../metricbeat && \

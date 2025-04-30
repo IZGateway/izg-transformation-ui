@@ -21,9 +21,8 @@ export const removePrecondition = (
   setHasPreconditions
 ) => {
   const newPreconditions = preconditions.filter((_, i) => i !== index)
-  newPreconditions.length > 0
-    ? setPreconditions(newPreconditions)
-    : setHasPreconditions(false)
+  setPreconditions(newPreconditions)
+  setHasPreconditions(newPreconditions.length > 0)
 }
 
 export const transformPreconditions = (
@@ -52,7 +51,6 @@ export const transformPreconditions = (
         const additionalProp = Object.keys(methodData.properties).find(
           (key) => key !== 'id' && key !== 'dataPath'
         )
-        console.log('additionalProp', additionalProp)
         if (additionalProp) {
           transformedPrecondition[additionalProp] = precondition.value
         }
@@ -62,7 +60,7 @@ export const transformPreconditions = (
   )
 }
 
-export const useFormattedPreconditions = (
+export const formatPreconditions = (
   hasPreconditions: boolean,
   existingPreconditions: Array<{ [key: string]: string }>
 ): Array<{ id: string; method: string; value: string }> => {

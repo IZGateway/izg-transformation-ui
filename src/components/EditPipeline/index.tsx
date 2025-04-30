@@ -29,6 +29,7 @@ import { usePipelineDataContext } from '../../contexts/EditPipeline/pipelineData
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 import palette from '../../styles/theme/palette'
 import SaveIcon from '@mui/icons-material/Save'
+import _ from 'lodash'
 
 const EditPipeline = ({ orgData }) => {
   const router = useRouter()
@@ -128,7 +129,7 @@ const EditPipeline = ({ orgData }) => {
     <ReorderProvider>
       <Container title="Pipeline">
         <ErrorBoundary>
-          <Close />
+          <Close path={'/manage'} />
           <Box data-testid="pipeline-name-container">
             <Typography
               variant="h1"
@@ -305,7 +306,7 @@ const EditPipeline = ({ orgData }) => {
               >
                 <Box>
                   <SolutionsList />
-                  {pipeData && pipeData.length > 0 && (
+                  {(!_.isEmpty(pipeData) || !_.isEmpty(tempPipeData)) && (
                     <>
                       <Card
                         data-testid="configured-solutions-container"

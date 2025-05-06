@@ -265,10 +265,6 @@ const CreateSolution = ({
           : responseOperations,
     }
 
-    if (!isEditMode && !requestBody.id) {
-      requestBody.id = uuidv4()
-    }
-
     const res = isEditMode
       ? await updateSolution(query.id as string, requestBody)
       : await addSolution(requestBody)
@@ -287,7 +283,7 @@ const CreateSolution = ({
       if (isEditMode) {
         mutateSolution?.()
       } else {
-        router.push(`/edit/solution/${requestBody.id}`)
+        router.push(`/edit/solution/${res.data.id}`)
       }
     }
   }

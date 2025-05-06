@@ -36,7 +36,6 @@ import { reverseTransformOperations, transformOperations } from './utils'
 import CombinedContext from '../../contexts/app'
 import CustomSnackbar from '../SnackBar'
 import { addSolution } from './addSolution'
-import { v4 as uuidv4 } from 'uuid'
 import SolutionHeader from './solutionHeader'
 
 type CreateSolutionProps = {

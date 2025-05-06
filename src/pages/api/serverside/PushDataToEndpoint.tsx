@@ -14,22 +14,21 @@ const pushWithToken = async (
   if (typeof access_token !== 'string') {
     throw new Error('access_token must be a string')
   }
-
+  const useCert = process.env.XFORM_SERVICE_ENDPOINT_USE_CERT !== 'false'
+  const useJWT = process.env.XFORM_SERVICE_ENDPOINT_USE_JWT !== 'false'
   const XFORM_SERVICE_ENDPOINT_CRT_PATH =
     process.env.XFORM_SERVICE_ENDPOINT_CRT_PATH || ''
   const XFORM_SERVICE_ENDPOINT_KEY_PATH =
     process.env.XFORM_SERVICE_ENDPOINT_KEY_PATH || ''
   const XFORM_SERVICE_ENDPOINT_PASSCODE =
     process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || ''
-  const XFORM_SERVICE_ENDPOINT_USE_CERT: boolean =
-    process.env.XFORM_SERVICE_ENDPOINT_USE_CERT === 'true'
 
   const httpsAgentOptions: https.AgentOptions = {
     rejectUnauthorized: false,
     keepAlive: true,
   }
 
-  if (XFORM_SERVICE_ENDPOINT_USE_CERT) {
+  if (useCert) {
     httpsAgentOptions.cert = fs.readFileSync(
       path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
       'utf-8'
@@ -42,11 +41,11 @@ const pushWithToken = async (
 
     httpsAgentOptions.passphrase = XFORM_SERVICE_ENDPOINT_PASSCODE
   }
-
+  const headers: Record<string, string> = {}
+  if (useJWT) {
+    headers['Authorization'] = `Bearer ${access_token}`
+  }
   try {
-    const headers = XFORM_SERVICE_ENDPOINT_USE_CERT
-      ? {}
-      : { Authorization: `Bearer ${access_token}` }
     const response = await axios.request({
       url: endpoint,
       method: method,

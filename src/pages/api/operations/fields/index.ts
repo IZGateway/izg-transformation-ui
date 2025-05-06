@@ -10,7 +10,7 @@ export default async function handler(
   if (req.method === 'GET') {
     try {
       const data = await fetchDataFromEndpoint(
-        `${baseUrl}/api/v1/operation/fields`,
+        `${baseUrl}/api/v1/operations/fields`,
         req
       )
       res.status(200).json(data)

@@ -36,7 +36,6 @@ import { reverseTransformOperations, transformOperations } from './utils'
 import CombinedContext from '../../contexts/app'
 import CustomSnackbar from '../SnackBar'
 import { addSolution } from './addSolution'
-import { v4 as uuidv4 } from 'uuid'
 import SolutionHeader from './solutionHeader'
 
 type CreateSolutionProps = {
@@ -265,10 +264,6 @@ const CreateSolution = ({
           : responseOperations,
     }
 
-    if (!isEditMode && !requestBody.id) {
-      requestBody.id = uuidv4()
-    }
-
     const res = isEditMode
       ? await updateSolution(query.id as string, requestBody)
       : await addSolution(requestBody)
@@ -287,7 +282,7 @@ const CreateSolution = ({
       if (isEditMode) {
         mutateSolution?.()
       } else {
-        router.push(`/edit/solution/${requestBody.id}`)
+        router.push(`/edit/solution/${res.data.id}`)
       }
     }
   }

@@ -2,14 +2,16 @@ import fs from 'fs'
 import path from 'path'
 import axios from 'axios'
 import https from 'https'
-import { getToken } from "next-auth/jwt"
+import { getToken } from 'next-auth/jwt'
 import { getTokenStore } from '../../../lib/tokenStore'
 
-const fetchWithToken = async (endpoint : string, access_token : unknown) => {
-
+const fetchWithToken = async (endpoint: string, access_token: unknown) => {
   if (typeof access_token !== 'string') {
     throw new Error('access_token must be a string')
   }
+
+  const useCert = process.env.XFORM_SERVICE_ENDPOINT_USE_CERT !== 'false'
+  const useJWT = process.env.XFORM_SERVICE_ENDPOINT_USE_JWT !== 'false'
 
   const XFORM_SERVICE_ENDPOINT_CRT_PATH =
     process.env.XFORM_SERVICE_ENDPOINT_CRT_PATH || ''
@@ -17,14 +19,13 @@ const fetchWithToken = async (endpoint : string, access_token : unknown) => {
     process.env.XFORM_SERVICE_ENDPOINT_KEY_PATH || ''
   const XFORM_SERVICE_ENDPOINT_PASSCODE =
     process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || ''
-  const XFORM_SERVICE_ENDPOINT_USE_CERT : boolean = process.env.XFORM_SERVICE_ENDPOINT_USE_CERT === 'true'
 
   const httpsAgentOptions: https.AgentOptions = {
     rejectUnauthorized: false,
     keepAlive: true,
   }
 
-  if (XFORM_SERVICE_ENDPOINT_USE_CERT) {
+  if (useCert) {
     httpsAgentOptions.cert = fs.readFileSync(
       path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
       'utf-8'
@@ -37,9 +38,11 @@ const fetchWithToken = async (endpoint : string, access_token : unknown) => {
 
     httpsAgentOptions.passphrase = XFORM_SERVICE_ENDPOINT_PASSCODE
   }
-
+  const headers: Record<string, string> = {}
+  if (useJWT) {
+    headers['Authorization'] = `Bearer ${access_token}`
+  }
   try {
-    const headers = XFORM_SERVICE_ENDPOINT_USE_CERT ? {} : { Authorization: `Bearer ${access_token}` }
     const response = await axios.get(endpoint, {
       httpsAgent: new https.Agent(httpsAgentOptions),
       headers,
@@ -53,16 +56,15 @@ const fetchWithToken = async (endpoint : string, access_token : unknown) => {
 }
 
 const fetchDataFromEndpoint = async (endpoint: string, request: any) => {
-
-  const token = await getToken({ req: request });
+  const token = await getToken({ req: request })
   if (!token?.sub) {
-    throw new Error('No user ID available');
+    throw new Error('No user ID available')
   }
 
-  const store = getTokenStore();
-  const access_token = store.get(token.sub);
+  const store = getTokenStore()
+  const access_token = store.get(token.sub)
   if (!access_token) {
-    throw new Error('No access token available');
+    throw new Error('No access token available')
   }
 
   return fetchWithToken(endpoint, access_token)

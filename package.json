@@ -1,7 +1,7 @@
 {
   "name": "izg-transformation-console",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "scripts": {
     "dev": "next",
     "build": "next build",
@@ -61,7 +61,6 @@
     "waait": "^1.0.5",
     "winston": "^3.10.0",
     "xml2js": "^0.6.0",
-    "@xmldom/xmldom": "0.7.7",
     "xml-crypto": "^3.2.1"
   },
   "devDependencies": {

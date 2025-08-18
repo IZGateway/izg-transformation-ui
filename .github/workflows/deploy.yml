@@ -181,7 +181,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}
+            ${{ env.APHL_ECR_REGISTRY }}/${{ env.APHL_ECR_REPOSITORY }}
           tags: |
             type=raw,value=izgw-transf-ui-${{ env.APPLICATION_VERSION }}_${{github.run_number}}
           flavor: |

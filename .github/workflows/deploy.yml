@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - 'release/**'
+      - 'IGDD-2181_Update-APHL-ECR-location-and-image-name'
   pull_request:
     branches:
       - develop
@@ -137,8 +138,11 @@ jobs:
   build-and-push-aphl:
     name: 'Push Image To APHL'
     runs-on: ubuntu-latest
-    if: ${{ contains(github.ref, 'refs/heads/release/') }}
+    if: ${{ github.ref == 'refs/heads/IGDD-2181_Update-APHL-ECR-location-and-image-name' }}
     needs: [code-quality-check, generate-release-timestamp]
+    env:
+      APHL_ECR_REGISTRY: ${{ vars.APHL_ECR_REGISTRY }}
+      APHL_ECR_REPOSITORY: ${{ vars.APHL_ECR_REPOSITORY }}
     permissions:
       contents: write
       packages: write
@@ -158,6 +162,12 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
             ${{ runner.os }}-nextjs-
 
+      - name: "Get Application Version"
+        run: |
+          echo "Setting the release version"
+          APPLICATION_VERSION=$(npm pkg get version | tr -d '"')
+          echo APPLICATION_VERSION="${APPLICATION_VERSION}" >> $GITHUB_ENV
+
       - name: Configure AWS credentials (APHL)
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
@@ -174,11 +184,9 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
+            ${{ env.APHL_ECR_REGISTRY }}/${{ env.APHL_ECR_REPOSITORY }}
           tags: |
-            type=raw,value=izg-transformation-ui_${{ needs.generate-release-timestamp.outputs.releaseDate }}
-            type=raw,value=izg-transformation-ui_rc_${{ needs.generate-release-timestamp.outputs.releaseDate }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
-            type=raw,value=izg-transformation-ui_release_${{ needs.generate-release-timestamp.outputs.releaseDate }},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=izgw-transf-ui-${{ env.APPLICATION_VERSION }}_${{github.run_number}}
           flavor: |
             latest=false
 

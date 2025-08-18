@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - 'release/**'
+      - 'IGDD-2181_Update-APHL-ECR-location-and-image-name'
   pull_request:
     branches:
       - develop

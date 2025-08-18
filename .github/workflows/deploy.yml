@@ -183,7 +183,7 @@ jobs:
           images: |
             ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
           tags: |
-            type=raw,value=zgw-transf-ui-${{ env.APPLICATION_VERSION }}_${{github.run_number}}
+            type=raw,value=izgw-transf-ui-${{ env.APPLICATION_VERSION }}_${{github.run_number}}
           flavor: |
             latest=false
 

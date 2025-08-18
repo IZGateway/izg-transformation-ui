@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - 'release/**'
-      - 'IGDD-2181_Update-APHL-ECR-location-and-image-name'
   pull_request:
     branches:
       - develop
@@ -138,7 +137,7 @@ jobs:
   build-and-push-aphl:
     name: 'Push Image To APHL'
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/IGDD-2181_Update-APHL-ECR-location-and-image-name' }}
+    if: ${{ contains(github.ref, 'refs/heads/release/') }}
     needs: [code-quality-check, generate-release-timestamp]
     permissions:
       contents: write
@@ -181,7 +180,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}
+            ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
           tags: |
             type=raw,value=izgw-transf-ui-${{ env.APPLICATION_VERSION }}_${{github.run_number}}
           flavor: |

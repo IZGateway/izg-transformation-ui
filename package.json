@@ -97,6 +97,7 @@
     "@types/react": "19.0.10",
     "prismjs": "1.30.0",
     "dompurify": "3.2.5",
-    "sha.js": "2.4.12"
+    "sha.js": "2.4.12",
+    "brace-expansion": "4.0.1"
   }
 }

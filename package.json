@@ -1,7 +1,7 @@
 {
   "name": "izg-transformation-console",
   "private": true,
-  "version": "0.10.1",
+  "version": "0.10.2",
   "scripts": {
     "dev": "next",
     "build": "next build",
@@ -47,9 +47,9 @@
     "moment": "^2.29.4",
     "next": "^15.5.2",
     "next-api-middleware": "^2.0.1",
-    "next-auth": "^4.24.1",
+    "next-auth": "^4.24.12",
     "next-swagger-doc": "^0.4.0",
-    "node-forge": "^1.3.1",
+    "node-forge": "^1.3.2",
     "prisma": "^4.15.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",

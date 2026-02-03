@@ -15,8 +15,7 @@ const Edit = (props) => {
 
   useEffect(() => {
     if (!isReady) return
-  }),
-    [isReady, query]
+  }, [isReady, query])
 
   return !isReady ? (
     <>Loading....</>

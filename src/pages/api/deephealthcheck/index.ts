@@ -88,8 +88,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // OKTA
   const oktaStatus = async () => {
     let oktaHealthCheck = {}
+    const issuer = process.env.NEXT_PUBLIC_OKTA_ISSUER || ''
+    const issuerPath = process.env.OKTA_ISSUER_PATH || ''
     const oktaEndpoint =
-      `${process.env.NEXT_PUBLIC_OKTA_ISSUER}${process.env.OKTA_ISSUER_PATH}/.well-known/openid-configuration` || 'unknown'
+      issuer && issuerPath
+        ? `${issuer}${issuerPath}/.well-known/openid-configuration`
+        : 'unknown'
     try {
       const response = await fetch(oktaEndpoint)
       const data = await response.json()

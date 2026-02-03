@@ -1,9 +1,9 @@
-FROM node:22-alpine3.21 AS deps
+FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:22-alpine3.21 AS builder
+FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .

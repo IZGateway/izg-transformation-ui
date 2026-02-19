@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "types": ["cypress", "@types/gtag.js"],
+    "types": ["@types/gtag.js"],
     "target": "ES2017"
   },
   "include": [

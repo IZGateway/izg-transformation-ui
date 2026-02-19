@@ -9,8 +9,8 @@
     "start:local-dev": "docker compose -f ./local-docker/docker-compose.yml up --build -d && npm run dev && docker compose -f ./local-docker/docker-compose.yml down",
     "start:local-docker": "docker compose up --build && docker compose down",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "code-quality-check": "eslint . && npm run type-check",
+    "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
+    "code-quality-check": "eslint src --ext .ts,.tsx,.js,.jsx && npm run type-check",
     "type-check": "tsc --noEmit",
     "test:watch": "jest --watch",
     "test": "jest",
@@ -101,7 +101,6 @@
     "sha.js": "2.4.12",
     "js-yaml": "^4.1.1",
     "preact": "10.28.2",
-    "ajv": "^8.18.0",
     "glob": "^11.1.0"
   }
 }

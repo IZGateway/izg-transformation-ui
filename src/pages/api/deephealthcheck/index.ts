@@ -5,15 +5,7 @@ import * as fs from 'fs'
 import path from 'path'
 import https from 'https'
 import axios from 'axios'
-/**
- * @swagger
- * /api/deephealthcheck:
- *   get:
- *     summary: returns HTTP OK (200).
- *     responses:
- *       200:
- *         description: OK.
- */
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const deepHealthCheckResults = []
   const checkConnections = ['OKTA', 'XFORMSERVICE']

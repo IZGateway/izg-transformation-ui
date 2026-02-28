@@ -15,6 +15,7 @@
     "test:watch": "jest --watch",
     "test": "jest",
     "swagger:generate-doc": "npx next-swagger-doc-cli src/next-swagger-doc.json --output swaggerAPI.json"
+    "cypress:open": "cypress open --config-file cypress/config/cypress-dev-config.ts"
   },
   "dependencies": {
     "@axe-core/react": "^4.11.1",

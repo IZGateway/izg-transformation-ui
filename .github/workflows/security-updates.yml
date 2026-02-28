@@ -1,0 +1,20 @@
+name: Security Updates
+
+on:
+  schedule:
+    # Run daily at 3:15 AM UTC (avoids conflict with other workflows)
+    - cron: '15 3 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Empty Workflow
+        run: |
+          echo "Empty Workflow"

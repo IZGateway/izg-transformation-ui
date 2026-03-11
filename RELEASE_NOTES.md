@@ -1,5 +1,9 @@
 # Release Notes
 
+## Release v0.13.1
+
+- Dependency version update
+
 ## Release v0.13.0
 
 - IGDD-2557 - Remove next-swagger-doc and swagger-ui-react dependencies as they are not needed

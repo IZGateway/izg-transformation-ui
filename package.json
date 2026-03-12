@@ -96,10 +96,10 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
+    "dompurify": "3.3.3",
     "glob": "^11.1.0",
     "js-yaml": "^4.1.1",
     "minimatch": "^10.2.4",
-    "preact": "10.29.0",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12"
   }

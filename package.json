@@ -55,7 +55,7 @@
     "react-dom": "^18.3.1",
     "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
-    "swagger-ui-react": "^5.32.0",
+    "swagger-ui-react": "^5.32.1",
     "swr": "^2.4.1",
     "uuid": "^9.0.1",
     "waait": "^1.0.5",
@@ -96,7 +96,6 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "dompurify": "3.3.3",
     "glob": "^11.1.0",
     "js-yaml": "^4.1.1",
     "minimatch": "^10.2.4",

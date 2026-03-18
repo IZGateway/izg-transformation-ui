@@ -141,7 +141,6 @@ jobs:
             type=raw,value=${{ needs.generate-release-timestamp.outputs.application_version }}-${{github.run_number}}
             type=raw,value=${{ needs.generate-release-timestamp.outputs.application_version }}-${{github.run_number}}-release,enable=${{ contains(github.ref, 'refs/heads/release/') }}
             type=raw,value=${{ needs.generate-release-timestamp.outputs.application_version }}-${{github.run_number}}-snapshot,enable=${{ github.ref == 'refs/heads/develop' }}
-            type=raw,value=nightly-${{ needs.generate-release-timestamp.outputs.application_version }}-${{github.run_number}},enable=${{ github.event_name == 'schedule' }}
           flavor: |
             latest=true
 

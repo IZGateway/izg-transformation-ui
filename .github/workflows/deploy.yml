@@ -15,7 +15,7 @@ on:
       - '.github/workflows/*'
       - '!.github/workflows/deploy.yml'
   schedule:
-    - cron: '0 11 * * 1-5'
+    - cron: '0 10 * * 1-5'
   workflow_dispatch:
 
 env:

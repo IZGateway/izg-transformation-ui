@@ -96,6 +96,7 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
+    "flatted": "^3.4.2",
     "glob": "^11.1.0",
     "js-yaml": "^4.1.1",
     "minimatch": "^10.2.4",

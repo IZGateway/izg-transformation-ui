@@ -1,0 +1,91 @@
+# openspec/config.yaml
+# Generated from codebase analysis on 2026-03-26
+
+schema: spec-driven
+
+context: |
+  Domain: Web console for managing HL7 v2.x message transformation pipelines and solutions
+    in the IZ Gateway (IZG) immunization data exchange ecosystem.
+  Users: IZG operations staff (admins) and jurisdictional users who configure transformation
+    pipelines for HL7 messaging between immunization information systems.
+
+  Tech Stack:
+    Language: TypeScript 5.9.3, Node.js (version managed via custom Docker base image)
+    Framework: Next.js 16.2.1 (Pages Router), React 18.3.1
+    UI: Material-UI 5.18.0, MUI X Data Grid 6.20.4, Emotion CSS-in-JS
+    Auth: NextAuth.js 4.24.13 with Okta OAuth2 provider
+    HTTP: Axios 1.13.6 (server-side to xform service), Fetch API (client-side)
+    Logging: Winston 3.19.0 with Elastic ECS format
+    Build: npm, Next.js bundler (SWC)
+    CI/CD: GitHub Actions — lint, type-check, Docker build, push to AWS ECR, deploy to ECS
+    Container: Alpine Node with Nginx reverse proxy, port 443
+
+  Architecture:
+    Pattern: Next.js Pages Router with server-side API proxy layer
+    API Style: REST — internal API routes proxy to backend xform service using token-based auth
+    Module Structure: Feature-based components with colocated tests in tests/ subdirectories
+    Auth: Okta OAuth2 → NextAuth JWT sessions (30min). Access tokens stored server-side
+      in in-memory Map (src/lib/tokenStore.ts), never in JWT. Role-based access via Okta
+      groups (OPERATIONS_GROUP = admin). Jurisdiction-based access control for non-admins
+      (src/lib/accesshelper.ts).
+    State: React Context API only (src/contexts/app.tsx, src/contexts/EditPipeline/)
+    Middleware: next-auth middleware protects all routes except health endpoints.
+      API routes use next-api-middleware (captureErrors, logRequest, checkAccessToDestId).
+
+  Standards:
+    Testing: Jest 29 + React Testing Library. Tests colocated in component tests/ dirs.
+      Heavy use of data-testid attributes. Mocks for next/router and context providers.
+    Linting: ESLint 9 flat config + Prettier. no-unused-vars, no-explicit-any,
+      react-hooks/exhaustive-deps disabled.
+    Formatting: No semicolons, single quotes, trailing commas (es5), 2-space indent.
+    Git: Conventional commits (commitlint + Husky). Branch naming: IGDD-<ticket>_<description>.
+      PR-based workflow into develop, release branches cut from develop.
+    Error Handling: Try-catch in API routes with Winston logging. HTTP status codes
+      (200/201/401/405/500/503). Client-side ErrorBoundary component.
+
+  Domain Standards:
+    HL7 v2.x message transformation (VXU vaccination messages, MSH/PID segments).
+    Backend xform service handles actual transformations; this UI manages pipeline config.
+    Supports mTLS for service-to-service communication (configurable).
+
+  Key Constraints:
+    - npm install requires --force due to peer dependency conflicts
+    - Dev server runs on port 80 (Okta redirect URI configuration)
+    - Prisma is in dependencies but not actively used (no schema.prisma)
+    - No strict TypeScript mode — strict is OFF in tsconfig
+    - Image optimization disabled in Next.js config
+    - Secret scanning enforced via gitleaks workflow
+
+rules:
+  proposal:
+    - Reference the IGDD ticket number driving the change
+    - Identify impact on the xform service API contract if any endpoints change
+    - Note whether changes affect admin-only or all-user flows (jurisdiction-based access)
+    - Include rollback considerations for any data model or API route changes
+    - Call out if the change touches authentication/token handling (NextAuth, tokenStore)
+
+  specs:
+    - Use Given/When/Then format for user-facing scenarios
+    - Reference existing component patterns in src/components/ before proposing new ones
+    - Specify which API routes (src/pages/api/) are affected and their HTTP methods
+    - Include both admin and non-admin user scenarios when access control is involved
+    - Note any new environment variables needed (reference .env.example format)
+    - For HL7-related features, reference specific message segments (MSH, PID, etc.)
+
+  design:
+    - Follow the existing Pages Router pattern — do not introduce App Router
+    - Use React Context for state; do not introduce Redux or other state libraries
+    - API routes must use the existing serverside/FetchDataFromEndpoint and PushDataToEndpoint
+      patterns for xform service communication
+    - New components follow feature-based organization with colocated tests/ directories
+    - Use MUI components and the existing blueThemeOptions theme
+    - Include error handling via the captureErrors middleware pattern for API routes
+    - Address jurisdiction-based access control for any new data endpoints
+
+  tasks:
+    - Include a test task for each implementation task (colocated in tests/ subdirectory)
+    - Run npm run code-quality-check (lint + type-check) before considering a task complete
+    - Note if Docker/Nginx configuration changes are needed alongside code changes
+    - Reference the conventional commit type for each task (feat, fix, chore, etc.)
+    - Flag tasks that require .env.example updates or new environment variables
+    - Include security review checkpoint for changes touching auth, tokens, or API routes

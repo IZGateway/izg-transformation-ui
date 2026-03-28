@@ -11,9 +11,18 @@ import {
 import { useReorderContext } from '../../contexts/EditPipeline/reorderContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 import { useState } from 'react'
-import { isEqual } from 'lodash'
 
-const SolutionsModified = ({ handleSave }) => {
+type Props = {
+  handleSave: () => Promise<{ success: boolean; error?: string }>
+  handleToggleActive: () => Promise<void>
+  isActive: boolean
+}
+
+const SolutionsModified = ({
+  handleSave,
+  handleToggleActive,
+  isActive,
+}: Props) => {
   const { isReorder, setIsReorder } = useReorderContext()
   const { pipeData, tempPipeData, setPipeData, setTempPipeData } =
     useUpdatePipeDataContext()
@@ -34,18 +43,13 @@ const SolutionsModified = ({ handleSave }) => {
 
   const onSave = async () => {
     try {
-      if (isEqual(tempPipeData, pipeData) || !isReorder) {
-        setIsReorder(false)
-        setSeverity('info')
-        return
-      }
-
-      setPipeData(tempPipeData)
-
       const response = await handleSave()
       if (response.success) {
-        setIsReorder(false)
-        setTempPipeData(null)
+        if (isReorder) {
+          setPipeData(tempPipeData)
+          setTempPipeData(null)
+          setIsReorder(false)
+        }
         setSeverity('success')
       } else {
         console.error('Save failed:', response.error)
@@ -146,23 +150,36 @@ const SolutionsModified = ({ handleSave }) => {
                 Reorder
               </Button>
             )}
-            <Tooltip title="Apply Changes" arrow placement="bottom">
+            <Box sx={{ display: 'flex', gap: 2, marginLeft: 'auto' }}>
+              <Tooltip title="Apply Changes" arrow placement="bottom">
+                <Button
+                  id="apply"
+                  data-testid="apply-button"
+                  color="secondary"
+                  variant="contained"
+                  sx={{
+                    borderRadius: '30px',
+                    minWidth: '120px',
+                  }}
+                  onClick={onSave}
+                >
+                  Apply
+                </Button>
+              </Tooltip>
               <Button
-                id="apply"
-                data-testid="apply-button"
-                color="secondary"
-                variant="contained"
+                id="toggle-active"
+                data-testid="toggle-active-button"
+                variant="outlined"
+                color={isActive ? 'error' : 'success'}
                 sx={{
                   borderRadius: '30px',
-                  display: 'flex',
-                  flex: 1,
-                  maxWidth: '125px',
+                  minWidth: '130px',
                 }}
-                onClick={onSave}
+                onClick={handleToggleActive}
               >
-                Apply
+                {isActive ? 'Deactivate' : 'Activate'}
               </Button>
-            </Tooltip>
+            </Box>
           </Box>
         </CardContent>
       </Card>

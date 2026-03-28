@@ -33,7 +33,7 @@ export const getServerSideProps = async (context) => {
     const organizationsData = await organizationsResponse.data
 
     const pipelineResponse = await fetchDataFromEndpoint(
-      `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines?limit=1000`,
+      `${XFORM_SERVICE_ENDPOINT}/api/v1/pipelines?includeInactive=true&limit=1000`,
       context.req
     )
     const pipelineData = await pipelineResponse.data

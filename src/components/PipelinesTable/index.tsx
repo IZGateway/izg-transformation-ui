@@ -1,11 +1,21 @@
 import React, { useContext } from 'react'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import { Box, IconButton, Typography, Card, Tooltip } from '@mui/material'
+import { DataGrid, GridColDef, GridFooter, GridToolbar } from '@mui/x-data-grid'
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  Card,
+  Tooltip,
+} from '@mui/material'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
+import AddIcon from '@mui/icons-material/Add'
 import Link from 'next/link'
 
 const dataGridCustom = {
@@ -72,6 +82,32 @@ const dataGridCustom = {
   },
 }
 
+const CustomFooter = () => (
+  <Box display="flex" justifyContent="space-between" alignItems="center">
+    <Link href="/add/pipeline" prefetch={false}>
+      <Button
+        id="add-new-pipeline"
+        data-testid="add-new-pipeline-button"
+        sx={{
+          borderRadius: '60px',
+          margin: '2em 0',
+          boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+          backgroundColor: palette.white,
+          py: 1.7,
+          px: 3,
+          border: `1px solid ${palette.border}`,
+        }}
+        variant="text"
+        color="primary"
+        endIcon={<AddIcon />}
+      >
+        Add New Pipeline
+      </Button>
+    </Link>
+    <GridFooter />
+  </Box>
+)
+
 const actionButtonStyle = {
   borderRadius: 90,
   background: palette.white,
@@ -115,6 +151,31 @@ const PipelinesTable = (props) => {
       minWidth: 50,
     },
     {
+      field: 'active',
+      headerName: 'STATUS',
+      flex: 0.3,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          {params.value ? (
+            <CheckCircleIcon sx={{ fontSize: 18, color: palette.active }} />
+          ) : (
+            <RemoveCircleOutlineIcon
+              sx={{ fontSize: 18, color: palette.greyDarkTypography }}
+            />
+          )}
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            {params.value ? 'Active' : 'Inactive'}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
       field: 'action',
       headerName: 'ACTION',
       sortable: false,
@@ -142,7 +203,7 @@ const PipelinesTable = (props) => {
                 </IconButton>
               </Tooltip>
             </Link>
-            <IconButton
+            {/*  <IconButton
               aria-label="test"
               color="primary"
               sx={actionButtonStyle}
@@ -155,7 +216,7 @@ const PipelinesTable = (props) => {
               sx={actionButtonStyle}
             >
               <MoreVertIcon fontSize="small" />
-            </IconButton>
+            </IconButton> */}
           </div>
         )
       },
@@ -210,6 +271,7 @@ const PipelinesTable = (props) => {
         }}
         density={'comfortable'}
         pagination
+        slots={{ footer: () => <CustomFooter /> }}
         components={{ Toolbar: GridToolbar }}
         slotProps={{
           toolbar: {

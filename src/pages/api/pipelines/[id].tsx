@@ -20,10 +20,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     )
     res.status(200).json(updatedPipeData)
   } catch (error) {
-    console.error('Error updating data:', error)
+    const backendStatus = error?.response?.status || 500
+    const backendMessage =
+      error?.response?.data?.message || error?.response?.data || error.message
+    console.error(
+      'Error updating pipeline:',
+      backendMessage,
+      error?.response?.data
+    )
     res
-      .status(500)
-      .json({ message: 'Error updating data', error: error.message })
+      .status(backendStatus)
+      .json({ message: 'Error updating data', error: backendMessage })
   }
 }
 

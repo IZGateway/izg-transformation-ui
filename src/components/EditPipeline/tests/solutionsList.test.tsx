@@ -17,8 +17,22 @@ jest.mock('../Modal/solutionsModal', () => {
 })
 
 const mockSolutionsData = [
-  { id: '1', solutionName: 'Solution 1', description: 'Description 1' },
-  { id: '2', solutionName: 'Solution 2', description: 'Description 2' },
+  {
+    id: '1',
+    solutionName: 'Solution 1',
+    description: 'Description 1',
+    version: '1.0',
+    active: true,
+    requestOperations: [],
+  },
+  {
+    id: '2',
+    solutionName: 'Solution 2',
+    description: 'Description 2',
+    version: '1.0',
+    active: true,
+    requestOperations: [],
+  },
 ]
 
 const mockPipeData = [

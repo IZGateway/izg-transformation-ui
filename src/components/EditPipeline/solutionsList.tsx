@@ -6,15 +6,12 @@ import {
   CardContent,
   Divider,
   Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Tooltip,
   Link,
+  Tooltip,
 } from '@mui/material'
 import HelpIcon from '@mui/icons-material/Help'
 import SolutionsModal from './Modal/solutionsModal'
+import SearchableSelect from '../SearchableSelect'
 import { useSolutionsDataContext } from '../../contexts/EditPipeline/solutionsDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 
@@ -23,21 +20,29 @@ const SolutionsList = () => {
   const { solutionsData } = useSolutionsDataContext()
   const { pipeData, tempPipeData } = useUpdatePipeDataContext()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const solutionsArray = CreateSolutionsArray(
-    solutionsData,
-    tempPipeData || pipeData
-  )
-  const selectedSolution = solutionsArray[selectItem] || {
-    description: '',
-    id: '',
-    solutionName: '',
-  }
+
+  const solutionsOptions = useMemo(() => {
+    if (!solutionsData) return []
+    const pipeSolutionIds = new Set(
+      (tempPipeData || pipeData)?.map((p) => p.solutionId) || []
+    )
+    return solutionsData
+      .filter((s) => !pipeSolutionIds.has(s.id))
+      .map((s) => ({
+        value: s.id,
+        label: s.solutionName,
+        description: s.description,
+      }))
+  }, [solutionsData, tempPipeData, pipeData])
+
+  const selectedSolution = useMemo(() => {
+    if (!selectItem) return null
+    return solutionsData?.find((s) => s.id === selectItem) ?? null
+  }, [solutionsData, selectItem])
 
   const handleModalOpen = (open: boolean) => {
     setIsModalOpen(open)
-    if (!open) {
-      setSelectItem('')
-    }
+    if (!open) setSelectItem('')
   }
 
   return (
@@ -83,73 +88,27 @@ const SolutionsList = () => {
             </Tooltip>
           </Link>
         </Typography>
-        <FormControl fullWidth sx={{ marginTop: 2, marginBottom: 2 }}>
-          {Object.keys(solutionsArray).length > 0 ? (
-            <InputLabel
-              data-testid="solutions-select-label"
-              id="solutions-select-label"
-              shrink={false}
-            >
-              {selectedSolution.solutionName || 'Solutions'}
-            </InputLabel>
-          ) : (
-            <InputLabel
-              data-testid="solutions-select-label"
-              id="solutions-select-label"
-              shrink={false}
-            >
-              No solutions available
-            </InputLabel>
-          )}
-          <Select
-            data-testid="solutions-select"
-            labelId="solutions-select-label"
-            id="solutions-select"
-            value={selectItem}
-            onChange={(event) => setSelectItem(event.target.value as string)}
-            displayEmpty
-          >
-            {Object.keys(solutionsArray).length > 0 ? (
-              Object.entries(solutionsArray).map(([id, solution]) => (
-                <MenuItem key={id} value={id}>
-                  <Tooltip
-                    sx={{ cursor: 'pointer', zIndex: 1000 }}
-                    title={
-                      <Typography>
-                        {(solution as { description: string }).description}
-                      </Typography>
-                    }
-                    arrow
-                    placement="left-start"
-                  >
-                    <span>
-                      {(solution as { solutionName: string }).solutionName}
-                    </span>
-                  </Tooltip>
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem value="">No solutions available</MenuItem>
-            )}
-          </Select>
-        </FormControl>
+        <SearchableSelect
+          options={solutionsOptions}
+          value={selectItem}
+          onChange={setSelectItem}
+          label="Solutions"
+          testId="solutions-select"
+          sx={{ marginTop: 2, marginBottom: 2 }}
+        />
         <Button
           data-testid="add-button"
           id="add"
           color="secondary"
           variant="outlined"
-          sx={{
-            borderRadius: '30px',
-          }}
-          onClick={() => {
-            setIsModalOpen(true)
-          }}
-          disabled={!selectedSolution.id}
+          sx={{ borderRadius: '30px' }}
+          onClick={() => setIsModalOpen(true)}
+          disabled={!selectItem}
         >
           Add
         </Button>
 
-        {isModalOpen && (
+        {isModalOpen && selectedSolution && (
           <SolutionsModal
             selectedSolution={selectedSolution}
             isNewSolution={true}
@@ -163,25 +122,3 @@ const SolutionsList = () => {
 }
 
 export default memo(SolutionsList)
-
-const CreateSolutionsArray = (solutionsData, pipeData) => {
-  return useMemo(() => {
-    if (!solutionsData || !pipeData) {
-      return {}
-    }
-
-    const pipeSolutionIds = new Set(
-      pipeData?.map((pipe) => pipe.solutionId) || []
-    )
-    return solutionsData
-      .filter((solution) => !pipeSolutionIds.has(solution.id))
-      .reduce((acc, solution) => {
-        acc[solution.id] = {
-          id: solution.id,
-          solutionName: solution.solutionName,
-          description: solution.description,
-        }
-        return acc
-      }, {})
-  }, [solutionsData, pipeData])
-}

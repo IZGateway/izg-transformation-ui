@@ -42,7 +42,8 @@ export const getServerSideProps = async (context) => {
     return { props: { data: combinedData } }
   } catch (error) {
     console.error('Error fetching data:', error)
-    throw new Error(error)
+    if (error instanceof Error) throw error
+    throw new Error(String(error))
   }
 }
 

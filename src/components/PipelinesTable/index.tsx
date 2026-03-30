@@ -271,8 +271,7 @@ const PipelinesTable = (props) => {
         }}
         density={'comfortable'}
         pagination
-        slots={{ footer: () => <CustomFooter /> }}
-        components={{ Toolbar: GridToolbar }}
+        slots={{ footer: () => <CustomFooter />, toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
             showQuickFilter: true,

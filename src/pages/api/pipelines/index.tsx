@@ -17,11 +17,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       'POST'
     )
     res.status(201).json(createdPipeline)
-  } catch (error) {
-    console.error('Error creating pipeline:', error)
+  } catch (error: any) {
+    const backendStatus =
+      error?.response?.status && typeof error.response.status === 'number'
+        ? error.response.status
+        : 500
+    const backendMessage =
+      error?.response?.data?.message || error?.response?.data || error.message
+    console.error(
+      'Error creating pipeline:',
+      backendMessage,
+      error?.response?.data
+    )
     res
-      .status(500)
-      .json({ message: 'Error creating pipeline', error: error.message })
+      .status(backendStatus)
+      .json({ message: 'Error creating pipeline', error: backendMessage })
   }
 }
 

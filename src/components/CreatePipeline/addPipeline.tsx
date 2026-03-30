@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { PipeData } from '../../contexts/EditPipeline/pipelineDataContext'
 
 export type CreatePipelinePayload = {
   pipelineName: string
@@ -7,7 +8,7 @@ export type CreatePipelinePayload = {
   inboundEndpoint: string
   outboundEndpoint: string
   active: boolean
-  pipes: object[]
+  pipes: PipeData[]
 }
 
 export async function addPipeline(data: CreatePipelinePayload) {

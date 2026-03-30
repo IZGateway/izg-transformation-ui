@@ -68,6 +68,7 @@ export const getServerSideProps = async (context) => {
     }
   } catch (error) {
     console.error('Error fetching data for new pipeline page:', error)
-    throw new Error(error)
+    if (error instanceof Error) throw error
+    throw new Error(String(error))
   }
 }

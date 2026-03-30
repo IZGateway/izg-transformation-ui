@@ -29,7 +29,7 @@ type Props = {
   isComplete: boolean
 }
 
-const MAX_DESCRIPTION_LENGTH = 75
+const MAX_DESCRIPTION_LENGTH = 250
 
 const PipelineInfo = ({
   pipelineInfo,

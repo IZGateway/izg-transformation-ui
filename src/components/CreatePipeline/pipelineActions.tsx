@@ -38,6 +38,8 @@ const PipelineActions = ({ onSave, isSaveDisabled }: Props) => {
     try {
       await onSave(active)
       setSeverity('success')
+      setShowAlert(true)
+      setTimeout(() => setShowAlert(false), 2000)
     } catch {
       setSeverity('error')
       setShowAlert(true)

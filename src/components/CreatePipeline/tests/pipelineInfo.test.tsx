@@ -91,6 +91,6 @@ describe('PipelineInfo Component', () => {
 
   it('shows description character count helper text', () => {
     renderComponent({ description: 'hello' })
-    expect(screen.getByText('5/75')).toBeInTheDocument()
+    expect(screen.getByText('5/250')).toBeInTheDocument()
   })
 })

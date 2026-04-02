@@ -112,47 +112,43 @@ const CreatePipelineInner = ({ organizations }: Props) => {
 
         {/* Right column: Search for Solutions + Configured Solutions */}
         <Grid item xs={12} md={8}>
-          {/* Section 3 header */}
-          <Card
-            sx={{ borderRadius: '30px' }}
+          {/* Section 3: Search for Solutions */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              mb: 1,
+              px: 0.5,
+            }}
             data-testid="search-solutions-container"
           >
-            <CardHeader
-              title={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {hasSolutions ? (
-                    <CheckCircleIcon color="success" />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: '50%',
-                        border: '2px solid',
-                        borderColor: 'primary.main',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        color: 'primary.main',
-                      }}
-                    >
-                      3
-                    </Box>
-                  )}
-                  <Typography variant="h6" fontWeight={600}>
-                    Search for Solutions
-                  </Typography>
-                </Box>
-              }
-              subheader="Once you have adjusted your settings add a solutions. You can add as many you like, please note they are sequential."
-            />
-            <Divider />
-            <CardContent>
-              <SolutionsList />
-            </CardContent>
-          </Card>
+            {hasSolutions ? (
+              <CheckCircleIcon color="success" />
+            ) : (
+              <Box
+                sx={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: '50%',
+                  border: '2px solid',
+                  borderColor: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: 'primary.main',
+                }}
+              >
+                3
+              </Box>
+            )}
+            <Typography variant="h6" fontWeight={600}>
+              Search for Solutions
+            </Typography>
+          </Box>
+          <SolutionsList />
 
           {/* Configured Solutions */}
           <Card

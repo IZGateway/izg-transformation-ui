@@ -1,4 +1,5 @@
 import { Autocomplete, Box, TextField, Typography } from '@mui/material'
+import type { SxProps, Theme } from '@mui/material'
 
 export type SearchableSelectOption = {
   value: string
@@ -14,7 +15,7 @@ type Props = {
   required?: boolean
   disabled?: boolean
   testId?: string
-  sx?: object
+  sx?: SxProps<Theme>
 }
 
 const SearchableSelect = ({

@@ -20,7 +20,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     )
     res.status(200).json(updatedPipeData)
   } catch (error) {
-    const backendStatus = error?.response?.status || 500
+    const backendStatus =
+      error?.response?.status && typeof error.response.status === 'number'
+        ? error.response.status
+        : 500
     const backendMessage =
       error?.response?.data?.message || error?.response?.data || error.message
     console.error(

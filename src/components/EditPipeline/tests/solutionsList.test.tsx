@@ -93,21 +93,12 @@ describe('SolutionsList', () => {
     expect(screen.getByText('Solution 2')).toBeInTheDocument()
   })
 
-  test('displays "No solutions available" when solutionsData is empty', () => {
+  test('displays empty dropdown when solutionsData is empty', () => {
     renderSolutionsList([])
 
-    expect(screen.getByLabelText('No solutions available')).toBeInTheDocument()
-
-    fireEvent.mouseDown(
-      screen.getByRole('combobox', { name: /no solutions available/i })
-    )
-    expect(screen.getByTestId('solutions-select')).toHaveTextContent(
-      'No solutions available'
-    )
-    expect(screen.getByTestId('solutions-select-label')).toHaveTextContent(
-      'No solutions available'
-    )
-
+    expect(
+      screen.getByRole('combobox', { name: /solutions/i })
+    ).toBeInTheDocument()
     expect(screen.queryByText('Solution 1')).not.toBeInTheDocument()
     expect(screen.queryByText('Solution 2')).not.toBeInTheDocument()
 
@@ -120,16 +111,8 @@ describe('SolutionsList', () => {
     fireEvent.click(screen.getByText('Solution 1'))
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('combobox', { name: 'Solution 1' })
-      ).toBeInTheDocument()
+      expect(screen.getByTestId('solutions-select')).toHaveValue('Solution 1')
     })
-    expect(screen.getByTestId('solutions-select')).toHaveTextContent(
-      'Solution 1'
-    )
-    expect(screen.getByTestId('solutions-select-label')).toHaveTextContent(
-      'Solution 1'
-    )
   })
 
   test('ADD button is disabled when no menu item is selected', () => {
@@ -167,9 +150,7 @@ describe('SolutionsList', () => {
       expect(screen.queryByTestId('solutions-modal')).not.toBeInTheDocument()
     })
 
-    expect(screen.getByTestId('solutions-select-label')).toHaveTextContent(
-      'Solutions'
-    )
+    expect(screen.getByTestId('solutions-select')).toHaveValue('')
     expect(screen.getByTestId('add-button')).toBeDisabled()
   })
 })

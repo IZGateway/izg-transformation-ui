@@ -46,7 +46,7 @@ const SolutionsModified = ({
       const response = await handleSave()
       if (response.success) {
         if (isReorder) {
-          setPipeData(tempPipeData)
+          setPipeData(tempPipeData ?? pipeData)
           setTempPipeData(null)
           setIsReorder(false)
         }

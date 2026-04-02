@@ -13,8 +13,6 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
 import AddIcon from '@mui/icons-material/Add'
 import Link from 'next/link'
 
@@ -84,26 +82,27 @@ const dataGridCustom = {
 
 const CustomFooter = () => (
   <Box display="flex" justifyContent="space-between" alignItems="center">
-    <Link href="/add/pipeline" prefetch={false}>
-      <Button
-        id="add-new-pipeline"
-        data-testid="add-new-pipeline-button"
-        sx={{
-          borderRadius: '60px',
-          margin: '2em 0',
-          boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
-          backgroundColor: palette.white,
-          py: 1.7,
-          px: 3,
-          border: `1px solid ${palette.border}`,
-        }}
-        variant="text"
-        color="primary"
-        endIcon={<AddIcon />}
-      >
-        Add New Pipeline
-      </Button>
-    </Link>
+    <Button
+      id="add-new-pipeline"
+      data-testid="add-new-pipeline-button"
+      component={Link}
+      href="/add/pipeline"
+      prefetch={false}
+      sx={{
+        borderRadius: '60px',
+        margin: '2em 0',
+        boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+        backgroundColor: palette.white,
+        py: 1.7,
+        px: 3,
+        border: `1px solid ${palette.border}`,
+      }}
+      variant="text"
+      color="primary"
+      endIcon={<AddIcon />}
+    >
+      Add New Pipeline
+    </Button>
     <GridFooter />
   </Box>
 )
@@ -185,38 +184,20 @@ const PipelinesTable = (props) => {
       renderCell: (params) => {
         return (
           <div>
-            <Link
-              prefetch={false}
-              tabIndex={props.tabIndex}
-              href={{
-                pathname: `/edit/pipeline/${params.row.id}`,
-              }}
-            >
-              <Tooltip arrow placement="bottom" title="Edit">
-                <IconButton
-                  id={'edit_' + params.row.id}
-                  aria-label="edit"
-                  color="primary"
-                  sx={actionButtonStyle}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Link>
-            {/*  <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <SyncDisabledIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <MoreVertIcon fontSize="small" />
-            </IconButton> */}
+            <Tooltip arrow placement="bottom" title="Edit">
+              <IconButton
+                id={'edit_' + params.row.id}
+                aria-label="edit"
+                color="primary"
+                sx={actionButtonStyle}
+                component={Link}
+                prefetch={false}
+                tabIndex={props.tabIndex}
+                href={`/edit/pipeline/${params.row.id}`}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         )
       },

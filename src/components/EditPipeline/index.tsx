@@ -89,7 +89,7 @@ const EditPipeline = ({ orgData }) => {
     }
     setShowAlert(true)
     setTimeout(() => setShowAlert(false), 2000)
-  }, [pipelineData, pipeData, query.id, setPipelineData])
+  }, [pipelineData, pipeData, tempPipeData, query.id, setPipelineData])
 
   const handleEndpointChange = useCallback(
     (field: 'inboundEndpoint' | 'outboundEndpoint', value: string) => {

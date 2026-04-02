@@ -72,12 +72,13 @@ Push your workflow changes to a feature branch and verify the workflow runs with
 
 **Important for `security-updates.yml`:**
 - The workflow uses the branch that triggers it (no hardcoded `ref`)
-- This means when you manually trigger from a feature branch, it will use your updated scripts
-- Test your script changes by:
+- This means when you manually trigger from a feature branch, it will use your updated workflow
+- The dependency scripts come from the `@izgateway/dependency-scripts` npm package
+- Test your workflow changes by:
   1. Push your changes to a feature branch
   2. Go to Actions → Security Updates → Run workflow
   3. Select your feature branch from the dropdown
-  4. The workflow will use the scripts from your branch
+  4. The workflow will use the configuration from your branch
 
 ### Option 2: Manual Trigger
 Use `workflow_dispatch` from the GitHub Actions UI to manually trigger the workflow.
@@ -95,11 +96,11 @@ Create a PR with your workflow changes to see if it triggers correctly on the PR
 
 ### What It Does
 1. Checks out repository
-2. Installs dependencies
+2. Installs dependencies and `@izgateway/dependency-scripts` globally
 3. Runs `npm-check-updates --target minor`
-4. Updates existing overrides with `scripts/update-overrides.js`
-5. Adds security overrides with `scripts/add-security-overrides.js`
-6. Tests override removal with `scripts/test-overrides.js`
+4. Updates existing overrides with `update-overrides` (from `@izgateway/dependency-scripts`)
+5. Fixes all vulnerabilities with `fix-vulnerabilities` (from `@izgateway/dependency-scripts`)
+6. Tests override removal with `test-overrides` (from `@izgateway/dependency-scripts`)
 7. Creates PR if changes detected
 
 ### Path Filtering
@@ -122,30 +123,34 @@ The security-updates workflow does not use path filtering because:
 
 ### Security updates not creating PRs
 - Check the workflow run logs in Actions tab
-- Verify scripts exist in `scripts/` directory
+- Verify `@izgateway/dependency-scripts` installed successfully (requires `packages: read` permission and GitHub npm registry access)
 - Ensure GITHUB_TOKEN has write permissions
 - Check if there are actually updates available
 
 ## Common Scenarios
 
-### Scenario 1: Testing Script Changes
+### Scenario 1: Testing Workflow Changes
 ```bash
 # 1. Create feature branch
-git checkout -b feature/update-security-scripts
+git checkout -b feature/update-security-workflow
 
-# 2. Modify scripts
-vim scripts/add-security-overrides.js
+# 2. Modify the workflow file
+vim .github/workflows/security-updates.yml
 
 # 3. Push to GitHub
-git add scripts/
-git commit -m "feat: improve security override detection"
-git push origin feature/update-security-scripts
+git add .github/workflows/security-updates.yml
+git commit -m "feat: improve security updates workflow"
+git push origin feature/update-security-workflow
 
 # 4. Manually trigger workflow
 # Go to Actions → Security Updates → Run workflow
-# Select: feature/update-security-scripts
+# Select: feature/update-security-workflow
 # Click: Run workflow
 ```
+
+> **Note:** The dependency scripts are maintained in the
+> [`@izgateway/dependency-scripts`](https://github.com/IZGateway/dependency-scripts)
+> package. To update script behavior, publish a new version of that package.
 
 ### Scenario 2: Emergency Security Update
 ```bash
@@ -179,4 +184,4 @@ gh pr merge <PR-NUMBER>
 
 ---
 
-**Last Updated:** February 28, 2026
+**Last Updated:** March 11, 2026

@@ -10,6 +10,9 @@ type PipelineData = {
   pipelineName: string
   description: string
   pipes: PipeData[]
+  active?: boolean
+  inboundEndpoint?: string
+  outboundEndpoint?: string
 }
 
 const pipelineDataContext = createContext<PipelineDataContextType | null>(null)

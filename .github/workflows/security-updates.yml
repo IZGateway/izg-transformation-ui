@@ -2,13 +2,14 @@ name: Security Updates
 
 on:
   schedule:
-    # Run daily at 3:15 AM UTC (avoids conflict with other workflows)
+    # Run daily at 3:15 AM UTC (avoids conflict with E2E tests at 7 AM)
     - cron: '15 3 * * *'
   workflow_dispatch: # Allow manual trigger
 
 permissions:
   contents: write
   pull-requests: write
+  packages: read
 
 jobs:
   update-dependencies:
@@ -25,23 +26,59 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@izgateway'
       
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
+      - name: Configure npm authentication
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "Configuring npm authentication for GitHub Packages..."
+          # Configure npm using npm config set commands
+          npm config set @izgateway:registry https://npm.pkg.github.com/
+          npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN}
+          echo "✓ npm authentication configured"
+          # Verify configuration without exposing secrets
+          if [ -n "$NPM_TOKEN" ]; then
+            echo "✓ NPM_TOKEN is set"
+          else
+            echo "✗ ERROR: NPM_TOKEN is not set"
+            exit 1
+          fi
+          # Verify registry configuration
+          REGISTRY=$(npm config get @izgateway:registry)
+          if [ "$REGISTRY" = "https://npm.pkg.github.com/" ]; then
+            echo "✓ Registry configured correctly"
+          else
+            echo "✗ ERROR: Registry not configured correctly"
+            exit 1
+          fi
+      
       - name: Install dependencies
         run: npm ci
-      
-      - name: Install npm-check-updates
-        run: npm install -g npm-check-updates
+
+      - name: Install security tooling
+        run: |
+          npm install -g npm-check-updates
+          npm install -g @izgateway/dependency-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Run ncu and check for updates
         id: ncu_check
         run: |
           echo "Running npm-check-updates with --target minor..."
-          ncu --target minor -u > ncu_output.txt 2>&1 || true
+          # Exclude @typescript-eslint/* sub-packages from ncu. These are part of the
+          # typescript-eslint meta-package and must stay in sync with the version that
+          # eslint-config-next resolves transitively. ncu bumps them independently,
+          # which races ahead of the meta-package release and causes ERESOLVE.
+          # fix-all-vulnerabilities.js handles these when there is an actual vulnerability.
+          ncu --target minor --reject "@typescript-eslint/*" -u > ncu_output.txt 2>&1 || true
           cat ncu_output.txt
           
           if git diff --quiet package.json; then
@@ -54,9 +91,11 @@ jobs:
       
       - name: Update existing overrides
         id: override_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Updating packages in overrides section..."
-          node scripts/update-overrides.js
+          node node_modules/@izgateway/dependency-scripts/update-overrides.js
           
           if git diff --quiet package.json; then
             echo "has_override_changes=false" >> $GITHUB_OUTPUT
@@ -66,18 +105,20 @@ jobs:
             echo "✓ Override updates found"
           fi
       
-      - name: Add security overrides for vulnerabilities
+      - name: Fix all vulnerabilities
         id: security_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Checking for security vulnerabilities in transitive dependencies (all severity levels)..."
-          node scripts/add-security-overrides.js
+          echo "Fixing all security vulnerabilities (updates direct deps + adds overrides)..."
+          node node_modules/@izgateway/dependency-scripts/fix-all-vulnerabilities.js
           
           if git diff --quiet package.json; then
             echo "has_security_changes=false" >> $GITHUB_OUTPUT
-            echo "✓ No security overrides needed"
+            echo "✓ No security fixes needed"
           else
             echo "has_security_changes=true" >> $GITHUB_OUTPUT
-            echo "✓ Security overrides added"
+            echo "✓ Security fixes applied"
           fi
       
       - name: Check if any changes were made
@@ -111,23 +152,11 @@ jobs:
           git checkout -b $BRANCH_NAME
           echo "✓ Created branch: $BRANCH_NAME"
       
-      - name: Update existing overrides
-        if: steps.final_check.outputs.has_changes == 'true'
-        run: |
-          echo "Updating packages in overrides section..."
-          node scripts/update-overrides.js
-      
-      - name: Add security overrides for vulnerabilities
-        if: steps.final_check.outputs.has_changes == 'true'
-        run: |
-          echo "Checking for security vulnerabilities in transitive dependencies (all severity levels)..."
-          node scripts/add-security-overrides.js
-      
       - name: Test override removal
         if: steps.final_check.outputs.has_changes == 'true'
         run: |
           echo "Testing if overrides can be removed..."
-          node scripts/test-overrides.js
+          node node_modules/@izgateway/dependency-scripts/test-overrides.js
       
       - name: Commit changes
         if: steps.final_check.outputs.has_changes == 'true'
@@ -139,7 +168,7 @@ jobs:
 
           - Updated dependencies using ncu --target minor
           - Updated existing overrides to latest minor versions
-          - Added security overrides for vulnerable transitive dependencies (all severity levels)
+          - Fixed all vulnerabilities (updated direct deps + added overrides as needed)
           - Removed unnecessary overrides where applicable
           - Updated package-lock.json
           
@@ -183,7 +212,7 @@ jobs:
           echo "" >> pr_body.md
           echo "### Changes Made:" >> pr_body.md
           echo "- ✅ Updated dependencies to latest compatible minor versions" >> pr_body.md
-          echo "- ✅ Added security overrides for vulnerable transitive dependencies (all severity levels)" >> pr_body.md
+          echo "- ✅ Fixed all vulnerabilities (updated direct deps + added overrides)" >> pr_body.md
           echo "- ✅ Removed unnecessary overrides (where all resolved versions meet requirements)" >> pr_body.md
           echo "- ✅ Updated \`package-lock.json\`" >> pr_body.md
           echo "- ✅ Ran linting, type-checking, and tests" >> pr_body.md
@@ -214,7 +243,7 @@ jobs:
       - name: Create Pull Request
         if: steps.final_check.outputs.has_changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.IZGW_ALL_REPO_ACCESS_TOKEN }}
         run: |
           PR_BODY=$(cat pr_body.md)
           gh pr create \
@@ -229,3 +258,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${{ env.branch_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Base:** \`develop\`" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload npm logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-logs-${{ github.run_number }}
+          path: /home/runner/.npm/_logs/
+          retention-days: 7
+          if-no-files-found: warn

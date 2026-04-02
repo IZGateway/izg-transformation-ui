@@ -14,6 +14,8 @@ on:
     paths-ignore:
       - '.github/workflows/*'
       - '!.github/workflows/deploy.yml'
+  schedule:
+    - cron: '0 10 * * 1-5'
   workflow_dispatch:
 
 env:
@@ -71,6 +73,7 @@ jobs:
   create-tag:
     name: Create tag
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     needs: [code-quality-check, generate-release-timestamp]
     steps:
       - name: Create tag
@@ -218,7 +221,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-and-push-image-aws]
     if: |
-      github.ref == 'refs/heads/develop' || 
+      github.event_name == 'schedule' ||
+      github.ref == 'refs/heads/develop' ||
       (github.event_name == 'pull_request' && github.base_ref == 'develop')
     steps:
       - name: Configure AWS credentials

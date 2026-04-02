@@ -1,5 +1,20 @@
 # Release Notes
 
+## Release v0.14.0
+
+- IGDD-2514 setup nightly / daily builds
+- IGDD-2594 update dependency update workflow to use @izgateway/dependency-scripts
+- IGDD-2660 bind version bump in base image
+- IGDD-2661 libpng version bump in base image
+
+## Release v0.13.1
+
+- Dependency version update
+
+## Release v0.13.0
+
+- IGDD-2557 - Remove next-swagger-doc and swagger-ui-react dependencies as they are not needed
+- Add RELEASE_NOTES.md file
 
 ## Release v0.12.1
 This is a patch release for izg-transformation-ui.

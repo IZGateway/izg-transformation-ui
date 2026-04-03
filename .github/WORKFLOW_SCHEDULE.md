@@ -19,9 +19,10 @@ This document provides an overview of all scheduled workflows to help avoid conf
 - **Actions:**
   - Runs `npm-check-updates` with `--target minor`
   - Updates existing overrides to latest versions
-  - Adds security overrides for vulnerable transitive dependencies
+  - Fixes all vulnerabilities (updates direct deps + adds overrides as needed)
   - Tests if overrides can be removed
   - Creates PR if changes detected
+- **Tooling:** Uses [`@izgateway/dependency-scripts`](https://github.com/IZGateway/dependency-scripts) (installed globally at runtime from GitHub npm registry)
 
 ## Conflict Avoidance
 
@@ -131,4 +132,4 @@ Annually, review:
 
 ---
 
-**Last Updated:** February 28, 2026
+**Last Updated:** March 11, 2026

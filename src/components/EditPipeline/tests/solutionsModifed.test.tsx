@@ -92,13 +92,20 @@ jest.mock('../../../contexts/EditPipeline/updatePipeDataContext', () => ({
 
 // Mock handleSave function
 const mockHandleSave = jest.fn()
+const mockHandleToggleActive = jest.fn()
 
-const renderComponent = (isReorder = false) => {
+const renderComponent = (isReorder = false, isActive = false) => {
   jest.spyOn(ReorderContext, 'useReorderContext').mockReturnValue({
     isReorder,
     setIsReorder: jest.fn(),
   })
-  return render(<SolutionsModified handleSave={mockHandleSave} />)
+  return render(
+    <SolutionsModified
+      handleSave={mockHandleSave}
+      handleToggleActive={mockHandleToggleActive}
+      isActive={isActive}
+    />
+  )
 }
 
 describe('SolutionsModified', () => {
@@ -119,27 +126,32 @@ describe('SolutionsModified', () => {
     renderComponent()
     expect(screen.getByTestId('reorder-button')).toBeInTheDocument()
     expect(screen.getByTestId('apply-button')).toBeInTheDocument()
+    expect(screen.getByTestId('toggle-active-button')).toBeInTheDocument()
+  })
+
+  test('shows Deactivate label when pipeline is active', () => {
+    renderComponent(false, true)
+    expect(screen.getByTestId('toggle-active-button')).toHaveTextContent(
+      'Deactivate'
+    )
+  })
+
+  test('shows Activate label when pipeline is inactive', () => {
+    renderComponent(false, false)
+    expect(screen.getByTestId('toggle-active-button')).toHaveTextContent(
+      'Activate'
+    )
   })
 
   test('Cancel button is shown when Reorder button is clicked', async () => {
     renderComponent(true)
-
     expect(screen.getByTestId('cancel-button')).toBeInTheDocument()
     expect(screen.queryByTestId('reorder-button')).not.toBeInTheDocument()
   })
 
-  test('clicking Apply button calls handleSave when data has changed', async () => {
-    jest
-      .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
-      .mockReturnValue({
-        pipeData: mockModifiedPipeData,
-        setPipeData: mockSetPipeData,
-        tempPipeData: mockPipeData,
-        setTempPipeData: jest.fn(),
-      })
-
+  test('clicking Apply button always calls handleSave', async () => {
     mockHandleSave.mockResolvedValue({ success: true })
-    renderComponent(true)
+    renderComponent()
 
     const applyButton = screen.getByTestId('apply-button')
     fireEvent.click(applyButton)
@@ -149,20 +161,23 @@ describe('SolutionsModified', () => {
     })
   })
 
-  // Add a new test for unsuccessful save
+  test('clicking Apply with successful response shows success alert', async () => {
+    mockHandleSave.mockResolvedValue({ success: true })
+    renderComponent()
+
+    const applyButton = screen.getByTestId('apply-button')
+    fireEvent.click(applyButton)
+
+    await waitFor(() => {
+      expect(screen.getByText('Pipeline changes applied!')).toBeInTheDocument()
+    })
+
+    expect(mockHandleSave).toHaveBeenCalledTimes(1)
+  })
+
   test('clicking Apply with unsuccessful response shows error alert', async () => {
-    jest
-      .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
-      .mockReturnValue({
-        pipeData: mockModifiedPipeData,
-        setPipeData: mockSetPipeData,
-        tempPipeData: mockPipeData,
-        setTempPipeData: jest.fn(),
-      })
-
     mockHandleSave.mockResolvedValue({ success: false, error: 'Save failed' })
-
-    renderComponent(true)
+    renderComponent()
 
     const saveButton = screen.getByTestId('apply-button')
     fireEvent.click(saveButton)
@@ -176,38 +191,14 @@ describe('SolutionsModified', () => {
     expect(mockHandleSave).toHaveBeenCalledTimes(1)
   })
 
-  test('clicking Apply button with successful response shows success alert', async () => {
-    mockHandleSave.mockResolvedValue({ success: true })
-    jest
-      .mocked(UpdatePipeDataContext.useUpdatePipeDataContext)
-      .mockReturnValue({
-        pipeData: mockModifiedPipeData,
-        setPipeData: mockSetPipeData,
-        tempPipeData: mockPipeData,
-        setTempPipeData: jest.fn(),
-      })
-    renderComponent(true)
+  test('clicking toggle-active-button calls handleToggleActive', async () => {
+    mockHandleToggleActive.mockResolvedValue(undefined)
+    renderComponent(false, true)
 
-    const applyButton = screen.getByTestId('apply-button')
-    fireEvent.click(applyButton)
+    fireEvent.click(screen.getByTestId('toggle-active-button'))
 
     await waitFor(() => {
-      expect(screen.getByText('Pipeline changes applied!')).toBeInTheDocument()
+      expect(mockHandleToggleActive).toHaveBeenCalledTimes(1)
     })
-
-    expect(mockHandleSave).toHaveBeenCalledTimes(1)
-  })
-
-  test('clicking Apply with no changes to data shows info alert', async () => {
-    renderComponent()
-
-    const applyButton = screen.getByTestId('apply-button')
-    fireEvent.click(applyButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('No changes detected.')).toBeInTheDocument()
-    })
-
-    expect(mockHandleSave).toHaveBeenCalledTimes(0)
   })
 })

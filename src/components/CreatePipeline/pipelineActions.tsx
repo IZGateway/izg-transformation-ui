@@ -67,7 +67,7 @@ const PipelineActions = ({ onSave, isSaveDisabled }: Props) => {
               ? 'Pipeline created successfully!'
               : 'Error! Could not create pipeline.'}
           </AlertTitle>
-          {severity === 'error' && errorMessage && errorMessage}
+          {severity === 'error' && errorMessage}
         </Alert>
       </Collapse>
 

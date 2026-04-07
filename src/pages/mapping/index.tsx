@@ -83,6 +83,5 @@ const combineData = (organizationsData: any[], mappingsData: any[]) => {
       combinedData.push(combinedObject)
     }
   })
-  console.log(JSON.stringify(combinedData, null, 2))
   return combinedData
 }

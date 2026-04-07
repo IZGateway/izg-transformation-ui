@@ -11,8 +11,6 @@ import {
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
 import Link from 'next/link'
 import AddIcon from '@mui/icons-material/Add'
 

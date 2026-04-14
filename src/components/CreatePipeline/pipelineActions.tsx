@@ -23,6 +23,7 @@ const PipelineActions = ({ onSave, isSaveDisabled }: Props) => {
   const { pipeData, setTempPipeData } = useUpdatePipeDataContext()
   const [showAlert, setShowAlert] = useState(false)
   const [severity, setSeverity] = useState<'success' | 'error'>('success')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onReorder = () => {
     setTempPipeData(pipeData)
@@ -37,13 +38,15 @@ const PipelineActions = ({ onSave, isSaveDisabled }: Props) => {
   const handleSave = async (active: boolean) => {
     try {
       await onSave(active)
+      setErrorMessage(null)
       setSeverity('success')
       setShowAlert(true)
       setTimeout(() => setShowAlert(false), 2000)
-    } catch {
+    } catch (err: any) {
+      setErrorMessage(err?.message ?? null)
       setSeverity('error')
       setShowAlert(true)
-      setTimeout(() => setShowAlert(false), 2000)
+      setTimeout(() => setShowAlert(false), 5000)
     }
   }
 
@@ -64,6 +67,7 @@ const PipelineActions = ({ onSave, isSaveDisabled }: Props) => {
               ? 'Pipeline created successfully!'
               : 'Error! Could not create pipeline.'}
           </AlertTitle>
+          {severity === 'error' && errorMessage}
         </Alert>
       </Collapse>
 

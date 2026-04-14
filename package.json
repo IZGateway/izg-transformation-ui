@@ -97,9 +97,9 @@
   "overrides": {
     "@eslint/config-array": "0.23.5",
     "ajv": "^6.14.0",
+    "follow-redirects": "^1.16.0",
     "handlebars": "^4.7.9",
     "js-yaml": "^4.1.1",
-    "jsdom": "29.0.2",
     "picomatch": "^2.3.2",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12",

@@ -1,5 +1,9 @@
 # Release Notes
 
+## Release v0.14.2
+
+- Update dependencies and base Docker image
+
 ## Release v0.14.1
 
 - Update dependencies and base Docker image

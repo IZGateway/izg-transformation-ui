@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { DataGrid, GridColDef, GridFooter, GridToolbar } from '@mui/x-data-grid'
 import {
   Box,
@@ -116,8 +116,54 @@ const actionButtonStyle = {
   marginRight: 2,
 }
 
+type PipelineRow = {
+  id: string
+  active: boolean
+  [key: string]: any
+}
+
 const PipelinesTable = (props) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
+  const [rows, setRows] = useState<PipelineRow[]>(props.data || [])
+  const [updatingRowId, setUpdatingRowId] = useState<string | null>(null)
+
+  useEffect(() => {
+    setRows(props.data || [])
+  }, [props.data])
+
+  const handleToggleActive = async (rowId: string, currentActive: boolean) => {
+    if (updatingRowId === rowId) return
+    setUpdatingRowId(rowId)
+
+    try {
+      const getRes = await fetch(`/api/pipelines/${rowId}`)
+      if (!getRes.ok) {
+        throw new Error('Failed to fetch pipeline')
+      }
+
+      const fullPipeline = await getRes.json()
+      const putRes = await fetch(`/api/pipelines/${rowId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...fullPipeline, active: !currentActive }),
+      })
+
+      if (!putRes.ok) {
+        throw new Error('Failed to update pipeline status')
+      }
+
+      setRows((previousRows) =>
+        previousRows.map((row) =>
+          row.id === rowId ? { ...row, active: !currentActive } : row
+        )
+      )
+    } catch (error) {
+      console.error('Error toggling pipeline status:', error)
+    } finally {
+      setUpdatingRowId(null)
+    }
+  }
+
   const columns: GridColDef[] = [
     {
       field: 'organizationName',
@@ -156,20 +202,35 @@ const PipelinesTable = (props) => {
       minWidth: 120,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-          {params.value ? (
-            <CheckCircleIcon sx={{ fontSize: 18, color: palette.active }} />
-          ) : (
-            <RemoveCircleOutlineIcon
-              sx={{ fontSize: 18, color: palette.greyDarkTypography }}
-            />
-          )}
+          <Tooltip
+            arrow
+            placement="bottom"
+            title={params.value ? 'Disable Pipeline' : 'Enable Pipeline'}
+          >
+            <IconButton
+              size="small"
+              onClick={() =>
+                handleToggleActive(params.row.id as string, !!params.value)
+              }
+              disabled={updatingRowId === params.row.id}
+              aria-label="toggle-pipeline-status"
+            >
+              {params.value ? (
+                <CheckCircleIcon sx={{ fontSize: 18, color: palette.active }} />
+              ) : (
+                <RemoveCircleOutlineIcon
+                  sx={{ fontSize: 18, color: palette.greyDarkTypography }}
+                />
+              )}
+            </IconButton>
+          </Tooltip>
           <Typography
             variant="body2"
             sx={{
               fontWeight: 600,
             }}
           >
-            {params.value ? 'Active' : 'Inactive'}
+            {params.value ? 'Active' : 'Disabled'}
           </Typography>
         </Box>
       ),
@@ -231,7 +292,7 @@ const PipelinesTable = (props) => {
       <DataGrid
         experimentalFeatures={{ ariaV7: true }}
         sx={dataGridCustom}
-        rows={props.data}
+        rows={rows}
         columns={columns}
         pageSizeOptions={[5, 25, 50, 100]}
         autoHeight

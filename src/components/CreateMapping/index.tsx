@@ -1,6 +1,6 @@
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import React from 'react'
 import _ from 'lodash'
 import {
@@ -64,11 +64,22 @@ const CreateMapping = ({
         }
   )
 
-  const [initialMapping] = useState(() => _.cloneDeep(currentMapping))
+  const initialMappingRef = useRef(_.cloneDeep(currentMapping))
+
+  useEffect(() => {
+    if (!isEditMode) return
+    const synced = {
+      ...mappingData,
+      notes: mappingData.notes ?? mappingData.description ?? '',
+    }
+    setCurrentMapping(synced)
+    initialMappingRef.current = _.cloneDeep(synced)
+  }, [mappingData])
 
   const hasChanges = useMemo(
-    () => !_.isEqual(currentMapping, initialMapping),
-    [currentMapping, initialMapping]
+    () => !_.isEqual(currentMapping, initialMappingRef.current),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentMapping]
   )
 
   const isFormValid = useMemo(() => {
@@ -209,8 +220,12 @@ const CreateMapping = ({
                   />
                 ) : (
                   <>
-                    <InputLabel required>Organization</InputLabel>
+                    <InputLabel id="mapping-organization-label" required>
+                      Organization
+                    </InputLabel>
                     <Select
+                      labelId="mapping-organization-label"
+                      id="mapping-organization-select"
                       value={currentMapping.organizationId || ''}
                       label="Organization *"
                       onChange={handleOrgChange}

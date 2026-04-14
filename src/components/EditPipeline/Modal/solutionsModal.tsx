@@ -89,7 +89,7 @@ const SolutionsModal = ({
             {
               id: uuidv4(),
               solutionId: selectedSolution.id,
-              solutionVersion: '1.0',
+              solutionVersion: selectedSolution.version,
               preconditions: transformedPreconditions,
             },
           ]

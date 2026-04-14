@@ -22,7 +22,12 @@ export async function addPipeline(data: CreatePipelinePayload) {
       error?.response?.data?.message ||
       error?.response?.data ||
       null
-    console.error('Error creating pipeline (status', status, '):', backendError ?? error)
+    console.error(
+      'Error creating pipeline (status',
+      status,
+      '):',
+      backendError ?? error
+    )
     const errorMessage =
       typeof backendError === 'string' && backendError
         ? backendError

@@ -6,14 +6,12 @@ import AppHeaderBar from '../../components/AppHeader'
 import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
 import Footer from '../../components/Footer/index'
 import MappingTable from '../../components/MappingTable'
-import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import CustomSnackbar from '../../components/SnackBar'
 
 const Mapping = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  const router = useRouter()
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
 
@@ -85,6 +83,5 @@ const combineData = (organizationsData: any[], mappingsData: any[]) => {
       combinedData.push(combinedObject)
     }
   })
-  console.log(JSON.stringify(combinedData, null, 2))
   return combinedData
 }

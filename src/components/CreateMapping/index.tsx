@@ -183,7 +183,7 @@ const CreateMapping = ({
             {isEditMode ? 'Edit Mapping Entry' : 'Add Mapping Entry'}
           </Typography>
           <Typography variant="body2" color="text.secondary" mt={0.5}>
-            Will be automatically update with source and target values
+            Will be automatically updated with source and target values
           </Typography>
         </Box>
         <Button

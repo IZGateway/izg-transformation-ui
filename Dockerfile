@@ -1,7 +1,10 @@
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+ARG NPM_TOKEN
+RUN npm config set @izgateway:registry https://npm.pkg.github.com/ \
+    && npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN} \
+    && npm ci
 
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS builder
 WORKDIR /app
@@ -26,7 +29,7 @@ RUN npm run build
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS runner
 WORKDIR /app
 
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -36,7 +39,14 @@ RUN apk add bash
 RUN apk add --no-cache nginx tini
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
+
+# Install Dependencies and cleanup yarn.lock if present
+ARG NPM_TOKEN
+RUN apk add --no-cache bash nginx gettext tini curl libc6-compat \
+    && npm config set @izgateway:registry https://npm.pkg.github.com/ \
+    && npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN} \
+    && npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
+
 COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder /app/filebeat.yml ./filebeat.yml
 COPY --from=builder /app/metricbeat.yml ./metricbeat.yml
@@ -69,8 +79,8 @@ RUN chmod a+x run_and_monitor.sh
 EXPOSE 443
 
 # This is only an environment variable telling NextJS which port to use.
-# THis DOES NOT expose port 3000
-ENV PORT 3000
+# This DOES NOT expose port 3000
+ENV PORT=3000
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/app/run_and_monitor.sh"]

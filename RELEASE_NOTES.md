@@ -1,5 +1,13 @@
 # Release Notes
 
+## Release v0.14.2
+
+- Update dependencies and base Docker image
+
+## Release v0.14.1
+
+- Update dependencies and base Docker image
+
 ## Release v0.14.0
 
 - IGDD-2514 setup nightly / daily builds

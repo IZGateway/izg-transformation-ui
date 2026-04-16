@@ -119,10 +119,20 @@ const actionButtonStyle = {
 type PipelineRow = {
   id: string
   active: boolean
-  [key: string]: any
+  organizationName?: string
+  pipelineName?: string
+  inboundEndpoint?: string
+  outboundEndpoint?: string
+  description?: string
+  hasActiveMaint?: boolean
+} & Record<string, unknown>
+
+type PipelinesTableProps = {
+  data?: PipelineRow[]
+  tabIndex?: number
 }
 
-const PipelinesTable = (props) => {
+const PipelinesTable = (props: PipelinesTableProps) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
   const [rows, setRows] = useState<PipelineRow[]>(props.data || [])
   const [updatingRowId, setUpdatingRowId] = useState<string | null>(null)
@@ -131,7 +141,7 @@ const PipelinesTable = (props) => {
     setRows(props.data || [])
   }, [props.data])
 
-  const handleToggleActive = async (rowId: string, currentActive: boolean) => {
+  const handleToggleActive = async (rowId: string) => {
     if (updatingRowId === rowId) return
     setUpdatingRowId(rowId)
 
@@ -141,11 +151,13 @@ const PipelinesTable = (props) => {
         throw new Error('Failed to fetch pipeline')
       }
 
-      const fullPipeline = await getRes.json()
+      const fullPipeline = (await getRes.json()) as PipelineRow
+      const nextActive = !Boolean(fullPipeline.active)
+
       const putRes = await fetch(`/api/pipelines/${rowId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...fullPipeline, active: !currentActive }),
+        body: JSON.stringify({ ...fullPipeline, active: nextActive }),
       })
 
       if (!putRes.ok) {
@@ -154,7 +166,7 @@ const PipelinesTable = (props) => {
 
       setRows((previousRows) =>
         previousRows.map((row) =>
-          row.id === rowId ? { ...row, active: !currentActive } : row
+          row.id === rowId ? { ...row, active: nextActive } : row
         )
       )
     } catch (error) {
@@ -209,9 +221,7 @@ const PipelinesTable = (props) => {
           >
             <IconButton
               size="small"
-              onClick={() =>
-                handleToggleActive(params.row.id as string, !!params.value)
-              }
+              onClick={() => handleToggleActive(params.row.id as string)}
               disabled={updatingRowId === params.row.id}
               aria-label="toggle-pipeline-status"
             >

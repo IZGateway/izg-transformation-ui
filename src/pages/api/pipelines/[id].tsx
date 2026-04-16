@@ -65,7 +65,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     )
     return res
       .status(backendStatus)
-      .json({ message: 'Error updating data', error: backendMessage })
+      .json({ message: 'Error updating pipeline', error: backendMessage })
   }
 }
 

@@ -152,7 +152,7 @@ const PipelinesTable = (props: PipelinesTableProps) => {
       }
 
       const fullPipeline = (await getRes.json()) as PipelineRow
-      const nextActive = !Boolean(fullPipeline.active)
+      const nextActive = !fullPipeline.active
 
       const putRes = await fetch(`/api/pipelines/${rowId}`, {
         method: 'PUT',

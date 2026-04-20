@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { getTokenStore } from '../../../lib/tokenStore'
 
 const userInfoEndpoint = `${process.env.NEXT_PUBLIC_OKTA_ISSUER}${process.env.OKTA_ISSUER_PATH}${process.env.OKTA_USERINFO_PATH}`
-const isDebugging = (`${process.env.NEXTAUTH_DEBUG}` as unknown as boolean) || false
+const isDebugging = process.env.NEXTAUTH_DEBUG === 'true'
 
 export const authOptions = {
   debug: isDebugging,

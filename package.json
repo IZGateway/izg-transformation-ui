@@ -96,11 +96,11 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "ajv": "6.15.0",
     "follow-redirects": "^1.16.0",
     "handlebars": "^4.7.9",
     "js-yaml": "^4.1.1",
     "picomatch": "^2.3.2",
+    "postcss": "^8.5.10",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12",
     "yaml": "^1.10.3"

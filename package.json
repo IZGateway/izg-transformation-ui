@@ -57,7 +57,7 @@
     "saml2-js": "^4.0.4",
     "swagger-ui-react": "^5.32.5",
     "swr": "^2.4.1",
-    "uuid": "^14.0.0",
+    "uuid": "npm:@izgateway/uuid-cjs@^14.0.0",
     "waait": "^1.0.5",
     "winston": "^3.19.0",
     "xml-crypto": "^3.2.1",
@@ -103,6 +103,7 @@
     "postcss": "^8.5.12",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12",
+    "uuid": "npm:@izgateway/uuid-cjs@^14.0.0",
     "yaml": "^1.10.3"
   }
 }

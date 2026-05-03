@@ -18,7 +18,7 @@
     "cypress:open": "cypress open --config-file cypress/config/cypress-dev-config.ts"
   },
   "dependencies": {
-    "@axe-core/react": "^4.11.2",
+    "@axe-core/react": "^4.11.3",
     "@babel/types": "^7.29.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^7.0.0",
@@ -41,7 +41,7 @@
     "@types/tcp-ping": "^0.1.6",
     "@types/xml2js": "^0.4.14",
     "@xmldom/xmldom": "^0.9.10",
-    "axios": "^1.15.2",
+    "axios": "^1.16.0",
     "http-status-codes": "^2.3.0",
     "lodash": "^4.18.1",
     "moment": "^2.30.1",
@@ -100,7 +100,7 @@
     "handlebars": "^4.7.9",
     "js-yaml": "^4.1.1",
     "picomatch": "^2.3.2",
-    "postcss": "^8.5.12",
+    "postcss": "8.5.13",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12",
     "yaml": "^1.10.3"

@@ -1,15 +1,11 @@
 import Container from '../../components/Container'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect, useState, useCallback, ChangeEvent } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Close from '../Close'
-import EditIcon from '@mui/icons-material/Edit'
 import {
   Typography,
-  Tooltip,
   Box,
-  IconButton,
-  TextField,
   Card,
   CardContent,
   CardHeader,
@@ -21,14 +17,12 @@ import {
 import Settings from './settings'
 import SolutionsList from './solutionsList'
 import SolutionsModified from './solutionsModifed'
-import CloseIcon from '@mui/icons-material/Close'
 import SolutionsGrid from './Grid/solutionsGrid'
 import ReorderProvider from '../../contexts/EditPipeline/reorderContext'
 import { updateData } from '../../components/EditPipeline/updatePipeline'
 import { usePipelineDataContext } from '../../contexts/EditPipeline/pipelineDataContext'
 import { useUpdatePipeDataContext } from '../../contexts/EditPipeline/updatePipeDataContext'
 import palette from '../../styles/theme/palette'
-import SaveIcon from '@mui/icons-material/Save'
 import _ from 'lodash'
 
 const EditPipeline = ({ orgData }) => {
@@ -36,9 +30,6 @@ const EditPipeline = ({ orgData }) => {
   const { isReady, query } = router
   const { pipelineData, setPipelineData } = usePipelineDataContext()
   const { pipeData, tempPipeData } = useUpdatePipeDataContext()
-  const [description, setDescription] = useState(pipelineData.description)
-  const [open, setOpen] = useState(false)
-  const MAX_DESCRIPTION_LENGTH = 75
   const [showTopGradient, setShowTopGradient] = useState(true)
   const [showBottomGradient, setShowBottomGradient] = useState(true)
   const [showAlert, setShowAlert] = useState(false)
@@ -56,56 +47,56 @@ const EditPipeline = ({ orgData }) => {
   const handleSave = useCallback(async () => {
     const response = await updateData(query.id as string, {
       ...pipelineData,
-      pipes: tempPipeData,
+      pipes: tempPipeData ?? pipeData,
     })
     if (!response.success) {
       console.error('Error updating pipeline data:', response.error)
     }
     return response
-  }, [tempPipeData, query, pipelineData])
+  }, [tempPipeData, pipeData, query, pipelineData])
 
-  const handleDescriptionSave = useCallback(async () => {
-    if (description === pipelineData.description) {
-      setAlertState({
-        show: true,
-        severity: 'info',
-        message: 'Description Not Changed',
-      })
-      return
-    }
-    setPipelineData({
-      ...pipelineData,
-      description: description,
-    })
+  const handleDescriptionSave = useCallback(
+    (value: string) => {
+      setPipelineData({ ...pipelineData, description: value })
+    },
+    [pipelineData, setPipelineData]
+  )
+
+  const handleToggleActive = useCallback(async () => {
+    const newActive = !pipelineData.active
     const response = await updateData(query.id as string, {
       ...pipelineData,
-      description: description,
+      pipes: tempPipeData ?? pipeData,
+      active: newActive,
     })
     if (!response.success) {
-      console.error('Error saving description:', response.error)
       setAlertState({
         show: true,
         severity: 'error',
-        message: 'Error! Could not save description!',
+        message: `Error! Could not ${
+          newActive ? 'activate' : 'deactivate'
+        } pipeline!`,
       })
     } else {
+      setPipelineData({ ...pipelineData, active: newActive })
       setAlertState({
         show: true,
         severity: 'success',
-        message: 'Description Saved Successfully!',
+        message: `Pipeline ${
+          newActive ? 'activated' : 'deactivated'
+        } successfully!`,
       })
     }
-    setOpen(false)
     setShowAlert(true)
-    setTimeout(() => {
-      setShowAlert(false)
-    }, 2000)
-  }, [description, pipelineData, query.id, setPipelineData])
+    setTimeout(() => setShowAlert(false), 2000)
+  }, [pipelineData, pipeData, tempPipeData, query.id, setPipelineData])
 
-  const handleDescriptionCancel = () => {
-    setDescription(pipelineData.description)
-    setOpen(false)
-  }
+  const handleEndpointChange = useCallback(
+    (field: 'inboundEndpoint' | 'outboundEndpoint', value: string) => {
+      setPipelineData({ ...pipelineData, [field]: value })
+    },
+    [pipelineData, setPipelineData]
+  )
 
   const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget
@@ -141,121 +132,6 @@ const EditPipeline = ({ orgData }) => {
                 ? pipelineData.pipelineName
                 : `${pipelineData.pipelineName} Pipeline`}
             </Typography>
-
-            <Box sx={{ position: 'relative', height: 0 }}>
-              <Collapse
-                sx={{
-                  position: 'absolute',
-                  top: 40,
-                  left: 0,
-                  right: 0,
-                  zIndex: 1000,
-                }}
-                in={showAlert}
-              >
-                <Alert
-                  severity={alertState.severity}
-                  variant="filled"
-                  sx={{
-                    width: 'fit-content',
-                    marginRight: 'auto',
-                    zIndex: 1000,
-                  }}
-                  elevation={2}
-                >
-                  <AlertTitle>{alertState.message}</AlertTitle>
-                </Alert>
-              </Collapse>
-            </Box>
-
-            {open ? (
-              <Box
-                data-testid="edit-pipeline-description-container"
-                display={'flex'}
-                flexDirection={'row'}
-                alignItems={'center'}
-                sx={{
-                  display: 'flex',
-                  position: 'relative',
-                  top: 1,
-                  left: 0,
-                  right: 0,
-                }}
-              >
-                <TextField
-                  data-testid="edit-pipeline-description-input"
-                  id="pipeline-description"
-                  variant="standard"
-                  size="medium"
-                  sx={{
-                    width: '31.5%',
-                  }}
-                  value={description}
-                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                    if (event.target.value.length <= MAX_DESCRIPTION_LENGTH) {
-                      setDescription(event.target.value)
-                    }
-                  }}
-                />
-                <Typography
-                  variant="body1"
-                  color="primary"
-                  sx={{ color: 'primary', marginLeft: 2 }}
-                >
-                  {description.length}/{MAX_DESCRIPTION_LENGTH} Characters
-                </Typography>
-                <Tooltip title="Save Description" arrow placement="bottom">
-                  <IconButton
-                    data-testid="edit-pipeline-description-save-button"
-                    aria-label="save"
-                    sx={{ marginLeft: 2, paddingLeft: 0, paddingRight: 0 }}
-                    color="primary"
-                    onClick={handleDescriptionSave}
-                  >
-                    <SaveIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Cancel" arrow placement="bottom">
-                  <IconButton
-                    data-testid="edit-pipeline-description-cancel-button"
-                    aria-label="cancel"
-                    color="error"
-                    onClick={handleDescriptionCancel}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            ) : (
-              <Box
-                data-testid="pipeline-description-container"
-                display={'flex'}
-                flexDirection={'row'}
-                alignItems={'center'}
-              >
-                <Typography data-testid="pipeline-description" variant="body1">
-                  {pipelineData.description}
-                </Typography>
-
-                <Tooltip
-                  arrow
-                  placement="bottom"
-                  title="Edit description of the pipeline"
-                >
-                  <IconButton
-                    data-testid="edit-pipeline-description-button"
-                    aria-label="edit"
-                    color="primary"
-                    sx={{ marginLeft: 2 }}
-                    onClick={() => {
-                      setOpen(true)
-                    }}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            )}
           </Box>
           <Box
             sx={{
@@ -267,7 +143,12 @@ const EditPipeline = ({ orgData }) => {
             }}
           >
             <Box sx={{ position: 'relative', width: '35%' }}>
-              <Settings pipeData={pipelineData} orgData={orgData} />
+              <Settings
+                pipeData={pipelineData}
+                orgData={orgData}
+                onEndpointChange={handleEndpointChange}
+                onDescriptionChange={handleDescriptionSave}
+              />
             </Box>
             <Box sx={{ position: 'relative', width: '100%' }}>
               <Box
@@ -351,7 +232,21 @@ const EditPipeline = ({ orgData }) => {
                   pointerEvents: 'none',
                 }}
               />
-              <SolutionsModified handleSave={handleSave} />
+              <Collapse in={showAlert} sx={{ marginBottom: 1 }}>
+                <Alert
+                  severity={alertState.severity}
+                  variant="filled"
+                  sx={{ width: 'fit-content', marginLeft: 'auto' }}
+                  elevation={2}
+                >
+                  <AlertTitle>{alertState.message}</AlertTitle>
+                </Alert>
+              </Collapse>
+              <SolutionsModified
+                handleSave={handleSave}
+                handleToggleActive={handleToggleActive}
+                isActive={!!pipelineData.active}
+              />
             </Box>
           </Box>
         </ErrorBoundary>

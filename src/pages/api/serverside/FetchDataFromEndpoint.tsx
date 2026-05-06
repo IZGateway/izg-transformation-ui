@@ -51,7 +51,8 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
     return response.data
   } catch (error) {
     console.error('Error fetching data:', error)
-    throw new Error(error)
+    if (error instanceof Error) throw error
+    throw new Error(String(error))
   }
 }
 

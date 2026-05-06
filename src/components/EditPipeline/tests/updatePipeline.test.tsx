@@ -20,10 +20,7 @@ describe('updateData', () => {
 
     expect(mockedAxios.put).toHaveBeenCalledWith(
       `/api/pipelines/${mockId}`,
-      mockData,
-      expect.objectContaining({
-        httpsAgent: expect.any(Object),
-      })
+      mockData
     )
     expect(result).toEqual({
       success: true,

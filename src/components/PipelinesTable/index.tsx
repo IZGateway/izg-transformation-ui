@@ -1,11 +1,19 @@
-import React, { useContext } from 'react'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
-import { Box, IconButton, Typography, Card, Tooltip } from '@mui/material'
+import React, { useContext, useEffect, useState } from 'react'
+import { DataGrid, GridColDef, GridFooter, GridToolbar } from '@mui/x-data-grid'
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  Card,
+  Tooltip,
+} from '@mui/material'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline'
 import SessionContext from '../../contexts/app'
 import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SyncDisabledIcon from '@mui/icons-material/SyncDisabled'
+import AddIcon from '@mui/icons-material/Add'
 import Link from 'next/link'
 
 const dataGridCustom = {
@@ -72,6 +80,33 @@ const dataGridCustom = {
   },
 }
 
+const CustomFooter = () => (
+  <Box display="flex" justifyContent="space-between" alignItems="center">
+    <Button
+      id="add-new-pipeline"
+      data-testid="add-new-pipeline-button"
+      component={Link}
+      href="/add/pipeline"
+      prefetch={false}
+      sx={{
+        borderRadius: '60px',
+        margin: '2em 0',
+        boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+        backgroundColor: palette.white,
+        py: 1.7,
+        px: 3,
+        border: `1px solid ${palette.border}`,
+      }}
+      variant="text"
+      color="primary"
+      endIcon={<AddIcon />}
+    >
+      Add New Pipeline
+    </Button>
+    <GridFooter />
+  </Box>
+)
+
 const actionButtonStyle = {
   borderRadius: 90,
   background: palette.white,
@@ -81,8 +116,66 @@ const actionButtonStyle = {
   marginRight: 2,
 }
 
-const PipelinesTable = (props) => {
+type PipelineRow = {
+  id: string
+  active: boolean
+  organizationName?: string
+  pipelineName?: string
+  inboundEndpoint?: string
+  outboundEndpoint?: string
+  description?: string
+  hasActiveMaint?: boolean
+} & Record<string, unknown>
+
+type PipelinesTableProps = {
+  data?: PipelineRow[]
+  tabIndex?: number
+}
+
+const PipelinesTable = (props: PipelinesTableProps) => {
   const { pageSize, setPageSize } = useContext(SessionContext)
+  const [rows, setRows] = useState<PipelineRow[]>(props.data || [])
+  const [updatingRowId, setUpdatingRowId] = useState<string | null>(null)
+
+  useEffect(() => {
+    setRows(props.data || [])
+  }, [props.data])
+
+  const handleToggleActive = async (rowId: string) => {
+    if (updatingRowId === rowId) return
+    setUpdatingRowId(rowId)
+
+    try {
+      const getRes = await fetch(`/api/pipelines/${rowId}`)
+      if (!getRes.ok) {
+        throw new Error('Failed to fetch pipeline')
+      }
+
+      const fullPipeline = (await getRes.json()) as PipelineRow
+      const nextActive = !fullPipeline.active
+
+      const putRes = await fetch(`/api/pipelines/${rowId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...fullPipeline, active: nextActive }),
+      })
+
+      if (!putRes.ok) {
+        throw new Error('Failed to update pipeline status')
+      }
+
+      setRows((previousRows) =>
+        previousRows.map((row) =>
+          row.id === rowId ? { ...row, active: nextActive } : row
+        )
+      )
+    } catch (error) {
+      console.error('Error toggling pipeline status:', error)
+    } finally {
+      setUpdatingRowId(null)
+    }
+  }
+
   const columns: GridColDef[] = [
     {
       field: 'organizationName',
@@ -115,6 +208,44 @@ const PipelinesTable = (props) => {
       minWidth: 50,
     },
     {
+      field: 'active',
+      headerName: 'STATUS',
+      flex: 0.3,
+      minWidth: 120,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          <Tooltip
+            arrow
+            placement="bottom"
+            title={params.value ? 'Disable Pipeline' : 'Enable Pipeline'}
+          >
+            <IconButton
+              size="small"
+              onClick={() => handleToggleActive(params.row.id as string)}
+              disabled={updatingRowId === params.row.id}
+              aria-label="toggle-pipeline-status"
+            >
+              {params.value ? (
+                <CheckCircleIcon sx={{ fontSize: 18, color: palette.active }} />
+              ) : (
+                <RemoveCircleOutlineIcon
+                  sx={{ fontSize: 18, color: palette.greyDarkTypography }}
+                />
+              )}
+            </IconButton>
+          </Tooltip>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            {params.value ? 'Active' : 'Disabled'}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
       field: 'action',
       headerName: 'ACTION',
       sortable: false,
@@ -124,38 +255,20 @@ const PipelinesTable = (props) => {
       renderCell: (params) => {
         return (
           <div>
-            <Link
-              prefetch={false}
-              tabIndex={props.tabIndex}
-              href={{
-                pathname: `/edit/pipeline/${params.row.id}`,
-              }}
-            >
-              <Tooltip arrow placement="bottom" title="Edit">
-                <IconButton
-                  id={'edit_' + params.row.id}
-                  aria-label="edit"
-                  color="primary"
-                  sx={actionButtonStyle}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Link>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <SyncDisabledIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              aria-label="test"
-              color="primary"
-              sx={actionButtonStyle}
-            >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
+            <Tooltip arrow placement="bottom" title="Edit">
+              <IconButton
+                id={'edit_' + params.row.id}
+                aria-label="edit"
+                color="primary"
+                sx={actionButtonStyle}
+                component={Link}
+                prefetch={false}
+                tabIndex={props.tabIndex}
+                href={`/edit/pipeline/${params.row.id}`}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </div>
         )
       },
@@ -189,7 +302,7 @@ const PipelinesTable = (props) => {
       <DataGrid
         experimentalFeatures={{ ariaV7: true }}
         sx={dataGridCustom}
-        rows={props.data}
+        rows={rows}
         columns={columns}
         pageSizeOptions={[5, 25, 50, 100]}
         autoHeight
@@ -210,7 +323,7 @@ const PipelinesTable = (props) => {
         }}
         density={'comfortable'}
         pagination
-        components={{ Toolbar: GridToolbar }}
+        slots={{ footer: () => <CustomFooter />, toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
             showQuickFilter: true,

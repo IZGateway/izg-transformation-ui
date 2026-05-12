@@ -1,5 +1,10 @@
 # Release Notes
 
+## [0.99.1] - 2026-05-12
+
+### Changes
+- Release 0.99.1
+
 ## Release 0.15.0
 
 - IGDD-2532 Xform Console - design and implement ability to add net new Pipelines

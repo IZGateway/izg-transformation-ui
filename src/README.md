@@ -27,3 +27,5 @@ yarn dev
 1. Update cypress/config/cypress-dev-config.ts with credentials
 2. Run npm run cypress:open which will open cypress window -> choose E2E testing -> Choose browser to run the tests against -> choose test files to run
 3. Running test through cmd, npm cypress run
+
+# random change for hotfix

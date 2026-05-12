@@ -41,6 +41,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-aphl:
+        description: 'Skip APHL ECR login and push only. Useful for testing without APHL credentials. Ignored when dry-run is true.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -100,6 +105,7 @@ jobs:
           echo "Develop branch : ${{ inputs.develop-branch }}"
           echo "Main branch    : ${{ inputs.main-branch }}"
           echo "Dry run        : ${{ inputs.dry-run }}"
+          echo "Skip APHL      : ${{ inputs.skip-aphl }}"
           echo "======================================="
 
           # Validate version format (X.Y.Z only, no pre-release suffixes)
@@ -309,7 +315,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Configure AWS credentials (APHL ECR)
-        if: inputs.dry-run == false
+        if: inputs.dry-run == false && inputs.skip-aphl == false
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.APHL_AWS_ACCESS_KEY_ID }}
@@ -317,7 +323,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Login to Amazon ECR (APHL)
-        if: inputs.dry-run == false
+        if: inputs.dry-run == false && inputs.skip-aphl == false
         id: login-ecr-aphl
         uses: aws-actions/amazon-ecr-login@v1
 
@@ -340,15 +346,15 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           else
             ECR="${{ steps.login-ecr.outputs.registry }}"
-            APHL_REG="${{ secrets.APHL_ECR_REGISTRY }}"
-            APHL_REPO="${{ secrets.APHL_ECR_REPOSITORY }}"
             {
               echo "tags<<EOF"
               echo "${GHCR_BASE}:${VERSION}"
               echo "${GHCR_BASE}:latest"
               echo "${ECR}/izg-transformation-ui:${VERSION}"
               echo "${ECR}/izg-transformation-ui:latest"
-              echo "${APHL_REG}/${APHL_REPO}:izgw-transf-ui-${VERSION}"
+              if [[ "${{ inputs.skip-aphl }}" != "true" ]]; then
+                echo "${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}:izgw-transf-ui-${VERSION}"
+              fi
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           fi
@@ -472,6 +478,7 @@ jobs:
             echo "| Main branch | \`${{ inputs.main-branch }}\` |"
             echo "| Develop branch | \`${{ inputs.develop-branch }}\` |"
             echo "| Dry run | \`${{ inputs.dry-run }}\` |"
+            echo "| Skip APHL | \`${{ inputs.skip-aphl }}\` |"
             if [[ "${{ inputs.release-type }}" == "standard" ]]; then
               echo "| Next version on develop | \`${{ steps.app-version.outputs.next_version }}\` |"
             fi
@@ -484,7 +491,9 @@ jobs:
               echo "\`\`\`"
               echo "ghcr.io/${{ env.GITHUB_REGISTRY_NAME }}/izg-transformation-ui:${{ inputs.release-version }}"
               echo "${{ steps.login-ecr.outputs.registry }}/izg-transformation-ui:${{ inputs.release-version }}"
-              echo "${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}:izgw-transf-ui-${{ inputs.release-version }}"
+              if [[ "${{ inputs.skip-aphl }}" != "true" ]]; then
+                echo "${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}:izgw-transf-ui-${{ inputs.release-version }}"
+              fi
               echo "\`\`\`"
             fi
           } >> "$GITHUB_STEP_SUMMARY"

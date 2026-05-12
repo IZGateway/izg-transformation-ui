@@ -1,5 +1,12 @@
 # Release Notes
 
+## [0.99.0] - 2026-05-12
+
+### Changes
+- feat: add release automation workflows ([#212](https://github.com/IZGateway/izg-transformation-ui/pull/212))
+- Release 0.15.0 notes back to develop ([#205](https://github.com/IZGateway/izg-transformation-ui/pull/205))
+
+
 ## Release 0.15.0
 
 - IGDD-2532 Xform Console - design and implement ability to add net new Pipelines

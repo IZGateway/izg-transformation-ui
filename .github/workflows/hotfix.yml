@@ -43,6 +43,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-aphl:
+        description: 'Skip APHL ECR push only. Useful for testing without APHL credentials.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -58,4 +63,5 @@ jobs:
       release-type: hotfix
       develop-branch: ${{ inputs.develop-branch }}
       main-branch: ${{ inputs.main-branch }}
+      skip-aphl: ${{ inputs.skip-aphl }}
       dry-run: ${{ inputs.dry-run }}

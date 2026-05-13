@@ -246,7 +246,11 @@ jobs:
         run: |
           npm pkg set version="${{ inputs.release-version }}"
           git add package.json
-          git commit -m "chore: prepare release ${{ inputs.release-version }}"
+          if git diff --cached --quiet; then
+            echo "package.json already at ${{ inputs.release-version }}, skipping commit"
+          else
+            git commit -m "chore: prepare release ${{ inputs.release-version }}"
+          fi
           git push origin "${{ steps.validate.outputs.release_branch }}"
           echo "✓ package.json version set to ${{ inputs.release-version }} and pushed"
 
@@ -453,8 +457,12 @@ jobs:
             NEXT="${{ steps.app-version.outputs.next_version }}"
             npm pkg set version="$NEXT"
             git add package.json
-            git commit -m "chore: bump version to $NEXT"
-            echo "✓ Version bumped to $NEXT on ${{ inputs.develop-branch }}"
+            if git diff --cached --quiet; then
+              echo "package.json already at $NEXT, skipping commit"
+            else
+              git commit -m "chore: bump version to $NEXT"
+              echo "✓ Version bumped to $NEXT on ${{ inputs.develop-branch }}"
+            fi
           else
             echo "Hotfix release — skipping version bump on ${{ inputs.develop-branch }}"
           fi

@@ -55,9 +55,9 @@
     "react-dom": "^18.3.1",
     "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
-    "swagger-ui-react": "^5.32.5",
+    "swagger-ui-react": "^5.32.6",
     "swr": "^2.4.1",
-    "uuid": "npm:@izgateway/uuid-cjs@^14.0.0",
+    "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "waait": "^1.0.5",
     "winston": "^3.19.0",
     "xml-crypto": "^3.2.1",
@@ -104,7 +104,7 @@
     "postcss": "^8.5.14",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12",
-    "uuid": "npm:@izgateway/uuid-cjs@^14.0.0",
+    "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "yaml": "^1.10.3"
   }
 }

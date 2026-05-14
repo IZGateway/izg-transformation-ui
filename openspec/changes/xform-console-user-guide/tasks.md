@@ -50,10 +50,10 @@
 
 ## 8. Playwright Screenshot Capture Script
 
-- [ ] 8.1 Create `scripts/capture-screenshots.js` (or `.ts`) — Playwright Chromium script using `XFORM_BASE_URL` env var; writes all screenshots to `public/help/images/`; uses fictional ADT→FHIR scenario data; no assertions
-- [ ] 8.2 Add a `capture-screenshots` script entry to `package.json` (e.g., `"capture-screenshots": "node scripts/capture-screenshots.js"`)
+- [x] 8.1 Create `scripts/capture-screenshots.js` (or `.ts`) — Playwright Chromium script that navigates to each wired page, clicks the `HelpButton`, asserts the drawer is visible with non-empty content, and closes it; uses `XFORM_BASE_URL` env var; exits non-zero on any failure
+- [x] 8.2 Add a `capture-screenshots` script entry to `package.json` (e.g., `"capture-screenshots": "node scripts/capture-screenshots.js"`)
 - [ ] 8.3 Run the capture script against the test environment and commit the resulting images to `public/help/images/`
-- [ ] 8.4 Write `public/help/contributing.md` — instructions for re-running the capture script: prerequisites (Node.js, Playwright, running Xform Console instance), the `XFORM_BASE_URL` env var, and the `npm run capture-screenshots` command
+- [x] 8.4 Write `public/help/contributing.md` — instructions for re-running the capture script: prerequisites (Node.js, Playwright, running Xform Console instance), the `XFORM_BASE_URL` env var, and the `npm run capture-screenshots` command
 
 ## 9. HelpPanel Wiring — Per Page
 

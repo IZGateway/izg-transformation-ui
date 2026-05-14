@@ -44,9 +44,8 @@ AND render the response body as Markdown
 #### Scenario: Build-time availability of doc files
 
 WHEN the application is built
-THEN all files under `doc/` MUST be available under the `public/help/` path
-  (via symlink or a build-time copy step configured in `next.config.js`)
-AND the relative folder structure under `doc/` MUST be preserved under `public/help/`
+THEN all files under `public/help/` MUST be available under the `/help/` URL path
+AND the relative folder structure under `public/help/` MUST be preserved
 
 ---
 
@@ -105,3 +104,24 @@ AND relative image references (e.g., `![alt](../images/pipeline-list.png)`) MUST
 WHEN `react-markdown` is added to `package.json`
 THEN any required `transpilePackages` configuration MUST be added to `next.config.js`
   to ensure the ESM-only package is compatible with the current Webpack build
+
+---
+
+### Requirement: Playwright validation of HelpPanel
+
+A Playwright test MUST verify that the `HelpPanel` opens and renders guide content on
+each wired page against the test environment.
+
+#### Scenario: HelpPanel opens on a wired page
+
+WHEN the Playwright validation script navigates to a page that has a `HelpButton`
+AND clicks the `HelpButton`
+THEN the `HelpPanel` drawer MUST become visible
+AND the panel MUST contain non-empty rendered text (not a loading spinner or error state)
+AND the panel MUST be closeable via the close button
+
+#### Scenario: All wired pages pass
+
+WHEN the Playwright validation script runs against the test environment
+THEN every page with a `HelpButton` MUST pass the open/render/close check
+AND the script MUST exit non-zero if any page fails

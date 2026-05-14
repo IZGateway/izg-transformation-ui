@@ -15,9 +15,9 @@
 
 ## 3. public/help/ Structure and Index
 
-- [ ] 3.1 Create `public/help/index.md` — table of contents linking to every feature section; brief Xform Console description; version note placeholder (`{version}`)
-- [ ] 3.2 Update `README.md` to add a "User Guide" section linking to `public/help/index.md`
-- [ ] 3.3 Create stub files for unimplemented features with the `<!-- TODO: IGDD-XXXX -->` pattern:
+- [x] 3.1 Create `public/help/index.md` — table of contents linking to every feature section; brief Xform Console description; version note placeholder (`{version}`)
+- [x] 3.2 Update `README.md` to add a "User Guide" section linking to `public/help/index.md`
+- [x] 3.3 Create stub files for unimplemented features with the `<!-- TODO: IGDD-XXXX -->` pattern:
   - `public/help/users.md` — stub for [IGDD-2697](https://izgateway.atlassian.net/browse/IGDD-2697) (Manage Users)
   - `public/help/senders.md` — stub for [IGDD-2698](https://izgateway.atlassian.net/browse/IGDD-2698) (Manage Senders)
   - `public/help/group-role-mappings.md` — stub for [IGDD-2699](https://izgateway.atlassian.net/browse/IGDD-2699) (Manage Group Role Mappings)

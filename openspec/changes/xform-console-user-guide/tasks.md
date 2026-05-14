@@ -24,29 +24,29 @@
 
 ## 4. Guide Content — Navigation and Login
 
-- [ ] 4.1 Write `public/help/login.md` — login entry point, Okta redirect flow, session handling and expiry; include screenshot references using the ADT→FHIR example scenario
-- [ ] 4.2 Write `public/help/navigation.md` — application shell, AppHeader elements, nav links, error page with helpdesk link, 404 page
+- [x] 4.1 Write `public/help/login.md` — login entry point, Okta redirect flow, session handling and expiry; include screenshot references using the ADT→FHIR example scenario
+- [x] 4.2 Write `public/help/navigation.md` — application shell, AppHeader elements, nav links, error page with helpdesk link, 404 page
 
 ## 5. Guide Content — Mappings
 
-- [ ] 5.1 Create `public/help/mappings/` directory
-- [ ] 5.2 Write `public/help/mappings/index.md` — Mappings list page: search/filter, snackbar notification pattern, navigating to edit; use `IIS-ADT-Field-Map` as the example mapping name
-- [ ] 5.3 Write `public/help/mappings/create-edit.md` — create a new mapping, edit an existing mapping, disable a mapping from the edit page
+- [x] 5.1 Create `public/help/mappings/` directory
+- [x] 5.2 Write `public/help/mappings/index.md` — Mappings list page: search/filter, snackbar notification pattern, navigating to edit; use `IIS-ADT-Field-Map` as the example mapping name
+- [x] 5.3 Write `public/help/mappings/create-edit.md` — create a new mapping, edit an existing mapping, disable a mapping from the edit page
 
 ## 6. Guide Content — Solutions
 
-- [ ] 6.1 Create `public/help/solutions/` directory
-- [ ] 6.2 Write `public/help/solutions/index.md` — Solutions list page: search/filter, navigating to edit; note that solutions must be created before pipelines; use `ADT-to-FHIR-v2` as the example solution name
-- [ ] 6.3 Write `public/help/solutions/create-edit.md` — create a new solution, edit an existing solution
-- [ ] 6.4 Write `public/help/solutions/operations.md` — configuring Operations within a solution
-- [ ] 6.5 Write `public/help/solutions/preconditions.md` — configuring Preconditions as they appear in solutions
+- [x] 6.1 Create `public/help/solutions/` directory
+- [x] 6.2 Write `public/help/solutions/index.md` — Solutions list page: search/filter, navigating to edit; note that solutions must be created before pipelines; use `ADT-to-FHIR-v2` as the example solution name
+- [x] 6.3 Write `public/help/solutions/create-edit.md` — create a new solution, edit an existing solution
+- [x] 6.4 Write `public/help/solutions/operations.md` — configuring Operations within a solution
+- [x] 6.5 Write `public/help/solutions/preconditions.md` — configuring Preconditions as they appear in solutions
 
 ## 7. Guide Content — Pipelines
 
-- [ ] 7.1 Create `public/help/pipelines/` directory
-- [ ] 7.2 Write `public/help/pipelines/index.md` — Pipelines list page: search/filter, enable/disable toggle; note that pipelines require a solution; use `ADT-to-FHIR-IIS-Production` as the example pipeline name
-- [ ] 7.3 Write `public/help/pipelines/create-edit.md` — create a new pipeline, edit an existing pipeline, assign a solution
-- [ ] 7.4 Write `public/help/pipelines/preconditions.md` — configuring Preconditions within a pipeline
+- [x] 7.1 Create `public/help/pipelines/` directory
+- [x] 7.2 Write `public/help/pipelines/index.md` — Pipelines list page: search/filter, enable/disable toggle; note that pipelines require a solution; use `ADT-to-FHIR-IIS-Production` as the example pipeline name
+- [x] 7.3 Write `public/help/pipelines/create-edit.md` — create a new pipeline, edit an existing pipeline, assign a solution
+- [x] 7.4 Write `public/help/pipelines/preconditions.md` — configuring Preconditions within a pipeline
 
 ## 8. Playwright Screenshot Capture Script
 

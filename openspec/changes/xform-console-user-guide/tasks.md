@@ -70,5 +70,7 @@
 
 - [ ] 10.1 Verify `grep -r "TODO: IGDD" public/help/` reports only the three expected stubs (2697, 2698, 2699)
 - [ ] 10.2 Verify all `public/help/index.md` TOC links resolve to existing files
-- [ ] 10.3 Manually confirm `HelpPanel` opens and renders content on at least two pages in a local dev or test environment
-- [ ] 10.4 Commit all doc content, components, capture script, and config changes; open PR against main
+- [ ] 10.3 Create `scripts/validate-help-panel.js` (or `.ts`) — Playwright Chromium script that navigates to each wired page, clicks the `HelpButton`, asserts the drawer is visible with non-empty content, and closes it; uses `XFORM_BASE_URL` env var; exits non-zero on any failure
+- [ ] 10.4 Add a `validate-help-panel` script entry to `package.json` (e.g., `"validate-help-panel": "node scripts/validate-help-panel.js"`)
+- [ ] 10.5 Run `npm run validate-help-panel` against the test environment and confirm all pages pass
+- [ ] 10.6 Commit all doc content, components, capture script, validation script, and config changes; open PR against main

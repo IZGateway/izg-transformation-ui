@@ -100,7 +100,7 @@ duplication, no symlinks, no copy steps.
 
 ```tsx
 // src/components/HelpPanel.tsx
-// MUI Drawer + react-markdown; accepts a doc path relative to /public/help/
+// MUI Drawer + markdown-it; accepts a doc path relative to /public/help/
 interface HelpPanelProps {
   docPath: string;  // e.g. "pipelines/create-edit"
   title: string;    // displayed in the drawer header
@@ -109,8 +109,8 @@ interface HelpPanelProps {
 }
 ```
 
-At runtime, `HelpPanel` fetches `/help/${docPath}.md` and renders it with
-`react-markdown` + `remark-gfm`. No build step required.
+At runtime, `HelpPanel` fetches `/help/${docPath}.md` and renders it as HTML using
+`markdown-it`. No build step required; no `transpilePackages` configuration needed.
 
 **Alternative considered:** Import Markdown files as raw strings at build time using
 Webpack/Next.js `raw-loader`. Rejected because it would bundle all help content into
@@ -272,7 +272,6 @@ separate artifact with its own release cadence.
 | Risk | Mitigation |
 |---|---|
 | Screenshot freshness — images go stale if PRs skip the capture step | PR checklist + code review enforcement. Future: CI job that detects Playwright script was not re-run when `src/` changes in the same PR. |
-| `react-markdown` version compatibility with Next.js 16 | Verify during implementation; `react-markdown` v9 is ESM-only and may require `next.config.js` `transpilePackages` configuration. |
 | Stub sections remain unfilled if feature tickets don't reference the guide | `<!-- TODO -->` grep in CI; team policy that feature ticket includes doc update in Definition of Done. |
 
 ## Open Questions
@@ -280,5 +279,3 @@ separate artifact with its own release cadence.
 1. **CI screenshot check**: Should a CI job verify that `public/help/images/` was updated when
    `src/pages/` or `src/components/` changed? If yes, this is a task for a follow-on CR,
    not this one.
-2. **react-markdown version**: Confirm `react-markdown` ESM compatibility with the
-   current Next.js + Webpack configuration before adding the dependency.

@@ -79,7 +79,7 @@ each feature ships.
   capture script (Chromium only; no assertions; not a regression test suite)
 - Linked from the repository `README.md`
 - Structured to support incremental expansion as new features are released
-- **Lite in-app help**: A `HelpPanel` component (MUI `<Drawer>` + `react-markdown`)
+- **Lite in-app help**: A `HelpPanel` component (MUI `<Drawer>` + `markdown-it`)
   renders the relevant guide section when a Help button is clicked on each page.
   The same Markdown files in `doc/` serve both the standalone guide and the in-app
   panel — no duplication. This is a lightweight Help button per page, not a full

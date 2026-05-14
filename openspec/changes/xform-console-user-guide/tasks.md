@@ -2,14 +2,14 @@
 
 ## 1. Dependencies and Infrastructure
 
-- [ ] 1.1 Add `react-markdown` and `remark-gfm` to `package.json` as production dependencies
-- [ ] 1.2 Add `react-markdown` to `transpilePackages` in `next.config.js` if ESM compatibility requires it (verify after install)
+- [x] 1.1 Add `markdown-it` to `package.json` as a production dependency and `@types/markdown-it` as a dev dependency
+- [x] 1.2 ~~Add `react-markdown` to `transpilePackages`~~ — not needed; `markdown-it` is CJS-compatible; no `next.config.js` changes required
 - [ ] 1.3 Create `public/help/images/` directory with a `.gitkeep` placeholder
 
 ## 2. HelpPanel and HelpButton Components
 
 - [ ] 2.1 Create `src/components/HelpButton.tsx` — MUI `<IconButton>` with `HelpOutline` icon and `aria-label="Help"`
-- [ ] 2.2 Create `src/components/HelpPanel.tsx` — MUI `<Drawer>` that accepts `docPath`, `title`, `open`, and `onClose` props; fetches `/help/${docPath}.md` at runtime; renders response body with `react-markdown` and `remark-gfm`
+- [ ] 2.2 Create `src/components/HelpPanel.tsx` — MUI `<Drawer>` that accepts `docPath`, `title`, `open`, and `onClose` props; fetches `/help/${docPath}.md` at runtime; renders response body as HTML using `markdown-it` with `dangerouslySetInnerHTML`
 - [ ] 2.3 Handle loading and error states in `HelpPanel`: show a spinner while fetching; show a fallback message if the fetch fails or the file is not found
 - [ ] 2.4 Verify that relative image paths in rendered Markdown (e.g., `../images/pipeline-list.png`) resolve correctly within the panel; adjust base URL or image rendering if needed
 

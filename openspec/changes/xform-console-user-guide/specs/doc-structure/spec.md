@@ -1,29 +1,29 @@
-# Spec: Documentation Structure
+﻿# Spec: Documentation Structure
 
 ## ADDED Requirements
 
 ### Requirement: Folder-per-feature layout
 
-The `doc/` folder at the repository root MUST be organised using a folder-per-feature
+The `public/help/` folder at the repository root MUST be organised using a folder-per-feature
 structure for features that have multiple sub-pages, and single files for simple
 single-page features.
 
 #### Scenario: Complex feature with sub-pages
 
 WHEN the feature covers multiple routes (e.g., list, create, edit)
-THEN it MUST have its own subdirectory under `doc/` (e.g., `doc/pipelines/`)
+THEN it MUST have its own subdirectory under `public/help/` (e.g., `public/help/pipelines/`)
 AND each sub-page or logical section within that feature MUST have its own `.md` file
-  within that subdirectory (e.g., `doc/pipelines/index.md`, `doc/pipelines/create-edit.md`)
+  within that subdirectory (e.g., `public/help/pipelines/index.md`, `public/help/pipelines/create-edit.md`)
 
 #### Scenario: Simple single-page feature
 
 WHEN the feature covers a single route or a small self-contained topic
-THEN it MAY be a single `.md` file directly under `doc/` (e.g., `doc/login.md`)
+THEN it MAY be a single `.md` file directly under `public/help/` (e.g., `public/help/login.md`)
 
 #### Scenario: Screenshot images
 
 WHEN a guide section references a screenshot
-THEN the image file MUST reside in `doc/images/`
+THEN the image file MUST reside in `public/help/images/`
 AND the filename MUST follow the pattern `<capability>-<state>.png`
   (e.g., `pipeline-list-populated.png`, `mapping-list-snackbar.png`)
 
@@ -81,7 +81,7 @@ AND MUST remove the `<!-- TODO: IGDD-XXXX -->` comment
 
 #### Scenario: Completeness check
 
-WHEN a developer or CI job runs `grep -r "TODO: IGDD" doc/`
+WHEN a developer or CI job runs `grep -r "TODO: IGDD" public/help/`
 THEN every remaining stub section is reported
 AND the count gives a measure of guide completeness
 
@@ -89,18 +89,18 @@ AND the count gives a measure of guide completeness
 
 ### Requirement: Full-stack ownership — documentation updated with UI changes
 
-Any PR that modifies a page's UI MUST update the corresponding `doc/` Markdown file
+Any PR that modifies a page's UI MUST update the corresponding `public/help/` Markdown file
 in the same PR.
 
 #### Scenario: UI change without doc update
 
 WHEN a PR modifies a page component in `src/pages/` or `src/components/`
 THEN the PR description MUST include a checklist item confirming the corresponding
-  `doc/` file was reviewed and updated if necessary
-AND code reviewers MUST verify the `doc/` file was touched before approving
+  `public/help/` file was reviewed and updated if necessary
+AND code reviewers MUST verify the `public/help/` file was touched before approving
 
 #### Scenario: New page added
 
 WHEN a PR introduces a new page
-THEN the PR MUST add the corresponding `doc/` section for that page
+THEN the PR MUST add the corresponding `public/help/` section for that page
 AND MUST wire up the `HelpPanel` component on the new page (see help-panel spec)

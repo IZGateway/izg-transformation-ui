@@ -16,7 +16,7 @@ The guide has two delivery modes from one source of truth:
 ## Goals / Non-Goals
 
 **Goals:**
-- Establish a `doc/` folder structure that scales as new features ship
+- Establish a `public/help/` folder structure that scales as new features ship
 - Define the `HelpPanel` component interface so any developer can wire it up
 - Specify the Playwright screenshot capture script scope and conventions
 - Define the stub lifecycle for features not yet implemented
@@ -34,15 +34,19 @@ The guide has two delivery modes from one source of truth:
 
 ### Decision 1: Folder-per-feature document structure
 
-**Rationale:** A single flat `doc/` folder of one file per feature is simple but breaks
+**Rationale:** A single flat folder of one file per feature is simple but breaks
 down when a feature has multiple sub-pages (create, edit, list) that warrant distinct
 screenshots and user flows. A folder-per-feature structure keeps related Markdown and
 images co-located without merging unrelated content into one large file.
 
+Guide files live in `public/help/` — the standard Next.js location for static assets
+served at runtime. This eliminates any build-time copying or symlinking: the files are
+already where Next.js expects them, served directly at `/help/*`.
+
 **Structure:**
 
 ```
-doc/
+public/help/
   index.md                      # Table of contents; links to all sections
   images/                       # All screenshots from the Playwright capture script
     login-okta-page.png
@@ -53,6 +57,7 @@ doc/
     ...
   login.md                      # Login and session; single page, single file
   navigation.md                 # AppHeader, nav shell, error page, 404
+  contributing.md               # How to re-run the screenshot capture script
   pipelines/
     index.md                    # Pipelines list (search, filter, toggle)
     create-edit.md              # Create and edit pipeline
@@ -67,23 +72,26 @@ doc/
     create-edit.md              # Create, edit, and disable mapping
 ```
 
-All images live in `doc/images/` regardless of which feature they belong to. This
-keeps the Playwright script simple: it always writes to one directory without
-needing to know the feature folder layout.
+All images live in `public/help/images/` regardless of which feature they belong to.
+This keeps the Playwright script simple: it always writes to one directory without
+needing to know the feature folder layout. Images are served at `/help/images/*.png`.
 
-**Alternative considered:** Flat single-file-per-feature in `doc/` (e.g.,
-`doc/pipelines.md`). Rejected because pipelines, solutions, and mappings each have
-three sub-pages (list, create, edit) with distinct screenshots and flows that would
-make a single file unwieldy and hard to link from the in-app `HelpPanel`.
+**Alternative considered:** Flat single-file-per-feature (e.g., `public/help/pipelines.md`).
+Rejected because pipelines, solutions, and mappings each have three sub-pages (list,
+create, edit) with distinct screenshots and flows that would make a single file
+unwieldy and hard to link from the in-app `HelpPanel`.
 
 ---
 
-### Decision 2: One source of truth — `doc/` serves both delivery modes
+### Decision 2: One source of truth — `public/help/` serves both delivery modes
 
-**Rationale:** The `HelpPanel` component fetches or imports the same `.md` files that
-exist in `doc/`. No separate content for the in-app view. This means:
+**Rationale:** Guide Markdown files live in `public/help/`, which is the correct
+location for static assets in a Next.js application. Files in `public/` are served
+directly by Next.js at the corresponding URL path with no build configuration required.
+The same files are readable in GitHub and fetched at runtime by the `HelpPanel` — no
+duplication, no symlinks, no copy steps.
 
-- A developer's PR that adds a new feature can update `doc/<feature>/create-edit.md`
+- A developer's PR that adds a new feature updates `public/help/<feature>/create-edit.md`
   and that change is immediately reflected in both the GitHub-readable guide and the
   in-app Help drawer.
 - There is no risk of the two forms diverging.
@@ -101,9 +109,8 @@ interface HelpPanelProps {
 }
 ```
 
-The `doc/` folder is symlinked (or copied at build time) into `public/help/` so that
-Next.js can serve the Markdown files as static assets. At runtime, `HelpPanel` fetches
-`/help/${docPath}.md` and renders it with `react-markdown` + `remark-gfm`.
+At runtime, `HelpPanel` fetches `/help/${docPath}.md` and renders it with
+`react-markdown` + `remark-gfm`. No build step required.
 
 **Alternative considered:** Import Markdown files as raw strings at build time using
 Webpack/Next.js `raw-loader`. Rejected because it would bundle all help content into
@@ -153,10 +160,10 @@ deliverable of the same PR, by the same developer.
 
 **Policy:**
 
-- Any PR that modifies a page's UI **MUST** update the corresponding `doc/` Markdown file.
-- Any PR that adds a new page **MUST** add the corresponding `doc/` section and wire up
+- Any PR that modifies a page's UI **MUST** update the corresponding `public/help/` Markdown file.
+- Any PR that adds a new page **MUST** add the corresponding `public/help/` section and wire up
   `HelpPanel` for that page.
-- The PR description checklist SHOULD include: `[ ] Updated doc/<feature>/*.md`,
+- The PR description checklist SHOULD include: `[ ] Updated public/help/<feature>/*.md`,
   `[ ] Re-ran Playwright capture script (or noted why screenshots were not refreshed)`.
 - CI does not currently enforce this (adding a lint rule is a future improvement), but
   it is enforced through code review: reviewers check that the doc file was touched.
@@ -178,7 +185,7 @@ experimental changes.
 - Script is committed to `scripts/capture-screenshots.js` (or `.ts`) at the repo root
 - Target URL is set via environment variable `XFORM_BASE_URL`
 - Browser: Chromium only (Playwright default)
-- Output directory: `doc/images/` (overwriting existing files)
+- Output directory: `public/help/images/` (overwriting existing files)
 - Naming: `<capability>-<state>.png`
   - Examples: `pipeline-list-populated.png`, `pipeline-create-form-empty.png`,
     `mapping-list-snackbar.png`, `login-okta-page.png`
@@ -252,9 +259,9 @@ figure out where the content goes.
 **Rationale:** The guide documents the app as it exists at a given version. It is not a
 separate artifact with its own release cadence.
 
-- `doc/` is committed to the same Git repository as the code.
+- `public/help/` is committed to the same Git repository as the code.
 - The guide's "version" is the app's Git tag / release tag (e.g., `v2.3.0`).
-- `doc/index.md` includes a note: "This guide documents the Xform Console as shipped
+- `public/help/index.md` includes a note: "This guide documents the Xform Console as shipped
   in release `{version}`" — the version string is updated as part of the release PR.
 - Historical versions of the guide are accessible via Git history.
 
@@ -265,17 +272,13 @@ separate artifact with its own release cadence.
 | Risk | Mitigation |
 |---|---|
 | Screenshot freshness — images go stale if PRs skip the capture step | PR checklist + code review enforcement. Future: CI job that detects Playwright script was not re-run when `src/` changes in the same PR. |
-| `doc/` symlink into `public/` may not work in all deployment environments | Evaluate at implementation: use `next.config.js` `rewrites` or a build-time copy step as a fallback. The approach is clarified in the tasks. |
 | `react-markdown` version compatibility with Next.js 16 | Verify during implementation; `react-markdown` v9 is ESM-only and may require `next.config.js` `transpilePackages` configuration. |
 | Stub sections remain unfilled if feature tickets don't reference the guide | `<!-- TODO -->` grep in CI; team policy that feature ticket includes doc update in Definition of Done. |
-| HelpPanel fetch of `/help/*.md` fails if `public/help/` is not set up | If symlink approach is rejected, use `getServerSideProps` or API route to serve doc content; document the chosen approach in tasks. |
 
 ## Open Questions
 
-1. **`public/help/` delivery**: Is a symlink from `doc/` to `public/help/` acceptable
-   in the deployment pipeline, or is a build-step copy required? (Resolve at task writing.)
-2. **CI screenshot check**: Should a CI job verify that `doc/images/` was updated when
+1. **CI screenshot check**: Should a CI job verify that `public/help/images/` was updated when
    `src/pages/` or `src/components/` changed? If yes, this is a task for a follow-on CR,
    not this one.
-3. **react-markdown version**: Confirm `react-markdown` ESM compatibility with the
+2. **react-markdown version**: Confirm `react-markdown` ESM compatibility with the
    current Next.js + Webpack configuration before adding the dependency.

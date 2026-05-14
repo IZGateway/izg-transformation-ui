@@ -4,14 +4,14 @@
 
 - [x] 1.1 Add `markdown-it` to `package.json` as a production dependency and `@types/markdown-it` as a dev dependency
 - [x] 1.2 ~~Add `react-markdown` to `transpilePackages`~~ — not needed; `markdown-it` is CJS-compatible; no `next.config.js` changes required
-- [ ] 1.3 Create `public/help/images/` directory with a `.gitkeep` placeholder
+- [x] 1.3 Create `public/help/images/` directory with a `.gitkeep` placeholder
 
 ## 2. HelpPanel and HelpButton Components
 
-- [ ] 2.1 Create `src/components/HelpButton.tsx` — MUI `<IconButton>` with `HelpOutline` icon and `aria-label="Help"`
-- [ ] 2.2 Create `src/components/HelpPanel.tsx` — MUI `<Drawer>` that accepts `docPath`, `title`, `open`, and `onClose` props; fetches `/help/${docPath}.md` at runtime; renders response body as HTML using `markdown-it` with `dangerouslySetInnerHTML`
-- [ ] 2.3 Handle loading and error states in `HelpPanel`: show a spinner while fetching; show a fallback message if the fetch fails or the file is not found
-- [ ] 2.4 Verify that relative image paths in rendered Markdown (e.g., `../images/pipeline-list.png`) resolve correctly within the panel; adjust base URL or image rendering if needed
+- [x] 2.1 Create `src/components/HelpButton.tsx` — MUI `<IconButton>` with `HelpOutline` icon and `aria-label="Help"`
+- [x] 2.2 Create `src/components/HelpPanel.tsx` — MUI `<Drawer>` that accepts `docPath`, `title`, `open`, and `onClose` props; fetches `/help/${docPath}.md` at runtime; renders response body as HTML using `markdown-it` with `dangerouslySetInnerHTML`
+- [x] 2.3 Handle loading and error states in `HelpPanel`: show a spinner while fetching; show a fallback message if the fetch fails or the file is not found
+- [x] 2.4 Verify that relative image paths in rendered Markdown (e.g., `../images/pipeline-list.png`) resolve correctly within the panel; adjust base URL or image rendering if needed
 
 ## 3. public/help/ Structure and Index
 
@@ -57,20 +57,20 @@
 
 ## 9. HelpPanel Wiring — Per Page
 
-- [ ] 9.1 Wire `HelpButton` + `HelpPanel` on the Login / Okta redirect page (docPath: `"login"`)
-- [ ] 9.2 Wire `HelpButton` + `HelpPanel` on the Navigation shell / AppHeader (docPath: `"navigation"`)
-- [ ] 9.3 Wire `HelpButton` + `HelpPanel` on the Mappings list page (docPath: `"mappings/index"`)
-- [ ] 9.4 Wire `HelpButton` + `HelpPanel` on the Mapping create/edit page (docPath: `"mappings/create-edit"`)
-- [ ] 9.5 Wire `HelpButton` + `HelpPanel` on the Solutions list page (docPath: `"solutions/index"`)
-- [ ] 9.6 Wire `HelpButton` + `HelpPanel` on the Solution create/edit page (docPath: `"solutions/create-edit"`)
-- [ ] 9.7 Wire `HelpButton` + `HelpPanel` on the Pipelines list page (docPath: `"pipelines/index"`)
-- [ ] 9.8 Wire `HelpButton` + `HelpPanel` on the Pipeline create/edit page (docPath: `"pipelines/create-edit"`)
+- [x] 9.1 Wire `HelpButton` + `HelpPanel` on the Login / Okta redirect page (docPath: `"login"`)
+- [x] 9.2 Wire `HelpButton` + `HelpPanel` on the Navigation shell / AppHeader (docPath: `"navigation"`)
+- [x] 9.3 Wire `HelpButton` + `HelpPanel` on the Mappings list page (docPath: `"mappings/index"`)
+- [x] 9.4 Wire `HelpButton` + `HelpPanel` on the Mapping create/edit page (docPath: `"mappings/create-edit"`)
+- [x] 9.5 Wire `HelpButton` + `HelpPanel` on the Solutions list page (docPath: `"solutions/index"`)
+- [x] 9.6 Wire `HelpButton` + `HelpPanel` on the Solution create/edit page (docPath: `"solutions/create-edit"`)
+- [x] 9.7 Wire `HelpButton` + `HelpPanel` on the Pipelines list page (docPath: `"pipelines/index"`)
+- [x] 9.8 Wire `HelpButton` + `HelpPanel` on the Pipeline create/edit page (docPath: `"pipelines/create-edit"`)
 
 ## 10. Validation and Commit
 
-- [ ] 10.1 Verify `grep -r "TODO: IGDD" public/help/` reports only the three expected stubs (2697, 2698, 2699)
-- [ ] 10.2 Verify all `public/help/index.md` TOC links resolve to existing files
-- [ ] 10.3 Create `scripts/validate-help-panel.js` (or `.ts`) — Playwright Chromium script that navigates to each wired page, clicks the `HelpButton`, asserts the drawer is visible with non-empty content, and closes it; uses `XFORM_BASE_URL` env var; exits non-zero on any failure
-- [ ] 10.4 Add a `validate-help-panel` script entry to `package.json` (e.g., `"validate-help-panel": "node scripts/validate-help-panel.js"`)
+- [x] 10.1 Verify `grep -r "TODO: IGDD" public/help/` reports only the three expected stubs (2697, 2698, 2699)
+- [x] 10.2 Verify all `public/help/index.md` TOC links resolve to existing files
+- [x] 10.3 Create `scripts/validate-help-panel.js` (or `.ts`) — Playwright Chromium script that navigates to each wired page, clicks the `HelpButton`, asserts the drawer is visible with non-empty content, and closes it; uses `XFORM_BASE_URL` env var; exits non-zero on any failure
+- [x] 10.4 Add a `validate-help-panel` script entry to `package.json` (e.g., `"validate-help-panel": "node scripts/validate-help-panel.js"`)
 - [ ] 10.5 Run `npm run validate-help-panel` against the test environment and confirm all pages pass
 - [ ] 10.6 Commit all doc content, components, capture script, validation script, and config changes; open PR against main

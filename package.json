@@ -16,7 +16,8 @@
     "test": "jest",
     "swagger:generate-doc": "npx next-swagger-doc-cli src/next-swagger-doc.json --output swaggerAPI.json",
     "cypress:open": "cypress open --config-file cypress/config/cypress-dev-config.ts",
-    "capture-screenshots": "node scripts/capture-screenshots.js"
+    "capture-screenshots": "node scripts/capture-screenshots.js",
+    "validate-help-panel": "node scripts/validate-help-panel.js"
   },
   "dependencies": {
     "@axe-core/react": "^4.11.3",

@@ -18,9 +18,9 @@
 - [ ] 3.1 Create `public/help/index.md` — table of contents linking to every feature section; brief Xform Console description; version note placeholder (`{version}`)
 - [ ] 3.2 Update `README.md` to add a "User Guide" section linking to `public/help/index.md`
 - [ ] 3.3 Create stub files for unimplemented features with the `<!-- TODO: IGDD-XXXX -->` pattern:
-  - `public/help/user-management.md` — stub for [IGDD-2697](https://izgateway.atlassian.net/browse/IGDD-2697)
-  - `public/help/sender-management.md` — stub for [IGDD-2698](https://izgateway.atlassian.net/browse/IGDD-2698)
-  - `public/help/group-role-mapping.md` — stub for [IGDD-2699](https://izgateway.atlassian.net/browse/IGDD-2699)
+  - `public/help/users.md` — stub for [IGDD-2697](https://izgateway.atlassian.net/browse/IGDD-2697) (Manage Users)
+  - `public/help/senders.md` — stub for [IGDD-2698](https://izgateway.atlassian.net/browse/IGDD-2698) (Manage Senders)
+  - `public/help/group-role-mappings.md` — stub for [IGDD-2699](https://izgateway.atlassian.net/browse/IGDD-2699) (Manage Group Role Mappings)
 
 ## 4. Guide Content — Navigation and Login
 

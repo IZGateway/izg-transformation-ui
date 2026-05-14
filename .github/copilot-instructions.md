@@ -215,3 +215,20 @@ Navigate to `http://localhost:3000` after start.
 | [IGDD-1783](https://izgateway.atlassian.net/browse/IGDD-1783) | Auditing |
 | [IGDD-1409](https://izgateway.atlassian.net/browse/IGDD-1409) | Pipeline import/export to local file |
 | [IGDD-2014](https://izgateway.atlassian.net/browse/IGDD-2014) | Restrict access by group (RBAC) |
+
+---
+
+## Jira Ticket Reference
+
+UI-tagged tickets for this component:
+
+- [IGDD-2699](https://izgateway.atlassian.net/browse/IGDD-2699) — Xform Console: design and implement Group/Role Mapping management
+- [IGDD-2698](https://izgateway.atlassian.net/browse/IGDD-2698) — Xform Console: design and implement Sender management system
+- [IGDD-2697](https://izgateway.atlassian.net/browse/IGDD-2697) — Xform Console: design and implement User management system
+- [IGDD-2533](https://izgateway.atlassian.net/browse/IGDD-2533) — Xform Console: design and implement Mapping management system
+- [IGDD-1913](https://izgateway.atlassian.net/browse/IGDD-1913) — CC/Xform: Create automated UI smoke test for supported browsers
+
+Other active tickets for this repo:
+
+- [IGDD-2887](https://izgateway.atlassian.net/browse/IGDD-2887) — Xform Console: implement Playwright end-to-end test framework
+- [IGDD-2517](https://izgateway.atlassian.net/browse/IGDD-2517) — Xform Console user guide (doc/ folder; includes Playwright screenshot script)

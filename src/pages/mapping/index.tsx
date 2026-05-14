@@ -8,12 +8,16 @@ import Footer from '../../components/Footer/index'
 import MappingTable from '../../components/MappingTable'
 import { useEffect, useState } from 'react'
 import CustomSnackbar from '../../components/SnackBar'
+import { Box } from '@mui/material'
+import HelpButton from '../../components/HelpButton'
+import HelpPanel from '../../components/HelpPanel'
 
 const Mapping = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [helpOpen, setHelpOpen] = useState(false)
 
   useEffect(() => {
     const msg = sessionStorage.getItem('mappingSuccessMessage')
@@ -36,6 +40,15 @@ const Mapping = (
         severity="success"
         message={snackbarMessage}
         onClose={() => setSnackbarOpen(false)}
+      />
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="mappings/index"
+        title="Mappings Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
       />
     </Container>
   )

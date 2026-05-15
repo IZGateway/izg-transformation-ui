@@ -13,6 +13,8 @@ import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
 import Link from 'next/link'
 import AddIcon from '@mui/icons-material/Add'
+import { useSession } from 'next-auth/react'
+import { MAPPING_WRITE_ROLES, hasAnyRole } from '../../lib/rbac'
 
 const dataGridCustom = {
   '&.MuiDataGrid-root.MuiDataGrid-autoHeight.MuiDataGrid-root--densityComfortable':
@@ -87,36 +89,45 @@ const actionButtonStyle = {
   marginRight: 2,
 }
 
-const CustomFooter = () => {
+type CustomFooterProps = {
+  canManageMappings: boolean
+}
+
+const CustomFooter = ({ canManageMappings }: CustomFooterProps) => {
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center">
-      <Link href="/add/mapping" passHref>
-        <Button
-          sx={{
-            borderRadius: '60px',
-            float: 'right',
-            margin: '2em 0',
-            justifyContent: 'center',
-            boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
-            backgroundColor: '#FFFFFF',
-            py: 1.7,
-            px: 3,
-            border: `1px solid ${palette.border}`,
-          }}
-          variant="text"
-          color="primary"
-          endIcon={<AddIcon />}
-        >
-          Add New Mapping
-        </Button>
-      </Link>
+      {canManageMappings && (
+        <Link href="/add/mapping" passHref>
+          <Button
+            sx={{
+              borderRadius: '60px',
+              float: 'right',
+              margin: '2em 0',
+              justifyContent: 'center',
+              boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+              backgroundColor: '#FFFFFF',
+              py: 1.7,
+              px: 3,
+              border: `1px solid ${palette.border}`,
+            }}
+            variant="text"
+            color="primary"
+            endIcon={<AddIcon />}
+          >
+            Add New Mapping
+          </Button>
+        </Link>
+      )}
       <GridFooter />
     </Box>
   )
 }
 
 const MappingTable = (props) => {
+  const { data: session } = useSession()
   const { pageSize, setPageSize } = useContext(SessionContext)
+  const canManageMappings = hasAnyRole(session?.user?.roles, MAPPING_WRITE_ROLES)
+
   const columns: GridColDef[] = [
     {
       field: 'organizationName',
@@ -174,7 +185,10 @@ const MappingTable = (props) => {
         )
       },
     },
-    {
+  ]
+
+  if (canManageMappings) {
+    columns.push({
       field: 'action',
       headerName: 'ACTION',
       sortable: false,
@@ -205,8 +219,8 @@ const MappingTable = (props) => {
           </div>
         )
       },
-    },
-  ]
+    })
+  }
 
   return (
     <div>
@@ -257,7 +271,7 @@ const MappingTable = (props) => {
         density={'comfortable'}
         pagination
         slots={{
-          footer: () => <CustomFooter />,
+          footer: () => <CustomFooter canManageMappings={canManageMappings} />,
         }}
         components={{ Toolbar: GridToolbar }}
         slotProps={{

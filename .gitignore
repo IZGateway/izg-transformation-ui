@@ -29,8 +29,13 @@ yarn-error.log*
 .env.local
 .env
 .env.development.local
+.env.test
 .env.test.local
 .env.production.local
+
+# Playwright
+playwright-report/
+.playwright-auth.json
 
 # typescript
 *.tsbuildinfo

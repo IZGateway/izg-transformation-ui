@@ -16,7 +16,7 @@
     "test": "jest",
     "swagger:generate-doc": "npx next-swagger-doc-cli src/next-swagger-doc.json --output swaggerAPI.json",
     "cypress:open": "cypress open --config-file cypress/config/cypress-dev-config.ts",
-    "capture-screenshots": "node scripts/capture-screenshots.js",
+    "capture-screenshots": "playwright test e2e/tests/capture-screenshots.spec.ts",
     "validate-help-panel": "node scripts/validate-help-panel.js"
   },
   "dependencies": {
@@ -83,6 +83,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",
     "concurrently": "^8.2.2",
+    "dotenv": "^17.4.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.6",
     "eslint-config-prettier": "^9.1.2",
@@ -113,4 +114,3 @@
     "yaml": "^1.10.3"
   }
 }
-

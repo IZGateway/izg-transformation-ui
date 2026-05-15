@@ -17,7 +17,6 @@
     "swagger:generate-doc": "npx next-swagger-doc-cli src/next-swagger-doc.json --output swaggerAPI.json",
     "cypress:open": "cypress open --config-file cypress/config/cypress-dev-config.ts",
     "capture-screenshots": "playwright test e2e/tests/capture-screenshots.spec.ts",
-    "auth-setup": "playwright test e2e/setup/auth.setup.ts --project=setup",
     "validate-help-panel": "node scripts/validate-help-panel.js"
   },
   "dependencies": {

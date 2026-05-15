@@ -1,10 +1,13 @@
 import { Box } from '@mui/material'
 import { InferGetServerSidePropsType } from 'next'
+import { useState } from 'react'
 import Container from '../../../components/Container'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import CreatePipeline from '../../../components/CreatePipeline'
 import AppHeaderBar from '../../../components/AppHeader'
 import Footer from '../../../components/Footer'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
 import PreconditionProvider from '../../../contexts/EditPipeline/preconditionContext'
 import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
@@ -13,6 +16,7 @@ import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePip
 const AddPipeline = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
+  const [helpOpen, setHelpOpen] = useState(false)
   return (
     <Container title="New Pipeline">
       <AppHeaderBar open />
@@ -31,6 +35,15 @@ const AddPipeline = (
         </Box>
       </ErrorBoundary>
       <Footer />
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="pipelines/create-edit"
+        title="Pipeline Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

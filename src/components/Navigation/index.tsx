@@ -2,6 +2,9 @@ import * as React from 'react'
 import NextLink from 'next/link'
 import IZGLogo from './Branding'
 import MuiDrawer from '@mui/material/Drawer'
+import Box from '@mui/material/Box'
+import HelpButton from '../HelpButton'
+import HelpPanel from '../HelpPanel'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { signOut } from 'next-auth/react'
@@ -76,6 +79,7 @@ export type MenuItem = {
 const MiniDrawer = () => {
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [helpOpen, setHelpOpen] = React.useState(false)
 
   const handleClick = () => {
     setOpen(!open)
@@ -178,23 +182,32 @@ const MiniDrawer = () => {
           sx={{ justifyContent: 'space-between', mt: 0, pl: 2, pt: 0, pb: 2 }}
         >
           <IZGLogo />
-          <IconButton
-            onClick={handleClick}
-            name="toggle navigation drawer"
-            aria-label="toggle navigation drawer"
-          >
-            {!open ? (
-              <ChevronRightIcon
-                fontSize="large"
-                sx={{ color: palette.white }}
-              />
-            ) : (
-              <ChevronLeftIcon fontSize="large" sx={{ color: palette.white }} />
-            )}
-          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <HelpButton onClick={() => setHelpOpen(true)} />
+            <IconButton
+              onClick={handleClick}
+              name="toggle navigation drawer"
+              aria-label="toggle navigation drawer"
+            >
+              {!open ? (
+                <ChevronRightIcon
+                  fontSize="large"
+                  sx={{ color: palette.white }}
+                />
+              ) : (
+                <ChevronLeftIcon fontSize="large" sx={{ color: palette.white }} />
+              )}
+            </IconButton>
+          </Box>
         </DrawerHeader>
         <Divider color={palette.primaryLight} />
         {list()}
+        <HelpPanel
+          docPath="navigation"
+          title="Navigation Help"
+          open={helpOpen}
+          onClose={() => setHelpOpen(false)}
+        />
         <Button
           id="logout"
           variant="text"

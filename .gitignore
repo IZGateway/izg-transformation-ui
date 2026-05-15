@@ -1,5 +1,8 @@
 /.next
 
+# Local certificates (never commit)
+/certs/
+
 # Swap the comments on the following lines if you don't wish to use zero-installs
 # Documentation here: https://yarnpkg.com/features/zero-installs
 #!.yarn/cache
@@ -26,8 +29,13 @@ yarn-error.log*
 .env.local
 .env
 .env.development.local
+.env.test
 .env.test.local
 .env.production.local
+
+# Playwright
+playwright-report/
+.playwright-auth.json
 
 # typescript
 *.tsbuildinfo

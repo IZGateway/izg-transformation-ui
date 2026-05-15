@@ -245,7 +245,10 @@ jobs:
       - name: Set release version in package.json
         run: |
           npm pkg set version="${{ inputs.release-version }}"
-          git add package.json
+          # Sync package-lock.json to reflect the new version metadata.
+          # --package-lock-only rewrites the lockfile without installing packages.
+          npm install --package-lock-only --ignore-scripts
+          git add package.json package-lock.json
           if git diff --cached --quiet; then
             echo "package.json already at ${{ inputs.release-version }}, skipping commit"
           else
@@ -456,7 +459,8 @@ jobs:
           if [[ "${{ inputs.release-type }}" == "standard" ]]; then
             NEXT="${{ steps.app-version.outputs.next_version }}"
             npm pkg set version="$NEXT"
-            git add package.json
+            npm install --package-lock-only --ignore-scripts
+            git add package.json package-lock.json
             if git diff --cached --quiet; then
               echo "package.json already at $NEXT, skipping commit"
             else

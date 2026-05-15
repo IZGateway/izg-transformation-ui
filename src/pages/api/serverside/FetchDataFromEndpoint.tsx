@@ -51,6 +51,22 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
     return response.data
   } catch (error) {
     console.error('Error fetching data:', error)
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status
+      const statusText = error.response?.statusText
+      const responseData = error.response?.data
+      const details = responseData
+        ? typeof responseData === 'string'
+          ? responseData
+          : JSON.stringify(responseData)
+        : error.message || error.code || 'No response details'
+
+      throw new Error(
+        `Xform request failed for ${endpoint}${
+          status ? ` (${status}${statusText ? ` ${statusText}` : ''})` : ''
+        }: ${details}`
+      )
+    }
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }
@@ -58,12 +74,21 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
 
 const fetchDataFromEndpoint = async (endpoint: string, request: any) => {
   const token = await getToken({ req: request })
-  if (!token?.sub) {
-    throw new Error('No user ID available')
+  if (!token) {
+    throw new Error('No auth token available')
   }
 
-  const store = getTokenStore()
-  const access_token = store.get(token.sub)
+  let access_token: string | undefined
+
+  if (typeof token.access_token === 'string') {
+    access_token = token.access_token
+  }
+
+  if (!access_token && token.sub) {
+    const store = getTokenStore()
+    access_token = store.get(token.sub)
+  }
+
   if (!access_token) {
     throw new Error('No access token available')
   }

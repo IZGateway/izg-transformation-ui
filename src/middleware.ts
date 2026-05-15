@@ -10,10 +10,14 @@ export default withAuth(
       return NextResponse.next()
     }
 
-    const roles = getRolesFromGroups(req.nextauth.token?.groups)
+    const rolesFromGroups = getRolesFromGroups(req.nextauth.token?.groups)
+    const rolesFromToken = Array.isArray(req.nextauth.token?.roles)
+      ? req.nextauth.token.roles
+      : []
+    const roles = rolesFromGroups.length ? rolesFromGroups : rolesFromToken
 
     if (!canAccessConsole(roles)) {
-      return NextResponse.redirect(new URL('/api/auth/signout?callbackUrl=/', req.url))
+      return NextResponse.redirect(new URL('/api/auth/error?error=AccessDenied', req.url))
     }
 
     if (!canAccessPath(pathname, roles)) {

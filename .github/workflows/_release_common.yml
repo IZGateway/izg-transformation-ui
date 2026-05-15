@@ -540,9 +540,11 @@ jobs:
             CURRENT_SHA=$(git ls-remote origin "refs/heads/${{ inputs.main-branch }}" | cut -f1)
             if [ -n "$CURRENT_SHA" ] && [ "$CURRENT_SHA" != "$PRE_SHA" ]; then
               # Push the pre-merge SHA directly as the branch tip — no local checkout needed.
-              if git push --force origin "${PRE_SHA}:refs/heads/${{ inputs.main-branch }}" 2>/dev/null; then
+              PUSH_ERR=$(git push --force origin "${PRE_SHA}:refs/heads/${{ inputs.main-branch }}" 2>&1)
+              if [ $? -eq 0 ]; then
                 echo "✓ Reverted ${{ inputs.main-branch }} to $PRE_SHA"
               else
+                echo "✗ Force-push failed: $PUSH_ERR"
                 MANUAL_STEPS+=("Revert ${{ inputs.main-branch }}: git push --force origin ${PRE_SHA}:refs/heads/${{ inputs.main-branch }}")
               fi
             fi

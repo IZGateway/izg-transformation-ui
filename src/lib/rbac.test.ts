@@ -1,6 +1,7 @@
 import {
   canAccessConsole,
   canAccessPath,
+  getGroups,
   getRolesFromGroups,
 } from './rbac'
 
@@ -43,5 +44,29 @@ describe('rbac', () => {
     const roles = getRolesFromGroups(['Xform Onboarding Staff'])
 
     expect(canAccessPath('/some-future-route', roles)).toBe(true)
+  })
+
+  it('parses a single group claim provided as string', () => {
+    const groups = getGroups('Xform Administrators')
+    const roles = getRolesFromGroups(groups)
+
+    expect(groups).toEqual(['Xform Administrators'])
+    expect(roles).toContain('admin')
+    expect(canAccessConsole(roles)).toBe(true)
+  })
+
+  it('parses comma-separated group claims provided as string', () => {
+    const groups = getGroups('Xform Onboarding Staff, Xform Sender')
+    const roles = getRolesFromGroups(groups)
+
+    expect(groups).toEqual(['Xform Onboarding Staff', 'Xform Sender'])
+    expect(roles).toEqual(
+      expect.arrayContaining([
+        'pipeline-reader',
+        'solution-reader',
+        'organization-reader',
+        'xform-sender',
+      ])
+    )
   })
 })

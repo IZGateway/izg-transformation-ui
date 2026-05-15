@@ -1,5 +1,7 @@
 # Pipelines
 
+← [Navigation Help](../navigation.md)
+
 The **Manage Pipelines** page (`/manage`) lists all message-transformation pipelines
 configured in the system. A pipeline connects an inbound endpoint to an outbound
 endpoint and applies one or more solutions to messages as they transit.

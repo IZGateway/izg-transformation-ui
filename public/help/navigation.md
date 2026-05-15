@@ -24,9 +24,9 @@ The sidebar contains three navigation items:
 
 | Menu item | Icon | Page |
 |---|---|---|
-| **Manage Pipelines** | Transform (rotated) | `/manage` |
-| **Solutions Creator** | Rule | `/solutions` |
-| **Mapping** | Map | `/mapping` |
+| [**Manage Pipelines**](pipelines/index.md) | Transform (rotated) | `/manage` |
+| [**Solutions Creator**](solutions/index.md) | Rule | `/solutions` |
+| [**Mapping**](mappings/index.md) | Map | `/mapping` |
 
 Click any item to navigate to that section. The active section is highlighted in the
 sidebar.

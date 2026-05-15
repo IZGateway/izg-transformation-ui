@@ -1,5 +1,7 @@
 # Solutions
 
+← [Navigation Help](../navigation.md)
+
 The **Solutions Creator** page (`/solutions`) lists all transformation solutions
 configured in the system. A solution defines the set of operations applied to messages
 as they flow through a pipeline. Solutions must be created before they can be assigned

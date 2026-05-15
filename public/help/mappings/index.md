@@ -1,5 +1,7 @@
 # Mappings
 
+← [Navigation Help](../navigation.md)
+
 The **Mapping** page (`/mapping`) lists all code mappings configured in the system.
 A mapping defines how a code value in one code system translates to a code value in
 another — for example, mapping a source HL7 event code to its FHIR equivalent.

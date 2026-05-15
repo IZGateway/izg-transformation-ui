@@ -1,5 +1,12 @@
 # Release Notes
 
+## [0.102.0] - 2026-05-15
+
+### Changes
+- feat: add release automation workflows ([#212](https://github.com/IZGateway/izg-transformation-ui/pull/212))
+- Release 0.15.0 notes back to develop ([#205](https://github.com/IZGateway/izg-transformation-ui/pull/205))
+
+
 ## [0.100.0] - 2026-05-13
 
 ### Changes

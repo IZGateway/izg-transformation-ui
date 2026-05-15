@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useState } from 'react'
 import PipelinesTable from '../../components/PipelinesTable'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import Container from '../../components/Container'
@@ -6,10 +7,14 @@ import { InferGetServerSidePropsType } from 'next'
 import AppHeaderBar from '../../components/AppHeader'
 import fetchDataFromEndpoint from '../api/serverside/FetchDataFromEndpoint'
 import Footer from '../../components/Footer/index'
+import { Box } from '@mui/material'
+import HelpButton from '../../components/HelpButton'
+import HelpPanel from '../../components/HelpPanel'
 
 const Manage = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
+  const [helpOpen, setHelpOpen] = useState(false)
   return (
     <Container title="Manage Pipelines">
       <AppHeaderBar open />
@@ -17,6 +22,15 @@ const Manage = (
         <PipelinesTable data={props.data} />
       </ErrorBoundary>
       <Footer />
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="pipelines/index"
+        title="Pipelines Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

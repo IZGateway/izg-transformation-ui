@@ -63,7 +63,7 @@ jobs:
       # ── 1. Setup ──────────────────────────────────────────────────────────
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # SSH key allows pushing to protected branches.
           # For test branches (no protection rules), GITHUB_TOKEN would also work,
@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0 # Full history needed for git log + tag discovery
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24.x'
 
@@ -539,13 +539,11 @@ jobs:
           if [ -n "$PRE_SHA" ]; then
             CURRENT_SHA=$(git ls-remote origin "refs/heads/${{ inputs.main-branch }}" | cut -f1)
             if [ -n "$CURRENT_SHA" ] && [ "$CURRENT_SHA" != "$PRE_SHA" ]; then
-              git fetch origin "${{ inputs.main-branch }}" 2>/dev/null || true
-              # Force-create local branch pointing at origin to avoid detached HEAD issues
-              git checkout -B "${{ inputs.main-branch }}" "origin/${{ inputs.main-branch }}" 2>/dev/null || true
-              if git reset --hard "$PRE_SHA" 2>/dev/null && git push --force origin "${{ inputs.main-branch }}" 2>/dev/null; then
+              # Push the pre-merge SHA directly as the branch tip — no local checkout needed.
+              if git push --force origin "${PRE_SHA}:refs/heads/${{ inputs.main-branch }}" 2>/dev/null; then
                 echo "✓ Reverted ${{ inputs.main-branch }} to $PRE_SHA"
               else
-                MANUAL_STEPS+=("Revert ${{ inputs.main-branch }}: git reset --hard $PRE_SHA && git push --force")
+                MANUAL_STEPS+=("Revert ${{ inputs.main-branch }}: git push --force origin ${PRE_SHA}:refs/heads/${{ inputs.main-branch }}")
               fi
             fi
           fi

@@ -1,14 +1,6 @@
 # Standard Release Workflow
-# Trigger this from the 'develop' branch (or ak-test-develop for testing).
+# Trigger this from the 'develop' branch.
 # For hotfix releases from a hotfix/* branch, use hotfix.yml instead.
-#
-# TESTING (without touching develop/main):
-#   gh workflow run release.yml \
-#     --ref ak-test-develop \
-#     -f release-version=0.99.0 \
-#     -f develop-branch=ak-test-develop \
-#     -f main-branch=ak-test-main \
-#     -f dry-run=true
 
 name: Release - Standard
 
@@ -24,17 +16,22 @@ on:
         required: false
         type: string
       develop-branch:
-        description: 'Develop branch name. Default: develop. Override for testing (e.g., ak-test-develop).'
+        description: 'Develop branch name. Default: develop.'
         required: false
         type: string
         default: 'develop'
       main-branch:
-        description: 'Main branch name. Default: main. Override for testing (e.g., ak-test-main).'
+        description: 'Main branch name. Default: main.'
         required: false
         type: string
         default: 'main'
       dry-run:
         description: 'Dry run: build Docker image but skip push, create draft GitHub Release only.'
+        required: false
+        type: boolean
+        default: false
+      skip-aphl:
+        description: 'Skip APHL ECR push only. Useful for testing without APHL credentials.'
         required: false
         type: boolean
         default: false
@@ -55,3 +52,4 @@ jobs:
       develop-branch: ${{ inputs.develop-branch }}
       main-branch: ${{ inputs.main-branch }}
       dry-run: ${{ inputs.dry-run }}
+      skip-aphl: ${{ inputs.skip-aphl }}

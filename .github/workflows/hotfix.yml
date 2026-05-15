@@ -9,15 +9,6 @@
 #        git push -u origin hotfix/0.15.1
 #   2. Developers branch off hotfix/0.15.1, fix the issue, open PRs back to it.
 #   3. Once all fixes are merged, run THIS workflow from hotfix/0.15.1.
-#
-# TESTING (without touching develop/main):
-#   Create:  git checkout ak-test-main && git checkout -b hotfix/test-0.99.1
-#   Trigger: gh workflow run hotfix.yml \
-#              --ref hotfix/test-0.99.1 \
-#              -f release-version=0.99.1 \
-#              -f develop-branch=ak-test-develop \
-#              -f main-branch=ak-test-main \
-#              -f dry-run=true
 
 name: Release - Hotfix
 
@@ -29,17 +20,23 @@ on:
         required: true
         type: string
       develop-branch:
-        description: 'Develop branch name. Default: develop. Override for testing (e.g., ak-test-develop).'
+        description: 'Develop branch name. Default: develop.'
         required: false
         type: string
         default: 'develop'
       main-branch:
-        description: 'Main branch name. Default: main. Override for testing (e.g., ak-test-main).'
+        description: 'Main branch name. Default: main.'
+
         required: false
         type: string
         default: 'main'
       dry-run:
         description: 'Dry run: build Docker image but skip push, create draft GitHub Release only.'
+        required: false
+        type: boolean
+        default: false
+      skip-aphl:
+        description: 'Skip APHL ECR push only. Useful for testing without APHL credentials.'
         required: false
         type: boolean
         default: false
@@ -58,4 +55,5 @@ jobs:
       release-type: hotfix
       develop-branch: ${{ inputs.develop-branch }}
       main-branch: ${{ inputs.main-branch }}
+      skip-aphl: ${{ inputs.skip-aphl }}
       dry-run: ${{ inputs.dry-run }}

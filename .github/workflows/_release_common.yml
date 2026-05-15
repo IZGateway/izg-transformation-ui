@@ -2,10 +2,6 @@
 # Shared logic for both standard and hotfix releases.
 # Do NOT trigger directly — use release.yml or hotfix.yml.
 #
-# For safe testing, pass develop-branch and main-branch overrides
-# (e.g., ak-test-develop / ak-test-main) and set dry-run: true
-# to validate all git + quality steps without pushing Docker images
-# or publishing a real GitHub Release.
 
 name: Release - Common
 
@@ -27,17 +23,22 @@ on:
         type: string
         default: 'standard'
       develop-branch:
-        description: 'Develop branch name. Override for testing (e.g., ak-test-develop).'
+        description: 'Develop branch name. Default: develop.'
         required: false
         type: string
         default: 'develop'
       main-branch:
-        description: 'Main branch name. Override for testing (e.g., ak-test-main).'
+        description: 'Main branch name. Default: main.'
         required: false
         type: string
         default: 'main'
       dry-run:
         description: 'When true: Docker images are built but NOT pushed, GitHub Release is created as draft, APHL push is skipped.'
+        required: false
+        type: boolean
+        default: false
+      skip-aphl:
+        description: 'Skip APHL ECR login and push only. Useful for testing without APHL credentials. Ignored when dry-run is true.'
         required: false
         type: boolean
         default: false
@@ -100,6 +101,7 @@ jobs:
           echo "Develop branch : ${{ inputs.develop-branch }}"
           echo "Main branch    : ${{ inputs.main-branch }}"
           echo "Dry run        : ${{ inputs.dry-run }}"
+          echo "Skip APHL      : ${{ inputs.skip-aphl }}"
           echo "======================================="
 
           # Validate version format (X.Y.Z only, no pre-release suffixes)
@@ -239,8 +241,15 @@ jobs:
       - name: Set release version in package.json
         run: |
           npm pkg set version="${{ inputs.release-version }}"
-          git add package.json
-          git commit -m "chore: prepare release ${{ inputs.release-version }}"
+          # Sync package-lock.json to reflect the new version metadata.
+          # --package-lock-only rewrites the lockfile without installing packages.
+          npm install --package-lock-only --ignore-scripts
+          git add package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo "package.json already at ${{ inputs.release-version }}, skipping commit"
+          else
+            git commit -m "chore: prepare release ${{ inputs.release-version }}"
+          fi
           git push origin "${{ steps.validate.outputs.release_branch }}"
           echo "✓ package.json version set to ${{ inputs.release-version }} and pushed"
 
@@ -259,11 +268,11 @@ jobs:
         continue-on-error: true
 
       - name: Run npm security audit
-        # Hard gate: fails only on critical CVEs. High/moderate are warnings.
+        # Hard gate: fails on high and critical CVEs. Moderate/low are warnings.
         run: |
-          echo "=== npm audit (--audit-level=critical) ==="
-          npm audit --audit-level=critical
-          echo "✓ No critical vulnerabilities found"
+          echo "=== npm audit (--audit-level=high) ==="
+          npm audit --audit-level=high
+          echo "✓ No high or critical vulnerabilities found"
 
       # ── 8. Compute app version ───────────────────────────────────────────
       # Only used for standard releases. Hotfixes do not bump develop.
@@ -309,7 +318,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Configure AWS credentials (APHL ECR)
-        if: inputs.dry-run == false
+        if: inputs.dry-run == false && inputs.skip-aphl == false
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.APHL_AWS_ACCESS_KEY_ID }}
@@ -317,7 +326,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Login to Amazon ECR (APHL)
-        if: inputs.dry-run == false
+        if: inputs.dry-run == false && inputs.skip-aphl == false
         id: login-ecr-aphl
         uses: aws-actions/amazon-ecr-login@v1
 
@@ -340,15 +349,15 @@ jobs:
             } >> "$GITHUB_OUTPUT"
           else
             ECR="${{ steps.login-ecr.outputs.registry }}"
-            APHL_REG="${{ secrets.APHL_ECR_REGISTRY }}"
-            APHL_REPO="${{ secrets.APHL_ECR_REPOSITORY }}"
             {
               echo "tags<<EOF"
               echo "${GHCR_BASE}:${VERSION}"
               echo "${GHCR_BASE}:latest"
               echo "${ECR}/izg-transformation-ui:${VERSION}"
               echo "${ECR}/izg-transformation-ui:latest"
-              echo "${APHL_REG}/${APHL_REPO}:izgw-transf-ui-${VERSION}"
+              if [[ "${{ inputs.skip-aphl }}" != "true" ]]; then
+                echo "${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}:izgw-transf-ui-${VERSION}"
+              fi
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           fi
@@ -446,9 +455,14 @@ jobs:
           if [[ "${{ inputs.release-type }}" == "standard" ]]; then
             NEXT="${{ steps.app-version.outputs.next_version }}"
             npm pkg set version="$NEXT"
-            git add package.json
-            git commit -m "chore: bump version to $NEXT"
-            echo "✓ Version bumped to $NEXT on ${{ inputs.develop-branch }}"
+            npm install --package-lock-only --ignore-scripts
+            git add package.json package-lock.json
+            if git diff --cached --quiet; then
+              echo "package.json already at $NEXT, skipping commit"
+            else
+              git commit -m "chore: bump version to $NEXT"
+              echo "✓ Version bumped to $NEXT on ${{ inputs.develop-branch }}"
+            fi
           else
             echo "Hotfix release — skipping version bump on ${{ inputs.develop-branch }}"
           fi
@@ -472,6 +486,7 @@ jobs:
             echo "| Main branch | \`${{ inputs.main-branch }}\` |"
             echo "| Develop branch | \`${{ inputs.develop-branch }}\` |"
             echo "| Dry run | \`${{ inputs.dry-run }}\` |"
+            echo "| Skip APHL | \`${{ inputs.skip-aphl }}\` |"
             if [[ "${{ inputs.release-type }}" == "standard" ]]; then
               echo "| Next version on develop | \`${{ steps.app-version.outputs.next_version }}\` |"
             fi
@@ -484,7 +499,9 @@ jobs:
               echo "\`\`\`"
               echo "ghcr.io/${{ env.GITHUB_REGISTRY_NAME }}/izg-transformation-ui:${{ inputs.release-version }}"
               echo "${{ steps.login-ecr.outputs.registry }}/izg-transformation-ui:${{ inputs.release-version }}"
-              echo "${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}:izgw-transf-ui-${{ inputs.release-version }}"
+              if [[ "${{ inputs.skip-aphl }}" != "true" ]]; then
+                echo "${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }}:izgw-transf-ui-${{ inputs.release-version }}"
+              fi
               echo "\`\`\`"
             fi
           } >> "$GITHUB_STEP_SUMMARY"

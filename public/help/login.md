@@ -16,7 +16,7 @@ Okta account provisioned by your administrator before you can sign in.
 5. After a successful authentication, Okta redirects you back to the Transformation
    Console and you land on the home page.
 
-![Login screen](../images/login.png)
+![Login screen](images/login.png)
 
 ## Session Handling
 

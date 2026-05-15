@@ -9,7 +9,7 @@ The Transformation Console has a two-panel layout:
 - **Main content area** — displays the active page.
 - **Application header** — a top bar that shows a welcome message with your name.
 
-![Application shell](../images/navigation-shell.png)
+![Application shell](images/navigation-shell.png)
 
 ## Header
 
@@ -31,7 +31,7 @@ The sidebar contains three navigation items:
 Click any item to navigate to that section. The active section is highlighted in the
 sidebar.
 
-![Left navigation](../images/navigation-sidebar.png)
+![Left navigation](images/navigation-sidebar.png)
 
 ## Error Pages
 

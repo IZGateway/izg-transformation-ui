@@ -29,9 +29,10 @@ public/help/
 └── contributing.md           # This file
 ```
 
-Markdown files use **relative paths** for images (e.g., `../images/foo.png`) so they
-render correctly in GitHub and in editors. The HelpPanel component rewrites these paths
-at runtime so they resolve correctly in the browser.
+Markdown files use **relative paths** for images. Top-level files (e.g., `login.md`,
+`navigation.md`) reference images as `images/foo.png`. Files in subdirectories (e.g.,
+`solutions/create-edit.md`) reference images as `../images/foo.png`. This keeps links
+valid both in GitHub and in editors.
 
 ## Editing Content
 
@@ -59,29 +60,23 @@ re-run the capture script to update them.
 
 ### Environment Variables
 
+No credentials are required. The script opens a real browser window and waits for you
+to sign in manually (Okta MFA is supported). Set `XFORM_BASE_URL` to override the
+default target environment:
+
 | Variable | Required | Description |
 |---|---|---|
-| `XFORM_BASE_URL` | Yes | Base URL of the running Xform Console (e.g., `https://xform-test.example.com`) |
-| `XFORM_USERNAME` | Yes | Okta username for an account with access to all sections |
-| `XFORM_PASSWORD` | Yes | Okta password |
+| `XFORM_BASE_URL` | No | Base URL of the Xform Console to screenshot (defaults to the dev environment) |
 
 ### Running the Capture Script
 
 ```bash
-XFORM_BASE_URL=https://xform-test.example.com \
-XFORM_USERNAME=your@email.com \
-XFORM_PASSWORD=yourpassword \
 npm run capture-screenshots
 ```
 
-On Windows (cmd):
-
-```cmd
-set XFORM_BASE_URL=https://xform-test.example.com
-set XFORM_USERNAME=your@email.com
-set XFORM_PASSWORD=yourpassword
-npm run capture-screenshots
-```
+When the browser opens, sign in with your Okta credentials. After a successful login
+you will be redirected to the Pipelines page and the script will capture all screenshots
+automatically. The browser window will close when the script finishes.
 
 The script writes all screenshots to `public/help/images/`. After running, review the
 images and commit them:
@@ -105,7 +100,6 @@ The script captures screenshots of:
 
 | Problem | Solution |
 |---|---|
-| Script exits with "XFORM_BASE_URL is required" | Set the `XFORM_BASE_URL` env var |
-| Login fails (Okta selector not found) | Okta tenant may use a different page layout; update the selectors in `scripts/capture-screenshots.js` |
-| Screenshots show a loading spinner | Increase the `waitForLoadState` timeout or add an explicit `page.waitForSelector` for a stable element |
-| Images are all blank / white | Headless rendering issue; try `headless: false` in the script to debug visually |
+| Login redirect never happens | Check that you completed the Okta MFA challenge; the script waits up to 2 minutes |
+| Screenshots show a loading spinner | A `waitForTimeout` delay may need to be increased for slower environments |
+| Images are all blank / white | Ensure `headless: false` is set in `playwright.config.ts` (required for manual login) |

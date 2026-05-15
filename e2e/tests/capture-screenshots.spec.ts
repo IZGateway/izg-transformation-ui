@@ -34,11 +34,20 @@ test.describe('User guide screenshots', () => {
     await page.waitForURL('**/manage**', { timeout: 120000 })
     console.log('✅ Login detected — capturing screenshots…\n')
 
-    // ── Navigation shell ────────────────────────────────────────────────────
-    await page.goto('/')
+    // ── Navigation shell — drawer expanded ──────────────────────────────────
+    await page.goto('/manage')
     await waitForContent(page)
+    await page.waitForTimeout(1500)
+    await page.getByRole('button', { name: 'toggle navigation drawer' }).click()
+    await page.waitForTimeout(500)
     await shot(page, 'navigation-shell.png')
-    await shot(page, 'navigation-sidebar.png')
+    // Collapse drawer again before sidebar clip
+    await page.getByRole('button', { name: 'toggle navigation drawer' }).click()
+    await page.waitForTimeout(500)
+    // Clip to just the sidebar drawer for the second nav screenshot
+    const sidebar = page.locator('.MuiDrawer-paper').first()
+    await sidebar.screenshot({ path: path.join(OUT_DIR, 'navigation-sidebar.png') })
+    console.log('  ✓ navigation-sidebar.png')
 
     // ── Mappings list ────────────────────────────────────────────────────────
     await page.goto('/mapping')
@@ -50,6 +59,7 @@ test.describe('User guide screenshots', () => {
     if (await firstEditMapping.isVisible().catch(() => false)) {
       await firstEditMapping.click()
       await waitForContent(page)
+      await page.waitForTimeout(2000)
       await shot(page, 'mapping-edit.png')
       await page.goto('/mapping')
       await waitForContent(page)
@@ -70,9 +80,22 @@ test.describe('User guide screenshots', () => {
     if (await firstEditSolution.isVisible().catch(() => false)) {
       await firstEditSolution.click()
       await waitForContent(page)
-      await shot(page, 'solution-info.png')
-      await page.evaluate(() => window.scrollBy(0, 400))
-      await shot(page, 'solution-operations.png')
+      await page.waitForTimeout(2000)
+      // Clip to the SolutionInfo left panel (has data-testid="settings-container")
+      const infoPanel = page.getByTestId('settings-container')
+      await infoPanel.screenshot({ path: path.join(OUT_DIR, 'solution-info.png') })
+      console.log('  ✓ solution-info.png')
+      // Clip to the Operations card — find card containing the Operations heading
+      const opsHeading = page.getByRole('heading', { name: 'Operations', exact: true })
+      const opsCardExists = await opsHeading.isVisible().catch(() => false)
+      if (opsCardExists) {
+        const opsCard = page.locator('.MuiCard-root').filter({ has: opsHeading })
+        await opsCard.screenshot({ path: path.join(OUT_DIR, 'solution-operations.png') })
+        console.log('  ✓ solution-operations.png')
+      } else {
+        // Fallback: viewport screenshot showing the operations area
+        await shot(page, 'solution-operations.png')
+      }
       await page.goto('/solutions')
       await waitForContent(page)
     }
@@ -92,9 +115,12 @@ test.describe('User guide screenshots', () => {
     if (await firstEditPipeline.isVisible().catch(() => false)) {
       await firstEditPipeline.click()
       await waitForContent(page)
+      await page.waitForTimeout(2000)
       await shot(page, 'pipeline-info.png')
-      await page.evaluate(() => window.scrollBy(0, 400))
-      await shot(page, 'pipeline-endpoints.png')
+      // Clip to the Settings card (contains org, input/output endpoints)
+      const pipeSettings = page.getByTestId('settings-container')
+      await pipeSettings.screenshot({ path: path.join(OUT_DIR, 'pipeline-endpoints.png') })
+      console.log('  ✓ pipeline-endpoints.png')
       await page.goto('/manage')
       await waitForContent(page)
     }

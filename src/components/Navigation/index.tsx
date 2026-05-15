@@ -2,6 +2,9 @@ import * as React from 'react'
 import NextLink from 'next/link'
 import IZGLogo from './Branding'
 import MuiDrawer from '@mui/material/Drawer'
+import Box from '@mui/material/Box'
+import HelpButton from '../HelpButton'
+import HelpPanel from '../HelpPanel'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { signOut } from 'next-auth/react'
@@ -76,6 +79,7 @@ export type MenuItem = {
 const MiniDrawer = () => {
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [helpOpen, setHelpOpen] = React.useState(false)
 
   const handleClick = () => {
     setOpen(!open)
@@ -195,6 +199,15 @@ const MiniDrawer = () => {
         </DrawerHeader>
         <Divider color={palette.primaryLight} />
         {list()}
+        <Box sx={{ position: 'absolute', right: 8, bottom: 64, color: palette.white }}>
+          <HelpButton onClick={() => setHelpOpen(true)} />
+        </Box>
+        <HelpPanel
+          docPath="navigation"
+          title="Navigation Help"
+          open={helpOpen}
+          onClose={() => setHelpOpen(false)}
+        />
         <Button
           id="logout"
           variant="text"

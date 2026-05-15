@@ -3,13 +3,16 @@ import Container from '../../../components/Container'
 import { Box } from '@mui/material'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
 import PipelineDataProvider from '../../../contexts/EditPipeline/pipelineDataContext'
 import PreconditionProvider from '../../../contexts/EditPipeline/preconditionContext'
 import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
 import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
 const Edit = (props) => {
+  const [helpOpen, setHelpOpen] = useState(false)
   const router = useRouter()
   const { isReady, query } = router
 
@@ -41,6 +44,15 @@ const Edit = (props) => {
           </div>
         </Box>
       </ErrorBoundary>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="pipelines/create-edit"
+        title="Pipeline Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

@@ -35,6 +35,7 @@ yarn-error.log*
 
 # Playwright
 playwright-report/
+playwright/.auth/
 .playwright-auth.json
 
 # typescript

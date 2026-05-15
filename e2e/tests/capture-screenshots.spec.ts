@@ -1,15 +1,16 @@
 import { test } from '@playwright/test'
-import { loginToOkta } from '../helpers/oktaLogin'
 import * as path from 'path'
 import * as fs from 'fs'
 
 const OUT_DIR = path.resolve(__dirname, '../../public/help/images')
+const AUTH_FILE = path.resolve(__dirname, '../../playwright/.auth/user.json')
 
 test.beforeAll(() => {
-  const requiredVars = ['OKTA_USERNAME', 'OKTA_PASSWORD', 'BASE_URL']
-  const missing = requiredVars.filter((v) => !process.env[v])
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`)
+  if (!fs.existsSync(AUTH_FILE)) {
+    throw new Error(
+      'Saved auth state not found.\n' +
+        'Run "npm run auth-setup" first to log in and save your Okta session.'
+    )
   }
   fs.mkdirSync(OUT_DIR, { recursive: true })
 })
@@ -30,17 +31,13 @@ test.describe('User guide screenshots', () => {
   test.setTimeout(300000)
 
   test('capture all help screenshots', async ({ page }) => {
-    await loginToOkta(page, process.env.OKTA_USERNAME!, process.env.OKTA_PASSWORD!)
-
     console.log('\nCapturing screenshots…')
 
     // ── Login page ──────────────────────────────────────────────────────────
+    // Navigate to the NextAuth sign-in page to capture the login screen.
     await page.goto('/api/auth/signin')
     await waitForContent(page)
     await shot(page, 'login.png')
-
-    // Re-authenticate and land on the app
-    await loginToOkta(page, process.env.OKTA_USERNAME!, process.env.OKTA_PASSWORD!)
 
     // ── Navigation shell ────────────────────────────────────────────────────
     await page.goto('/')

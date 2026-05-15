@@ -28,11 +28,14 @@ export const loginToOkta = async (
     )
   }
 
-  // Navigate to the app root — NextAuth will redirect to Okta if not signed in.
+  // Navigate to the app root — NextAuth will redirect to /api/auth/signin if not signed in.
   await expect(async () => {
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 })
   }).toPass({ timeout: 60000, intervals: [2000] })
 
+  const signInWithOktaButton = page.getByRole('button', {
+    name: /sign in with okta/i,
+  })
   const identifierInput = page.locator(
     'input[name="identifier"], input#okta-signin-username'
   )
@@ -40,11 +43,21 @@ export const loginToOkta = async (
     'input[name="credentials.passcode"], input[name="password"], input#okta-signin-password'
   )
 
-  // If already authenticated (landed on /manage), return immediately.
-  if (page.url().includes('/manage') || page.url().includes('/solutions') || page.url().includes('/mapping')) {
+  // If already authenticated (landed on an app route), return immediately.
+  if (
+    page.url().includes('/manage') ||
+    page.url().includes('/solutions') ||
+    page.url().includes('/mapping')
+  ) {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     return
+  }
+
+  // NextAuth default sign-in page shows "Sign in with Okta" — click it to
+  // be redirected to the Okta hosted login form.
+  if (await signInWithOktaButton.isVisible().catch(() => false)) {
+    await signInWithOktaButton.click()
   }
 
   // Wait for the Okta identifier field.

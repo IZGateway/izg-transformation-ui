@@ -440,7 +440,10 @@ jobs:
           generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Simulate failure for cleanup testing
+        run: |
+          echo "Deliberately failing to test cleanup logic..."
+          exit 1
       # ── 16. Update develop ────────────────────────────────────────────────
       # Merge release notes back into develop. For standard releases, also
       # bump package.json to the next version. For hotfixes, skip the version

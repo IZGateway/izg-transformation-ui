@@ -1,5 +1,14 @@
 # Release Notes
 
+## Release 0.15.0
+
+- IGDD-2532 Xform Console - design and implement ability to add net new Pipelines
+- IGDD-2684 Unify Terminology Management into a Single Interface and Replaceable Implementation
+- IGDD-2685 Xform Console / Xform Service - Add Notes field to Mappings
+- IGDD-2770 IZG CC - JWT tokens being logged, NEXTAUTH_DEBUG not being respected
+- IGDD-2773 Configuration Console and Transformation UI Access Log review
+- IGDD-2774 CC and XForm UI OAuth2 workflow in nextjs applications
+
 ## Release v0.14.2
 
 - Update dependencies and base Docker image

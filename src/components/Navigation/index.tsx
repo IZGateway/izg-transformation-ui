@@ -182,26 +182,26 @@ const MiniDrawer = () => {
           sx={{ justifyContent: 'space-between', mt: 0, pl: 2, pt: 0, pb: 2 }}
         >
           <IZGLogo />
-          <IconButton
-            onClick={handleClick}
-            name="toggle navigation drawer"
-            aria-label="toggle navigation drawer"
-          >
-            {!open ? (
-              <ChevronRightIcon
-                fontSize="large"
-                sx={{ color: palette.white }}
-              />
-            ) : (
-              <ChevronLeftIcon fontSize="large" sx={{ color: palette.white }} />
-            )}
-          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <HelpButton onClick={() => setHelpOpen(true)} />
+            <IconButton
+              onClick={handleClick}
+              name="toggle navigation drawer"
+              aria-label="toggle navigation drawer"
+            >
+              {!open ? (
+                <ChevronRightIcon
+                  fontSize="large"
+                  sx={{ color: palette.white }}
+                />
+              ) : (
+                <ChevronLeftIcon fontSize="large" sx={{ color: palette.white }} />
+              )}
+            </IconButton>
+          </Box>
         </DrawerHeader>
         <Divider color={palette.primaryLight} />
         {list()}
-        <Box sx={{ position: 'absolute', right: 8, bottom: 64, color: palette.white }}>
-          <HelpButton onClick={() => setHelpOpen(true)} />
-        </Box>
         <HelpPanel
           docPath="navigation"
           title="Navigation Help"

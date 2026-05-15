@@ -1,5 +1,7 @@
 # Manage Users
 
+← [Home](index.md)
+
 <!-- TODO: IGDD-2697 -->
 
 > ⚠️ **Coming in a future release.**

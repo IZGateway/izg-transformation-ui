@@ -1,5 +1,7 @@
 # Configuring Operations
 
+← [Solutions](index.md)
+
 Operations define the individual transformation steps applied to messages within a
 solution. Each operation has a **type** and a set of type-specific fields.
 

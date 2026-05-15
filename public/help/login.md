@@ -1,5 +1,7 @@
 # Logging In
 
+← [Home](index.md)
+
 The IZ Gateway Transformation Console uses Okta for authentication. You must have a valid
 Okta account provisioned by your administrator before you can sign in.
 

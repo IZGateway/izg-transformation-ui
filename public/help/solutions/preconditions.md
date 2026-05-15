@@ -1,5 +1,7 @@
 # Preconditions in Solutions
 
+← [Solutions](index.md)
+
 Preconditions are conditional checks attached to a solution. When a precondition is
 configured, the solution's operations are only executed if all preconditions evaluate
 to true for the current message.

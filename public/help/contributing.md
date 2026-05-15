@@ -1,5 +1,7 @@
 # Contributing to the User Guide
 
+← [Home](index.md)
+
 This page explains how to update the user guide content and refresh the screenshots.
 
 ## Guide Structure

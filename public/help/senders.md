@@ -1,5 +1,7 @@
 # Manage Senders
 
+← [Home](index.md)
+
 <!-- TODO: IGDD-2698 -->
 
 > ⚠️ **Coming in a future release.**

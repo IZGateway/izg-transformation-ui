@@ -1,5 +1,7 @@
 # Preconditions in Pipelines
 
+← [Pipelines](index.md)
+
 Pipeline preconditions are conditional checks that determine whether a pipeline
 processes an incoming message. If any precondition fails, the pipeline skips the
 message entirely.

@@ -1,16 +1,10 @@
 import { test } from '@playwright/test'
-import { loginToOkta } from '../helpers/oktaLogin'
 import * as path from 'path'
 import * as fs from 'fs'
 
 const OUT_DIR = path.resolve(__dirname, '../../public/help/images')
 
 test.beforeAll(() => {
-  const requiredVars = ['OKTA_USERNAME', 'OKTA_PASSWORD', 'BASE_URL']
-  const missing = requiredVars.filter((v) => !process.env[v])
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`)
-  }
   fs.mkdirSync(OUT_DIR, { recursive: true })
 })
 
@@ -30,17 +24,15 @@ test.describe('User guide screenshots', () => {
   test.setTimeout(300000)
 
   test('capture all help screenshots', async ({ page }) => {
-    await loginToOkta(page, process.env.OKTA_USERNAME!, process.env.OKTA_PASSWORD!)
-
-    console.log('\nCapturing screenshots…')
-
-    // ── Login page ──────────────────────────────────────────────────────────
-    await page.goto('/api/auth/signin')
-    await waitForContent(page)
+    // ── Login page (before auth) ─────────────────────────────────────────────
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
     await shot(page, 'login.png')
 
-    // Re-authenticate and land on the app
-    await loginToOkta(page, process.env.OKTA_USERNAME!, process.env.OKTA_PASSWORD!)
+    // ── Manual login — browser will open, log in via Okta, then continue ─────
+    console.log('\n⏳ Please log in via Okta in the browser window. Waiting up to 2 minutes…')
+    await page.waitForURL('**/manage**', { timeout: 120000 })
+    console.log('✅ Login detected — capturing screenshots…\n')
 
     // ── Navigation shell ────────────────────────────────────────────────────
     await page.goto('/')

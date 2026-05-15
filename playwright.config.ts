@@ -10,8 +10,8 @@ export default defineConfig({
     timeout: 15000,
   },
   use: {
-    baseURL: process.env.BASE_URL,
-    headless: true,
+    baseURL: process.env.BASE_URL ?? 'https://dev.xform-ui.izgateway.org',
+    headless: false,
     ignoreHTTPSErrors: true,
     viewport: { width: 1440, height: 900 },
     actionTimeout: 20000,

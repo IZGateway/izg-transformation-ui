@@ -439,7 +439,7 @@ jobs:
           prerelease: false
           generate_release_notes: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # ── 16. Update develop ────────────────────────────────────────────────
       # Merge release notes back into develop. For standard releases, also

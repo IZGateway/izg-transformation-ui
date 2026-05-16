@@ -58,13 +58,17 @@ jobs:
     steps:
       # ── 1. Setup ──────────────────────────────────────────────────────────
 
+      - name: Generate Release Automation App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.RELEASE_AUTOMATION_APP_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          # SSH key allows pushing to protected branches.
-          # For test branches (no protection rules), GITHUB_TOKEN would also work,
-          # but using ACTIONS_KEY keeps the workflow identical to production.
-          ssh-key: ${{ secrets.ACTIONS_KEY }}
+          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0 # Full history needed for git log + tag discovery
 
       - name: Set up Node.js
@@ -82,8 +86,8 @@ jobs:
 
       - name: Configure Git identity
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "izg-release-automation[bot]"
+          git config user.email "${{ secrets.RELEASE_AUTOMATION_APP_ID }}+izg-release-automation[bot]@users.noreply.github.com"
 
       # ── 2. Validate ───────────────────────────────────────────────────────
       # All checks run before any side effects (no branches/tags created yet).
@@ -158,9 +162,11 @@ jobs:
 
       - name: Create release branch
         if: inputs.release-type == 'standard'
+        id: create-release-branch
         run: |
           git checkout -b "${{ steps.validate.outputs.release_branch }}"
           git push origin "${{ steps.validate.outputs.release_branch }}"
+          echo "created=true" >> "$GITHUB_OUTPUT"
           echo "✓ Created and pushed ${{ steps.validate.outputs.release_branch }}"
 
       # ── 4. Release notes ──────────────────────────────────────────────────
@@ -396,11 +402,11 @@ jobs:
       # ── 13. Merge to main ─────────────────────────────────────────────────
 
       - name: Merge release branch to main
+        id: merge-main
         run: |
           git fetch origin
           if git ls-remote --exit-code --heads origin "${{ inputs.main-branch }}" > /dev/null 2>&1; then
-            git checkout "${{ inputs.main-branch }}"
-            git reset --hard "origin/${{ inputs.main-branch }}"
+            git checkout -B "${{ inputs.main-branch }}" "origin/${{ inputs.main-branch }}"
           else
             echo "::warning::Branch '${{ inputs.main-branch }}' does not exist — creating it"
             git checkout -b "${{ inputs.main-branch }}"
@@ -410,6 +416,7 @@ jobs:
           git merge --no-ff -X theirs "${{ steps.validate.outputs.release_branch }}" \
             -m "chore: merge ${{ steps.validate.outputs.release_branch }} into ${{ inputs.main-branch }}"
           git push origin "${{ inputs.main-branch }}"
+          echo "merged=true" >> "$GITHUB_OUTPUT"
           echo "✓ Merged to ${{ inputs.main-branch }}"
 
       # ── 14. Create semver tag ─────────────────────────────────────────────
@@ -420,12 +427,14 @@ jobs:
           git tag -a "v${{ inputs.release-version }}" \
             -m "Release ${{ inputs.release-version }}"
           git push origin "v${{ inputs.release-version }}"
+          echo "tagged=true" >> "$GITHUB_OUTPUT"
           echo "✓ Tag v${{ inputs.release-version }} created on ${{ inputs.main-branch }}"
 
       # ── 15. GitHub Release ────────────────────────────────────────────────
       # dry-run creates a draft; real run publishes immediately.
 
       - name: Create GitHub Release
+        id: create-gh-release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ inputs.release-version }}
@@ -435,7 +444,7 @@ jobs:
           prerelease: false
           generate_release_notes: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       # ── 16. Update develop ────────────────────────────────────────────────
       # Merge release notes back into develop. For standard releases, also
@@ -468,6 +477,7 @@ jobs:
           fi
 
           git push origin "${{ inputs.develop-branch }}"
+          echo "updated=true" >> "$GITHUB_OUTPUT"
           echo "✓ ${{ inputs.develop-branch }} updated"
 
       # ── 17. Job summary ───────────────────────────────────────────────────
@@ -507,70 +517,151 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       # ── 18. Cleanup on failure ────────────────────────────────────────────
-      # Runs ONLY when the job fails. Checks what was actually created (using
-      # git ls-remote) and cleans up. Never assumes which steps ran.
+      # Runs ONLY when the job fails. Uses per-step output gates so we only
+      # undo what THIS run actually did — never touches pre-existing state.
+      # Uses `git revert` (forward commit) instead of force-push so it works
+      # with branch protection rules.
 
       - name: Cleanup on failure
         if: failure()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
+          RELEASE_TYPE: ${{ inputs.release-type }}
+          RELEASE_BRANCH: ${{ steps.validate.outputs.release_branch }}
+          DEVELOP_BRANCH: ${{ inputs.develop-branch }}
+          MAIN_BRANCH: ${{ inputs.main-branch }}
+          THIS_RUN_CREATED_RELEASE_BRANCH: ${{ steps.create-release-branch.outputs.created }}
+          THIS_RUN_MERGED_MAIN: ${{ steps.merge-main.outputs.merged }}
+          THIS_RUN_TAGGED: ${{ steps.create-tag.outputs.tagged }}
+          THIS_RUN_UPDATED_DEVELOP: ${{ steps.update-develop.outputs.updated }}
+          THIS_RUN_GH_RELEASE_ID: ${{ steps.create-gh-release.outputs.id }}
         run: |
-          echo "=== Release failed — running cleanup ==="
-          MANUAL_STEPS=()
+          set +e
+          echo "=========================================="
+          echo "Cleanup of failed release"
+          echo "=========================================="
+          echo "Per-run state gates:"
+          echo "  created release branch: ${THIS_RUN_CREATED_RELEASE_BRANCH:-false}"
+          echo "  merged to main:         ${THIS_RUN_MERGED_MAIN:-false}"
+          echo "  tagged:                 ${THIS_RUN_TAGGED:-false}"
+          echo "  updated develop:        ${THIS_RUN_UPDATED_DEVELOP:-false}"
+          echo "  gh release id:          ${THIS_RUN_GH_RELEASE_ID:-<none>}"
+          CLEANUP_WARNINGS=""
+          CLEANUP_SUCCESSES=""
 
-          # 1. Delete semver tag if it was pushed
-          if git ls-remote --exit-code --tags origin "v${{ inputs.release-version }}" > /dev/null 2>&1; then
-            if git push --delete origin "v${{ inputs.release-version }}" 2>/dev/null; then
-              echo "✓ Deleted tag v${{ inputs.release-version }}"
+          # 1. Delete tag ONLY if this run created it.
+          if [[ "$THIS_RUN_TAGGED" == "true" ]]; then
+            if git push origin --delete "v$RELEASE_VERSION"; then
+              CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- Git tag v$RELEASE_VERSION deleted"
             else
-              MANUAL_STEPS+=("Delete tag: git push --delete origin v${{ inputs.release-version }}")
+              CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- Git tag v$RELEASE_VERSION (deletion failed — MANUAL: git push --delete origin v$RELEASE_VERSION)"
             fi
+          else
+            echo "Skip tag deletion: this run did not create v$RELEASE_VERSION"
           fi
 
-          # 2. Revert main branch to pre-merge state (if we actually merged into it)
-          PRE_SHA="${{ steps.pre-merge.outputs.main_sha }}"
-          if [ -n "$PRE_SHA" ]; then
-            CURRENT_SHA=$(git ls-remote origin "refs/heads/${{ inputs.main-branch }}" | cut -f1)
-            if [ -n "$CURRENT_SHA" ] && [ "$CURRENT_SHA" != "$PRE_SHA" ]; then
-              git fetch origin "${{ inputs.main-branch }}" 2>/dev/null || true
-              # Force-create local branch pointing at origin to avoid detached HEAD issues
-              git checkout -B "${{ inputs.main-branch }}" "origin/${{ inputs.main-branch }}" 2>/dev/null || true
-              if git reset --hard "$PRE_SHA" 2>/dev/null && git push --force origin "${{ inputs.main-branch }}" 2>/dev/null; then
-                echo "✓ Reverted ${{ inputs.main-branch }} to $PRE_SHA"
+          # 2. Revert main branch ONLY if this run merged into it.
+          # Uses `git revert` (a new forward commit) instead of force-push so it
+          # works with branch protection rules.
+          if [[ "$THIS_RUN_MERGED_MAIN" == "true" ]]; then
+            git fetch origin "$MAIN_BRANCH"
+            git checkout -B "$MAIN_BRANCH" "origin/$MAIN_BRANCH"
+            LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+            EXPECTED_MSG="chore: merge ${RELEASE_BRANCH} into ${MAIN_BRANCH}"
+            if [[ "$LAST_COMMIT_MSG" == *"$EXPECTED_MSG"* ]]; then
+              # App token has `workflows` permission — plain revert, no workaround needed.
+              if git revert -m 1 HEAD --no-edit; then
+                if git push origin "$MAIN_BRANCH"; then
+                  CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- $MAIN_BRANCH merge reverted"
+                else
+                  CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH push failed — MANUAL CLEANUP REQUIRED"
+                fi
               else
-                MANUAL_STEPS+=("Revert ${{ inputs.main-branch }}: git reset --hard $PRE_SHA && git push --force")
+                git revert --abort 2>/dev/null || true
+                CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH revert had conflicts — MANUAL CLEANUP REQUIRED"
+              fi
+            else
+              CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH revert SKIPPED: HEAD is not our merge commit (something else landed on $MAIN_BRANCH — manual cleanup required)"
+            fi
+          else
+            echo "Skip main revert: this run did not merge to $MAIN_BRANCH"
+          fi
+
+          # 3. Revert develop branch ONLY if this run pushed to it.
+          if [[ "$THIS_RUN_UPDATED_DEVELOP" == "true" ]]; then
+            git fetch origin "$DEVELOP_BRANCH"
+            git checkout -B "$DEVELOP_BRANCH" "origin/$DEVELOP_BRANCH"
+            REVERTED_DEVELOP=true
+            # If standard release bumped the version, revert that commit first.
+            if git log -1 --pretty=%B | grep -q "^chore: bump version to "; then
+              if ! (git revert HEAD --no-edit && git push origin "$DEVELOP_BRANCH"); then
+                CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH version-bump revert failed — MANUAL CLEANUP REQUIRED"
+                REVERTED_DEVELOP=false
               fi
             fi
-          fi
-
-          # 3. Delete release branch (standard releases only)
-          if [[ "${{ inputs.release-type }}" == "standard" ]]; then
-            RELBRANCH="${{ steps.validate.outputs.release_branch }}"
-            if [ -n "$RELBRANCH" ] && git ls-remote --exit-code --heads origin "$RELBRANCH" > /dev/null 2>&1; then
-              if git push --delete origin "$RELBRANCH" 2>/dev/null; then
-                echo "✓ Deleted release branch $RELBRANCH"
+            if [[ "$REVERTED_DEVELOP" == "true" ]]; then
+              LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+              EXPECTED_MSG="chore: merge ${RELEASE_BRANCH} back to ${DEVELOP_BRANCH}"
+              if [[ "$LAST_COMMIT_MSG" == *"$EXPECTED_MSG"* ]]; then
+                if git revert -m 1 HEAD --no-edit; then
+                  if git push origin "$DEVELOP_BRANCH"; then
+                    CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- $DEVELOP_BRANCH merge reverted"
+                  else
+                    CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH push failed — MANUAL CLEANUP REQUIRED"
+                  fi
+                else
+                  git revert --abort 2>/dev/null || true
+                  CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH revert had conflicts — MANUAL CLEANUP REQUIRED"
+                fi
               else
-                MANUAL_STEPS+=("Delete branch: git push --delete origin $RELBRANCH")
+                CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH revert SKIPPED: HEAD is not our merge commit (manual cleanup required)"
               fi
             fi
+          else
+            echo "Skip develop revert: this run did not push to $DEVELOP_BRANCH"
           fi
 
-          # 4. Delete GitHub Release (draft or published)
-          if gh release delete "v${{ inputs.release-version }}" --yes 2>/dev/null; then
-            echo "✓ Deleted GitHub Release v${{ inputs.release-version }}"
+          # 4. Delete release branch ONLY if this run created it (standard releases only).
+          if [[ "$RELEASE_TYPE" == "standard" && "$THIS_RUN_CREATED_RELEASE_BRANCH" == "true" ]]; then
+            if [ -n "$RELEASE_BRANCH" ] && git push origin --delete "$RELEASE_BRANCH"; then
+              CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- Release branch $RELEASE_BRANCH deleted"
+            else
+              CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- Release branch $RELEASE_BRANCH deletion failed — MANUAL: git push --delete origin $RELEASE_BRANCH"
+            fi
+          elif [[ "$RELEASE_TYPE" == "hotfix" ]]; then
+            echo "Hotfix branch kept for investigation: $RELEASE_BRANCH"
+          else
+            echo "Skip release branch deletion: this run did not create it"
           fi
 
-          # Write cleanup summary
+          # 5. Delete GitHub Release ONLY if this run created it.
+          if [[ -n "$THIS_RUN_GH_RELEASE_ID" ]]; then
+            if gh release delete "v$RELEASE_VERSION" --yes; then
+              CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- GitHub Release v$RELEASE_VERSION deleted"
+            else
+              CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- GitHub Release v$RELEASE_VERSION (deletion failed)"
+            fi
+          else
+            echo "Skip GH release deletion: this run did not create v$RELEASE_VERSION"
+          fi
+
           {
             echo "## Release Failed — Cleanup Report"
             echo ""
-            if [ ${#MANUAL_STEPS[@]} -eq 0 ]; then
-              echo "All automatic cleanup steps succeeded."
-            else
-              echo "### Action Required — Manual cleanup needed:"
+            if [ -n "$CLEANUP_SUCCESSES" ]; then
+              echo "### Cleaned up"
+              echo -e "$CLEANUP_SUCCESSES"
               echo ""
-              for step in "${MANUAL_STEPS[@]}"; do
-                echo "- \`$step\`"
-              done
             fi
+            if [ -n "$CLEANUP_WARNINGS" ]; then
+              echo "### Action Required — Manual cleanup needed"
+              echo -e "$CLEANUP_WARNINGS"
+              echo ""
+            fi
+            if [ -z "$CLEANUP_SUCCESSES" ] && [ -z "$CLEANUP_WARNINGS" ]; then
+              echo "Nothing to clean up (failure occurred before any side effects)."
+            fi
+            echo ""
+            echo "_Pushed Docker images (GHCR / ECR / APHL ECR) are NOT deleted by this cleanup. Remove manually if needed._"
           } >> "$GITHUB_STEP_SUMMARY"

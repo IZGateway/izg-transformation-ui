@@ -62,13 +62,17 @@ jobs:
     steps:
       # ── 1. Setup ──────────────────────────────────────────────────────────
 
+      - name: Generate Release Automation App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.RELEASE_AUTOMATION_APP_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          # SSH key allows pushing to protected branches.
-          # For test branches (no protection rules), GITHUB_TOKEN would also work,
-          # but using ACTIONS_KEY keeps the workflow identical to production.
-          ssh-key: ${{ secrets.ACTIONS_KEY }}
+          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0 # Full history needed for git log + tag discovery
 
       - name: Set up Node.js
@@ -86,8 +90,8 @@ jobs:
 
       - name: Configure Git identity
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "izg-release-automation[bot]"
+          git config user.email "${{ secrets.RELEASE_AUTOMATION_APP_ID }}+izg-release-automation[bot]@users.noreply.github.com"
 
       # ── 2. Validate ───────────────────────────────────────────────────────
       # All checks run before any side effects (no branches/tags created yet).
@@ -444,7 +448,7 @@ jobs:
           prerelease: false
           generate_release_notes: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Simulate failure for cleanup testing
         run: |
           echo "Deliberately failing to test cleanup logic..."
@@ -528,7 +532,7 @@ jobs:
       - name: Cleanup on failure
         if: failure()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           RELEASE_VERSION: ${{ inputs.release-version }}
           RELEASE_TYPE: ${{ inputs.release-type }}
           RELEASE_BRANCH: ${{ steps.validate.outputs.release_branch }}
@@ -573,10 +577,16 @@ jobs:
             LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
             EXPECTED_MSG="chore: merge ${RELEASE_BRANCH} into ${MAIN_BRANCH}"
             if [[ "$LAST_COMMIT_MSG" == *"$EXPECTED_MSG"* ]]; then
-              if git revert -m 1 HEAD --no-edit && git push origin "$MAIN_BRANCH"; then
-                CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- $MAIN_BRANCH merge reverted"
+              # App token has `workflows` permission — plain revert, no workaround needed.
+              if git revert -m 1 HEAD --no-edit; then
+                if git push origin "$MAIN_BRANCH"; then
+                  CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- $MAIN_BRANCH merge reverted"
+                else
+                  CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH push failed — MANUAL CLEANUP REQUIRED"
+                fi
               else
-                CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH merge revert failed — MANUAL CLEANUP REQUIRED"
+                git revert --abort 2>/dev/null || true
+                CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH revert had conflicts — MANUAL CLEANUP REQUIRED"
               fi
             else
               CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $MAIN_BRANCH revert SKIPPED: HEAD is not our merge commit (something else landed on $MAIN_BRANCH — manual cleanup required)"
@@ -601,10 +611,15 @@ jobs:
               LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
               EXPECTED_MSG="chore: merge ${RELEASE_BRANCH} back to ${DEVELOP_BRANCH}"
               if [[ "$LAST_COMMIT_MSG" == *"$EXPECTED_MSG"* ]]; then
-                if git revert -m 1 HEAD --no-edit && git push origin "$DEVELOP_BRANCH"; then
-                  CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- $DEVELOP_BRANCH merge reverted"
+                if git revert -m 1 HEAD --no-edit; then
+                  if git push origin "$DEVELOP_BRANCH"; then
+                    CLEANUP_SUCCESSES="$CLEANUP_SUCCESSES\n- $DEVELOP_BRANCH merge reverted"
+                  else
+                    CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH push failed — MANUAL CLEANUP REQUIRED"
+                  fi
                 else
-                  CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH merge revert failed — MANUAL CLEANUP REQUIRED"
+                  git revert --abort 2>/dev/null || true
+                  CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH revert had conflicts — MANUAL CLEANUP REQUIRED"
                 fi
               else
                 CLEANUP_WARNINGS="$CLEANUP_WARNINGS\n- $DEVELOP_BRANCH revert SKIPPED: HEAD is not our merge commit (manual cleanup required)"

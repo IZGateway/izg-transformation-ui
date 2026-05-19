@@ -112,10 +112,10 @@ jobs:
         run: |
           echo "Fixing all security vulnerabilities (updates direct deps + adds overrides)..."
           node node_modules/@izgateway/dependency-scripts/fix-all-vulnerabilities.js
-          # Avoid forcing brace-expansion v5 into eslint's minimatch dependency tree.
+          # Keep brace-expansion v5 overrides for security, but scope an eslint-only
+          # compatibility override to avoid breaking eslint's minimatch dependency tree.
           # eslint/minimatch expects a CJS export and fails with:
           # "TypeError: expand is not a function" when globally overridden to v5.
-          # Keep a secure, compatible minimum override instead.
           node <<'NODE'
           const fs = require('fs');
           const semver = require('semver');
@@ -130,9 +130,16 @@ jobs:
               : null;
           if (minimumVersion && minimumVersion.major === 5) {
             packageJson.overrides = packageJson.overrides || {};
-            packageJson.overrides['brace-expansion'] = '^2.0.2';
+            if (
+              !packageJson.overrides.eslint ||
+              typeof packageJson.overrides.eslint !== 'object' ||
+              Array.isArray(packageJson.overrides.eslint)
+            ) {
+              packageJson.overrides.eslint = {};
+            }
+            packageJson.overrides.eslint['brace-expansion'] = '^2.0.2';
             fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
-            console.log('✓ Normalized brace-expansion override to ^2.0.2 for eslint compatibility');
+            console.log('✓ Added eslint-only brace-expansion override (^2.0.2) for compatibility');
           }
           NODE
           

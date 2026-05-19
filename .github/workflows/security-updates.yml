@@ -124,10 +124,11 @@ jobs:
           const braceExpansionOverride =
             packageJson.overrides && packageJson.overrides['brace-expansion'];
           const minimumVersion =
-            typeof braceExpansionOverride === 'string' && semver.validRange(braceExpansionOverride)
+            typeof braceExpansionOverride === 'string' &&
+            semver.validRange(braceExpansionOverride) !== null
               ? semver.minVersion(braceExpansionOverride)
               : null;
-          if (minimumVersion && typeof minimumVersion.major === 'number' && minimumVersion.major === 5) {
+          if (minimumVersion && minimumVersion.major === 5) {
             packageJson.overrides = packageJson.overrides || {};
             packageJson.overrides['brace-expansion'] = '^2.0.2';
             fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);

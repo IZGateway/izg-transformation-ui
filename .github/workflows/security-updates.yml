@@ -122,8 +122,12 @@ jobs:
           const packagePath = 'package.json';
           const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
           const current = packageJson.overrides && packageJson.overrides['brace-expansion'];
-          const minimumVersion = typeof current === 'string' ? semver.minVersion(current) : null;
+          const minimumVersion =
+            typeof current === 'string' && semver.validRange(current)
+              ? semver.minVersion(current)
+              : null;
           if (minimumVersion && minimumVersion.major === 5) {
+            packageJson.overrides = packageJson.overrides || {};
             packageJson.overrides['brace-expansion'] = '^2.0.2';
             fs.writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
             console.log('✓ Normalized brace-expansion override to ^2.0.2 for eslint compatibility');

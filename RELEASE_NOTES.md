@@ -286,4 +286,3 @@ This was a hotfix to just pull in updated IZG Base Docker Image.
 **Full Changelog**: https://github.com/IZGateway/izg-transformation-ui/compare/v0.2.0...v0.3.0
 
 ---
-

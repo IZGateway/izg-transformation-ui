@@ -1,5 +1,17 @@
 # Release Notes
 
+## Release 0.15.1
+
+- IGDD-2881 CVE-2026-4890 - dnsmasq
+- IGDD-2883 CVE-2026-2291 - dnsmasq
+- IGDD-2884 CVE-2026-4892 - dnsmasq
+- IGDD-2894 CVE-2025-14819 - curl
+- IGDD-2895 CVE-2026-3783 - curl
+- IGDD-2896 CVE-2025-14017 - curl
+- IGDD-2897 CVE-2026-1965 - curl
+- IGDD-2898 CVE-2025-14524 - curl
+- IGDD-2900 CVE-2026-3784 - curl
+
 ## Release 0.15.0
 
 - IGDD-2532 Xform Console - design and implement ability to add net new Pipelines

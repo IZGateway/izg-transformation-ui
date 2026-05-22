@@ -37,6 +37,6 @@ back to the Okta sign-in page automatically — any unsaved work will be lost.
 
 ## Signing Out
 
-Currently the Transformation Console does not expose an explicit sign-out button. To end
-your session, close the browser or navigate away. Your Okta session remains valid; to
-fully sign out, go to your Okta dashboard and sign out there.
+To sign out, click the **Log Out** button at the bottom of the navigation sidebar. This
+ends your Transformation Console session. Your Okta session may remain active; to fully
+sign out of Okta as well, visit your Okta dashboard and sign out there.

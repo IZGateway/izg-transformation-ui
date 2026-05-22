@@ -5,8 +5,12 @@ import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { fetcher } from '../../../components/CreateMapping/utils'
+import { useState } from 'react'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 
 const EditMapping = () => {
+  const [helpOpen, setHelpOpen] = useState(false)
   const router = useRouter()
   const { isReady, query } = router
   const { id } = query
@@ -52,6 +56,15 @@ const EditMapping = () => {
           />
         </Box>
       </ErrorBoundary>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="mappings/create-edit"
+        title="Mapping Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

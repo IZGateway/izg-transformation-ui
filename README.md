@@ -43,3 +43,13 @@ This will start the application on port 80.  The development Okta has redirects 
 ### After start
 
 Navigate to http://localhost:3000 in a browser and you should see the application prompt you for a okta login
+
+## User Guide
+
+A task-based user guide for the Transformation Console is maintained at
+[`public/help/index.md`](public/help/index.md). It covers login, navigation, mappings,
+solutions, and pipelines, with screenshots captured against the test environment.
+
+The guide is also available as in-app help — click the **?** button on any page to open
+the relevant guide section in a side panel.
+

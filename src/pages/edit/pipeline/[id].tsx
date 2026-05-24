@@ -3,19 +3,33 @@ import Container from '../../../components/Container'
 import { Box } from '@mui/material'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
 import PipelineDataProvider from '../../../contexts/EditPipeline/pipelineDataContext'
 import PreconditionProvider from '../../../contexts/EditPipeline/preconditionContext'
 import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
 import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
+import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
+import { isServiceUnavailableError } from '../../../utility/serviceUnavailable'
+
 const Edit = (props) => {
+  const [helpOpen, setHelpOpen] = useState(false)
   const router = useRouter()
   const { isReady, query } = router
 
   useEffect(() => {
     if (!isReady) return
   }, [isReady, query])
+
+  if (props.serviceUnavailable) {
+    return (
+      <Container title="Edit Pipeline">
+        <ServiceUnavailablePage />
+      </Container>
+    )
+  }
 
   return !isReady ? (
     <>Loading....</>
@@ -25,15 +39,15 @@ const Edit = (props) => {
         <Box sx={{ position: 'relative' }}>
           <div>
             <PreconditionProvider
-              preconditionsData={props.preconditionsData}
-              preconditionMethodsData={props.preconditionMethodsData}
+              preconditionsData={props.preconditionsData ?? []}
+              preconditionMethodsData={props.preconditionMethodsData ?? []}
             >
-              <SolutionsDataProvider solutionsData={props.solutionsData.data}>
-                <PipelineDataProvider pipelineData={props.pipelineData}>
+              <SolutionsDataProvider solutionsData={props.solutionsData?.data ?? []}>
+                <PipelineDataProvider pipelineData={props.pipelineData ?? {}}>
                   <UpdatePipelineDataProvider
-                    currentOrder={props.pipelineData.pipes}
+                    currentOrder={props.pipelineData?.pipes ?? []}
                   >
-                    <EditPipeline orgData={props.orgData} />
+                    <EditPipeline orgData={props.orgData ?? {}} />
                   </UpdatePipelineDataProvider>
                 </PipelineDataProvider>
               </SolutionsDataProvider>
@@ -41,6 +55,15 @@ const Edit = (props) => {
           </div>
         </Box>
       </ErrorBoundary>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="pipelines/create-edit"
+        title="Pipeline Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }
@@ -81,6 +104,9 @@ export const getServerSideProps = async (context) => {
     }
   } catch (error) {
     console.error('Error fetching data:', error)
+    if (isServiceUnavailableError(error)) {
+      return { props: { serviceUnavailable: true } }
+    }
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }

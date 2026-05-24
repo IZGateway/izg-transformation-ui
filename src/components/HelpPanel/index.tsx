@@ -47,6 +47,9 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return defaultLinkRenderer(tokens, idx, options, env, self)
 }
 
+const MIN_PANEL_WIDTH = 420
+const MAIN_CONTENT_RESERVE = 400  // px to always leave for nav + main content
+
 interface HelpPanelProps {
   docPath: string  // relative path under /help/, e.g. "pipelines/index"
   title: string
@@ -55,6 +58,7 @@ interface HelpPanelProps {
 }
 
 const HelpPanel = ({ docPath, title, open, onClose }: HelpPanelProps) => {
+  const [panelWidth, setPanelWidth] = React.useState(MIN_PANEL_WIDTH)
   const [currentDocPath, setCurrentDocPath] = React.useState(docPath)
   const [content, setContent] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
@@ -96,9 +100,40 @@ const HelpPanel = ({ docPath, title, open, onClose }: HelpPanelProps) => {
     }
   }
 
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const startX = e.clientX
+    const startWidth = panelWidth
+    const onMouseMove = (ev: MouseEvent) => {
+      const maxWidth = window.innerWidth - MAIN_CONTENT_RESERVE
+      const newWidth = Math.min(Math.max(startWidth + (startX - ev.clientX), MIN_PANEL_WIDTH), maxWidth)
+      setPanelWidth(newWidth)
+    }
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }
+
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-      <Box sx={{ width: 420, p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box sx={{ width: panelWidth, minWidth: MIN_PANEL_WIDTH, position: 'relative', p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
+        {/* Drag handle on left edge to resize the panel */}
+        <Box
+          onMouseDown={handleResizeMouseDown}
+          sx={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 6,
+            cursor: 'ew-resize',
+            zIndex: 1,
+            '&:hover': { bgcolor: 'action.hover' },
+          }}
+        />
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="h6">{title}</Typography>
           <IconButton aria-label="Close help panel" onClick={onClose}>

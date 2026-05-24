@@ -4,8 +4,12 @@ import { Box } from '@mui/material'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import useSWR from 'swr'
 import { fetcher } from '../../../components/CreateMapping/utils'
+import { useState } from 'react'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 
 const AddMapping = () => {
+  const [helpOpen, setHelpOpen] = useState(false)
   const { data: organizationsData, isLoading: isLoadingOrgs } = useSWR(
     `/api/organizations`,
     fetcher
@@ -33,6 +37,15 @@ const AddMapping = () => {
           />
         </Box>
       </ErrorBoundary>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="mappings/create-edit"
+        title="Mapping Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

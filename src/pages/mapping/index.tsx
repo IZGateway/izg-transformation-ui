@@ -11,6 +11,8 @@ import CustomSnackbar from '../../components/SnackBar'
 import { Box } from '@mui/material'
 import HelpButton from '../../components/HelpButton'
 import HelpPanel from '../../components/HelpPanel'
+import ServiceUnavailablePage from '../../components/ServiceUnavailablePage'
+import { isServiceUnavailableError } from '../../utility/serviceUnavailable'
 
 const Mapping = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -28,11 +30,21 @@ const Mapping = (
     }
   }, [])
 
+  if (props.serviceUnavailable) {
+    return (
+      <Container title="Manage Mappings">
+        <AppHeaderBar open />
+        <ServiceUnavailablePage />
+        <Footer />
+      </Container>
+    )
+  }
+
   return (
     <Container title="Manage Mappings">
       <AppHeaderBar open />
       <ErrorBoundary>
-        <MappingTable data={props.data} />
+        <MappingTable data={props.data ?? []} />
       </ErrorBoundary>
       <Footer />
       <CustomSnackbar
@@ -74,7 +86,11 @@ export const getServerSideProps = async (context: any) => {
     return { props: { data: combinedData } }
   } catch (error) {
     console.error('Error fetching data:', error)
-    throw new Error(error)
+    if (isServiceUnavailableError(error)) {
+      return { props: { serviceUnavailable: true } }
+    }
+    if (error instanceof Error) throw error
+    throw new Error(String(error))
   }
 }
 

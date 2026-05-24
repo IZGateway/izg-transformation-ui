@@ -10,16 +10,30 @@ import SolutionsTable from '../../components/SolutionsTable'
 import { Box } from '@mui/material'
 import HelpButton from '../../components/HelpButton'
 import HelpPanel from '../../components/HelpPanel'
+import ServiceUnavailablePage from '../../components/ServiceUnavailablePage'
+import { isServiceUnavailableError } from '../../utility/serviceUnavailable'
 
 const Solutions = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
   const [helpOpen, setHelpOpen] = useState(false)
+
+  if (props.serviceUnavailable) {
+    return (
+      <Container title="Solutions Creator">
+        <AppHeaderBar open />
+        <ServiceUnavailablePage />
+        <Footer />
+      </Container>
+    )
+  }
+
+
   return (
     <Container title="Solutions Creator">
       <AppHeaderBar open />
       <ErrorBoundary>
-        <SolutionsTable data={props.data} />
+        <SolutionsTable data={props.data ?? []} />
       </ErrorBoundary>
       <Footer />
       <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
@@ -48,6 +62,9 @@ export const getServerSideProps = async (context) => {
     return { props: { data: organizationsData } }
   } catch (error) {
     console.error('Error fetching data:', error)
+    if (isServiceUnavailableError(error)) {
+      return { props: { serviceUnavailable: true } }
+    }
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }

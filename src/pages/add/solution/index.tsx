@@ -7,28 +7,33 @@ import { fetcher } from '../../../components/CreateSolution/utils'
 import { useState } from 'react'
 import HelpButton from '../../../components/HelpButton'
 import HelpPanel from '../../../components/HelpPanel'
+import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
 
 const AddSolution = () => {
   const [helpOpen, setHelpOpen] = useState(false)
-  const { data: preconditionsData, isLoading: isLoadingPreconditions } = useSWR(
+  const { data: preconditionsData, isLoading: isLoadingPreconditions, error: errorPreconditions } = useSWR(
     `/api/preconditions/fields`,
     fetcher
   )
 
-  const { data: preconditionMethodsData } = useSWR(
+  const { data: preconditionMethodsData, error: errorPreconditionMethods } = useSWR(
     `/api/preconditions/available`,
     fetcher
   )
 
-  const { data: operationTypeData } = useSWR(
+  const { data: operationTypeData, error: errorOperationType } = useSWR(
     `/api/operations/available`,
     fetcher
   )
 
-  const { data: operationFieldsData } = useSWR(
+  const { data: operationFieldsData, error: errorOperationFields } = useSWR(
     `/api/operations/fields`,
     fetcher
   )
+
+  const fetchError = errorPreconditions || errorPreconditionMethods || errorOperationType || errorOperationFields
+
+  if (fetchError) return <Container title="Add Solution"><ServiceUnavailablePage /></Container>
 
   const isLoading =
     isLoadingPreconditions ||

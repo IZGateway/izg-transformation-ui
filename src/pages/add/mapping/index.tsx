@@ -7,14 +7,16 @@ import { fetcher } from '../../../components/CreateMapping/utils'
 import { useState } from 'react'
 import HelpButton from '../../../components/HelpButton'
 import HelpPanel from '../../../components/HelpPanel'
+import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
 
 const AddMapping = () => {
   const [helpOpen, setHelpOpen] = useState(false)
-  const { data: organizationsData, isLoading: isLoadingOrgs } = useSWR(
+  const { data: organizationsData, isLoading: isLoadingOrgs, error: errorOrgs } = useSWR(
     `/api/organizations`,
     fetcher
   )
 
+  if (errorOrgs) return <Container title="Add Mapping"><ServiceUnavailablePage /></Container>
   if (isLoadingOrgs) return <>Loading...</>
 
   return (

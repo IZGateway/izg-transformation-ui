@@ -8,6 +8,7 @@ import { fetcher } from '../../../components/CreateMapping/utils'
 import { useState } from 'react'
 import HelpButton from '../../../components/HelpButton'
 import HelpPanel from '../../../components/HelpPanel'
+import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
 
 const EditMapping = () => {
   const [helpOpen, setHelpOpen] = useState(false)
@@ -19,12 +20,17 @@ const EditMapping = () => {
     data: mappingData,
     isLoading: isLoadingMapping,
     mutate: mutateMappingData,
+    error: errorMapping,
   } = useSWR(isReady ? `/api/mappings/${id}` : null, fetcher)
 
-  const { data: organizationsData, isLoading: isLoadingOrgs } = useSWR(
+  const { data: organizationsData, isLoading: isLoadingOrgs, error: errorOrgs } = useSWR(
     `/api/organizations`,
     fetcher
   )
+
+  const fetchError = errorMapping || errorOrgs
+
+  if (fetchError) return <Container title="Edit Mapping"><ServiceUnavailablePage /></Container>
 
   if (!isReady || isLoadingMapping || !mappingData || isLoadingOrgs)
     return <>Loading...</>

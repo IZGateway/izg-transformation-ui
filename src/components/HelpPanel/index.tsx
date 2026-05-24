@@ -49,6 +49,8 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
 
 const MIN_PANEL_WIDTH = 420
 const MAIN_CONTENT_RESERVE = 400  // px to always leave for nav + main content
+const KEYBOARD_STEP = 20
+const KEYBOARD_STEP_LARGE = 100  // Shift+Arrow
 
 interface HelpPanelProps {
   docPath: string  // relative path under /help/, e.g. "pipelines/index"
@@ -100,14 +102,15 @@ const HelpPanel = ({ docPath, title, open, onClose }: HelpPanelProps) => {
     }
   }
 
+  const clampWidth = (w: number) =>
+    Math.min(Math.max(w, MIN_PANEL_WIDTH), window.innerWidth - MAIN_CONTENT_RESERVE)
+
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
     const startX = e.clientX
     const startWidth = panelWidth
     const onMouseMove = (ev: MouseEvent) => {
-      const maxWidth = window.innerWidth - MAIN_CONTENT_RESERVE
-      const newWidth = Math.min(Math.max(startWidth + (startX - ev.clientX), MIN_PANEL_WIDTH), maxWidth)
-      setPanelWidth(newWidth)
+      setPanelWidth(clampWidth(startWidth + (startX - ev.clientX)))
     }
     const onMouseUp = () => {
       document.removeEventListener('mousemove', onMouseMove)
@@ -117,12 +120,39 @@ const HelpPanel = ({ docPath, title, open, onClose }: HelpPanelProps) => {
     document.addEventListener('mouseup', onMouseUp)
   }
 
+  const handleResizeKeyDown = (e: React.KeyboardEvent) => {
+    const step = e.shiftKey ? KEYBOARD_STEP_LARGE : KEYBOARD_STEP
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      setPanelWidth(prev => clampWidth(prev + step))
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      setPanelWidth(prev => clampWidth(prev - step))
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      setPanelWidth(MIN_PANEL_WIDTH)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      setPanelWidth(window.innerWidth - MAIN_CONTENT_RESERVE)
+    }
+  }
+
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
       <Box sx={{ width: panelWidth, minWidth: MIN_PANEL_WIDTH, position: 'relative', p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-        {/* Drag handle on left edge to resize the panel */}
+        {/* Drag handle on left edge to resize the panel.
+            role="separator" makes this a keyboard-operable splitter (ARIA 1.1).
+            ArrowLeft/Right to resize; Shift+Arrow for larger steps; Home/End for min/max. */}
         <Box
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize help panel"
+          aria-valuenow={panelWidth}
+          aria-valuemin={MIN_PANEL_WIDTH}
+          aria-valuemax={typeof window !== 'undefined' ? window.innerWidth - MAIN_CONTENT_RESERVE : 1024}
+          tabIndex={0}
           onMouseDown={handleResizeMouseDown}
+          onKeyDown={handleResizeKeyDown}
           sx={{
             position: 'absolute',
             left: 0,
@@ -132,6 +162,11 @@ const HelpPanel = ({ docPath, title, open, onClose }: HelpPanelProps) => {
             cursor: 'ew-resize',
             zIndex: 1,
             '&:hover': { bgcolor: 'action.hover' },
+            '&:focus-visible': {
+              outline: '2px solid',
+              outlineColor: 'primary.main',
+              outlineOffset: '1px',
+            },
           }}
         />
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>

@@ -1,36 +1,63 @@
 import { Box } from '@mui/material'
 import { InferGetServerSidePropsType } from 'next'
+import { useState } from 'react'
 import Container from '../../../components/Container'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import CreatePipeline from '../../../components/CreatePipeline'
 import AppHeaderBar from '../../../components/AppHeader'
 import Footer from '../../../components/Footer'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 import fetchDataFromEndpoint from '../../api/serverside/FetchDataFromEndpoint'
 import PreconditionProvider from '../../../contexts/EditPipeline/preconditionContext'
 import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataContext'
 import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
+import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
+import { isServiceUnavailableError } from '../../../utility/serviceUnavailable'
 
 const AddPipeline = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
+  const [helpOpen, setHelpOpen] = useState(false)
+
+  if (props.serviceUnavailable) {
+    return (
+      <Container title="New Pipeline">
+        <AppHeaderBar open />
+        <ServiceUnavailablePage />
+        <Footer />
+      </Container>
+    )
+  }
+
+
   return (
     <Container title="New Pipeline">
       <AppHeaderBar open />
       <ErrorBoundary>
         <Box sx={{ position: 'relative' }}>
           <PreconditionProvider
-            preconditionsData={props.preconditionsData}
-            preconditionMethodsData={props.preconditionMethodsData}
+            preconditionsData={props.preconditionsData ?? []}
+            preconditionMethodsData={props.preconditionMethodsData ?? []}
           >
-            <SolutionsDataProvider solutionsData={props.solutionsData.data}>
+            <SolutionsDataProvider solutionsData={props.solutionsData?.data ?? []}>
               <UpdatePipelineDataProvider currentOrder={[]}>
-                <CreatePipeline organizations={props.organizationsData} />
+                <CreatePipeline organizations={props.organizationsData ?? []} />
               </UpdatePipelineDataProvider>
             </SolutionsDataProvider>
           </PreconditionProvider>
         </Box>
       </ErrorBoundary>
       <Footer />
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="pipelines/create-edit"
+        title="Pipeline Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }
@@ -68,6 +95,9 @@ export const getServerSideProps = async (context) => {
     }
   } catch (error) {
     console.error('Error fetching data for new pipeline page:', error)
+    if (isServiceUnavailableError(error)) {
+      return { props: { serviceUnavailable: true } }
+    }
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }

@@ -4,6 +4,10 @@ import axios from 'axios'
 import https from 'https'
 import { getToken } from 'next-auth/jwt'
 import { getTokenStore } from '../../../lib/tokenStore'
+import {
+  ServiceUnavailableError,
+  isServiceUnavailableError,
+} from '../../../utility/serviceUnavailable'
 
 const fetchWithToken = async (endpoint: string, access_token: unknown) => {
   if (typeof access_token !== 'string') {
@@ -51,6 +55,11 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
     return response.data
   } catch (error) {
     console.error('Error fetching data:', error)
+    if (isServiceUnavailableError(error)) {
+      throw new ServiceUnavailableError(
+        error instanceof Error ? error.message : undefined
+      )
+    }
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }

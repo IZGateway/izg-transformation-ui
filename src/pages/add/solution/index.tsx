@@ -4,8 +4,12 @@ import { Box } from '@mui/material'
 import ErrorBoundary from '../../../components/ErrorBoundary'
 import useSWR from 'swr'
 import { fetcher } from '../../../components/CreateSolution/utils'
+import { useState } from 'react'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
 
 const AddSolution = () => {
+  const [helpOpen, setHelpOpen] = useState(false)
   const { data: preconditionsData, isLoading: isLoadingPreconditions } = useSWR(
     `/api/preconditions/fields`,
     fetcher
@@ -55,6 +59,15 @@ const AddSolution = () => {
           />
         </Box>
       </ErrorBoundary>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="solutions/create-edit"
+        title="Solution Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

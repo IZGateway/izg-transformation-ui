@@ -28,8 +28,8 @@ md.renderer.rules.image = (tokens, idx, options, env, self) => {
   return defaultImageRenderer(tokens, idx, options, env, self)
 }
 
-// Rewrite relative link href attributes to absolute /help/ paths so in-panel
-// navigation works regardless of which app page the HelpPanel is opened on.
+// Rewrite relative link href attributes to absolute /help/ paths, resolved
+// relative to the current doc's directory (passed via md.render env.docPath).
 const defaultLinkRenderer = md.renderer.rules.link_open ??
   function(tokens: any, idx: any, options: any, env: any, self: any) {
     return self.renderToken(tokens, idx, options)
@@ -40,8 +40,12 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   if (hrefIdx >= 0) {
     const href = token.attrs[hrefIdx][1]
     if (!href.startsWith('http') && !href.startsWith('/') && !href.startsWith('#') && !href.startsWith('mailto:')) {
-      // Convert e.g. "pipelines/index.md" → "/help/pipelines/index.md"
-      token.attrs[hrefIdx][1] = `/help/${href.replace(/^(\.\.\/)+/, '')}`
+      // Resolve relative to the current doc's directory using URL resolution.
+      // env.docPath is e.g. "pipelines/index", so its dir is "pipelines/".
+      const docPath: string = env?.docPath ?? ''
+      const dir = docPath.substring(0, docPath.lastIndexOf('/') + 1)
+      const base = new URL(`/help/${dir}`, 'http://x')
+      token.attrs[hrefIdx][1] = new URL(href, base).pathname
     }
   }
   return defaultLinkRenderer(tokens, idx, options, env, self)
@@ -83,7 +87,7 @@ const HelpPanel = ({ docPath, title, open, onClose }: HelpPanelProps) => {
         return res.text()
       })
       .then((text) => {
-        setContent(md.render(text))
+        setContent(md.render(text, { docPath: currentDocPath }))
         setLoading(false)
       })
       .catch(() => {

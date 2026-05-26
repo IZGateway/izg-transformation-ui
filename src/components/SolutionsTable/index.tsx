@@ -15,6 +15,8 @@ import palette from '../../styles/theme/palette'
 import EditIcon from '@mui/icons-material/Edit'
 import Link from 'next/link'
 import AddIcon from '@mui/icons-material/Add'
+import { useSession } from 'next-auth/react'
+import { SOLUTION_WRITE_ROLES, hasAnyRole } from '../../lib/rbac'
 
 const dataGridCustom = {
   '&.MuiDataGrid-root.MuiDataGrid-autoHeight.MuiDataGrid-root--densityComfortable':
@@ -89,35 +91,44 @@ const actionButtonStyle = {
   marginRight: 2,
 }
 
-const CustomFooter = () => {
+type CustomFooterProps = {
+  canManageSolutions: boolean
+}
+
+const CustomFooter = ({ canManageSolutions }: CustomFooterProps) => {
   return (
     <Box display="flex" justifyContent="space-between" alignItems="center">
-      <Link href="/add/solution" passHref>
-        <Button
-          sx={{
-            borderRadius: '60px',
-            float: 'right',
-            margin: '2em 0',
-            justifyContent: 'center',
-            boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
-            backgroundColor: '#FFFFFF',
-            py: 1.7,
-            px: 3,
-            border: `1px solid ${palette.border}`,
-          }}
-          variant="text"
-          color="primary"
-          endIcon={<AddIcon />}
-        >
-          Add Solution
-        </Button>
-      </Link>
+      {canManageSolutions && (
+        <Link href="/add/solution" passHref>
+          <Button
+            sx={{
+              borderRadius: '60px',
+              float: 'right',
+              margin: '2em 0',
+              justifyContent: 'center',
+              boxShadow: '0px 3px 5px rgba(0, 0, 0, 0.25)',
+              backgroundColor: '#FFFFFF',
+              py: 1.7,
+              px: 3,
+              border: `1px solid ${palette.border}`,
+            }}
+            variant="text"
+            color="primary"
+            endIcon={<AddIcon />}
+          >
+            Add Solution
+          </Button>
+        </Link>
+      )}
       <GridFooter />
     </Box>
   )
 }
 const SolutionsTable = (props) => {
+  const { data: session } = useSession()
   const { pageSize, setPageSize } = useContext(SessionContext)
+  const canManageSolutions = hasAnyRole(session?.user?.roles, SOLUTION_WRITE_ROLES)
+
   const ToggleCell = ({ value, rowId }) => {
     const [isActive, setIsActive] = useState(value)
 
@@ -191,10 +202,17 @@ const SolutionsTable = (props) => {
       flex: 0.5,
       maxWidth: 250,
       renderCell: (params) => (
-        <ToggleCell value={params.value} rowId={params.row.id} />
+        canManageSolutions ? (
+          <ToggleCell value={params.value} rowId={params.row.id} />
+        ) : (
+          <Typography variant="body2">{params.value ? 'True' : 'False'}</Typography>
+        )
       ),
     },
-    {
+  ]
+
+  if (canManageSolutions) {
+    columns.push({
       field: 'action',
       headerName: 'ACTION(S)',
       sortable: false,
@@ -225,8 +243,8 @@ const SolutionsTable = (props) => {
           </div>
         )
       },
-    },
-  ]
+    })
+  }
 
   return (
     <div>
@@ -277,7 +295,7 @@ const SolutionsTable = (props) => {
         density={'comfortable'}
         pagination
         slots={{
-          footer: () => <CustomFooter />,
+          footer: () => <CustomFooter canManageSolutions={canManageSolutions} />,
         }}
         components={{ Toolbar: GridToolbar }}
         slotProps={{

@@ -5,8 +5,13 @@ import ErrorBoundary from '../../../components/ErrorBoundary'
 import { useRouter } from 'next/router'
 import useSWR from 'swr'
 import { fetcher } from '../../../components/CreateMapping/utils'
+import { useState } from 'react'
+import HelpButton from '../../../components/HelpButton'
+import HelpPanel from '../../../components/HelpPanel'
+import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
 
 const EditMapping = () => {
+  const [helpOpen, setHelpOpen] = useState(false)
   const router = useRouter()
   const { isReady, query } = router
   const { id } = query
@@ -15,12 +20,17 @@ const EditMapping = () => {
     data: mappingData,
     isLoading: isLoadingMapping,
     mutate: mutateMappingData,
+    error: errorMapping,
   } = useSWR(isReady ? `/api/mappings/${id}` : null, fetcher)
 
-  const { data: organizationsData, isLoading: isLoadingOrgs } = useSWR(
+  const { data: organizationsData, isLoading: isLoadingOrgs, error: errorOrgs } = useSWR(
     `/api/organizations`,
     fetcher
   )
+
+  const fetchError = errorMapping || errorOrgs
+
+  if (fetchError) return <Container title="Edit Mapping"><ServiceUnavailablePage /></Container>
 
   if (!isReady || isLoadingMapping || !mappingData || isLoadingOrgs)
     return <>Loading...</>
@@ -52,6 +62,15 @@ const EditMapping = () => {
           />
         </Box>
       </ErrorBoundary>
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="mappings/create-edit"
+        title="Mapping Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </Container>
   )
 }

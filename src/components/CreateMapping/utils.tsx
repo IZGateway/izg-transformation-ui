@@ -7,4 +7,7 @@ export function isFormChanged(current, initial) {
 export const fetcher = (url: string) =>
   fetch(url, {
     credentials: 'include',
-  }).then((res) => res.json())
+  }).then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return res.json()
+  })

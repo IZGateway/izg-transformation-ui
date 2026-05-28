@@ -1,5 +1,9 @@
 # Release Notes
 
+## Release 0.15.2
+
+- Update dependencies and base Docker image
+
 ## Release 0.15.1
 
 - IGDD-2881 CVE-2026-4890 - dnsmasq

@@ -8,12 +8,18 @@ import Footer from '../../components/Footer/index'
 import MappingTable from '../../components/MappingTable'
 import { useEffect, useState } from 'react'
 import CustomSnackbar from '../../components/SnackBar'
+import { Box } from '@mui/material'
+import HelpButton from '../../components/HelpButton'
+import HelpPanel from '../../components/HelpPanel'
+import ServiceUnavailablePage from '../../components/ServiceUnavailablePage'
+import { isServiceUnavailableError } from '../../utility/serviceUnavailable'
 
 const Mapping = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
+  const [helpOpen, setHelpOpen] = useState(false)
 
   useEffect(() => {
     const msg = sessionStorage.getItem('mappingSuccessMessage')
@@ -24,11 +30,21 @@ const Mapping = (
     }
   }, [])
 
+  if (props.serviceUnavailable) {
+    return (
+      <Container title="Manage Mappings">
+        <AppHeaderBar open />
+        <ServiceUnavailablePage />
+        <Footer />
+      </Container>
+    )
+  }
+
   return (
     <Container title="Manage Mappings">
       <AppHeaderBar open />
       <ErrorBoundary>
-        <MappingTable data={props.data} />
+        <MappingTable data={props.data ?? []} />
       </ErrorBoundary>
       <Footer />
       <CustomSnackbar
@@ -36,6 +52,15 @@ const Mapping = (
         severity="success"
         message={snackbarMessage}
         onClose={() => setSnackbarOpen(false)}
+      />
+      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1200 }}>
+        <HelpButton onClick={() => setHelpOpen(true)} />
+      </Box>
+      <HelpPanel
+        docPath="mappings/index"
+        title="Mappings Help"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
       />
     </Container>
   )
@@ -61,7 +86,11 @@ export const getServerSideProps = async (context: any) => {
     return { props: { data: combinedData } }
   } catch (error) {
     console.error('Error fetching data:', error)
-    throw new Error(error)
+    if (isServiceUnavailableError(error)) {
+      return { props: { serviceUnavailable: true } }
+    }
+    if (error instanceof Error) throw error
+    throw new Error(String(error))
   }
 }
 

@@ -33,6 +33,13 @@ jest.mock('@mui/x-data-grid', () => {
   }
 })
 
+jest.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: { user: { roles: ['pipeline-writer'] } },
+    status: 'authenticated',
+  }),
+}))
+
 jest.mock('next/link', () => {
   return ({ children }: { children: React.ReactNode }) => <>{children}</>
 })

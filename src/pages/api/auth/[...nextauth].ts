@@ -42,10 +42,9 @@ export const authOptions = {
 
       // Do not hard-deny in signIn callback because group claims can be absent or partial here.
       // Middleware enforces RBAC after JWT callback enriches token claims.
-      logger.info('SIGN IN CONTINUING: pre-jwt role snapshot', {
+      logger.debug('SIGN IN CONTINUING: pre-jwt role snapshot', {
         email: params?.user?.email,
         groupsPresent: groups.length > 0,
-        groups,
         roles,
         consoleAccess: canAccessConsole(roles),
       })
@@ -62,9 +61,7 @@ export const authOptions = {
         user: {
           name: session.user.name,
           email: session.user.email,
-          isAdmin:
-            token?.groups?.includes(process.env.OPERATIONS_GROUP) ||
-            roles.includes('admin'),
+          isAdmin: roles.includes('admin'),
           jurisdictions: token?.jurisdictions || [],
           groups,
           roles,

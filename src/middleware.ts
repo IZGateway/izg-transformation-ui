@@ -6,10 +6,6 @@ export default withAuth(
   function middleware(req) {
     const pathname = req.nextUrl.pathname
 
-    if (pathname.startsWith('/api')) {
-      return NextResponse.next()
-    }
-
     const rolesFromGroups = getRolesFromGroups(req.nextauth.token?.groups)
     const rolesFromToken = Array.isArray(req.nextauth.token?.roles)
       ? req.nextauth.token.roles
@@ -20,8 +16,8 @@ export default withAuth(
       return NextResponse.redirect(new URL('/api/auth/error?error=AccessDenied', req.url))
     }
 
-    if (!canAccessPath(pathname, roles)) {
-      return NextResponse.redirect(new URL('/404', req.url))
+    if (!pathname.startsWith('/api') && !canAccessPath(pathname, roles)) {
+      return NextResponse.redirect(new URL('/api/auth/error?error=AccessDenied', req.url))
     }
 
     return NextResponse.next()

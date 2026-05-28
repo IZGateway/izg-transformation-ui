@@ -304,7 +304,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         # Always login: GHCR credentials are needed to pull the private base image.
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -312,7 +312,7 @@ jobs:
 
       - name: Configure AWS credentials (ECR)
         if: inputs.dry-run == false
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -321,11 +321,11 @@ jobs:
       - name: Login to Amazon ECR
         if: inputs.dry-run == false
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Configure AWS credentials (APHL ECR)
         if: inputs.dry-run == false && inputs.skip-aphl == false
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.APHL_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.APHL_AWS_SECRET_ACCESS_KEY }}
@@ -334,7 +334,7 @@ jobs:
       - name: Login to Amazon ECR (APHL)
         if: inputs.dry-run == false && inputs.skip-aphl == false
         id: login-ecr-aphl
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       # ── 10. Compute Docker image tags ─────────────────────────────────────
       # Dry-run: uses local-only placeholder tags (no registry prefix that
@@ -377,7 +377,7 @@ jobs:
         run: echo "ts=$(date +'%d%b%Y%H%M%S')" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
@@ -452,6 +452,7 @@ jobs:
       # bump (develop may already be on a newer version).
 
       - name: Update develop branch
+        id: update-develop
         run: |
           git fetch origin "${{ inputs.develop-branch }}"
           git checkout "${{ inputs.develop-branch }}"

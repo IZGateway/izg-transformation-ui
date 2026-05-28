@@ -8,6 +8,7 @@ import HelpPanel from '../HelpPanel'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import { signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import {
   Collapse,
   styled,
@@ -23,6 +24,8 @@ import {
 } from '@mui/material'
 import { menuItems } from './menuItems'
 import palette from '../../styles/theme/palette'
+import { hasAnyRole } from '../../lib/rbac'
+import type { XformRole } from '../../lib/rbac'
 
 const drawerWidthOpen = '300px'
 const drawerWidthClosed = '5em'
@@ -74,12 +77,24 @@ export type MenuItem = {
   label: string
   icon: any
   path: string
+  requiredRoles?: XformRole[]
 }
 
 const MiniDrawer = () => {
+  const { data: session } = useSession()
   const [open, setOpen] = React.useState(false)
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [helpOpen, setHelpOpen] = React.useState(false)
+
+  const authorizedMenuItems = React.useMemo(
+    () =>
+      menuItems.filter(
+        (item) =>
+          !item.requiredRoles ||
+          hasAnyRole(session?.user?.roles, item.requiredRoles)
+      ),
+    [session?.user?.roles]
+  )
 
   const handleClick = () => {
     setOpen(!open)
@@ -123,7 +138,7 @@ const MiniDrawer = () => {
           },
         }}
       >
-        {menuItems.map((item: MenuItem, index) => (
+        {authorizedMenuItems.map((item: MenuItem, index) => (
           <ListItem
             key={item.label}
             id={item.label}

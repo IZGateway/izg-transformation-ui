@@ -2,12 +2,8 @@
 name: Test, Build and Publish to AWS DEV environment
 
 on:
-  push:
-    branches:
-      - 'release/**'
-    paths-ignore:
-      - '.github/workflows/*'
-      - '!.github/workflows/deploy.yml'
+  # push to release/** intentionally removed: release branches are fully managed
+  # by _release_common.yml which runs its own quality gates and Docker build.
   pull_request:
     branches:
       - develop
@@ -172,71 +168,10 @@ jobs:
             ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-and-push-aphl:
-    name: 'Push Image To APHL'
-    runs-on: ubuntu-latest
-    if: ${{ contains(github.ref, 'refs/heads/release/') }}
-    needs: [code-quality-check, generate-release-timestamp]
-    permissions:
-      contents: write
-      packages: write
-      pull-requests: write
-      repository-projects: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Cache Next.js build
-        uses: actions/cache@v5
-        with:
-          path: |
-            .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-            ${{ runner.os }}-nextjs-
-
-      - name: Configure AWS credentials (APHL)
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-access-key-id: ${{ secrets.APHL_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.APHL_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Login to Amazon ECR (APHL)
-        id: login_ecr_aphl
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Docker Metadata (APHL)
-        id: docker_meta_aphl
-        uses: docker/metadata-action@v6
-        with:
-          images: |
-            ${{ secrets.APHL_ECR_REGISTRY }}/${{ secrets.APHL_ECR_REPOSITORY }},enable=${{ contains(github.ref, 'refs/heads/release/') }}
-          tags: |
-            type=raw,value=izgw-transf-ui-${{ needs.generate-release-timestamp.outputs.application_version }}
-          flavor: |
-            latest=false
-
-      - name: Build and push Docker Xform Console image
-        id: docker_build_aphl
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: Dockerfile
-          platforms: linux/amd64
-          provenance: false
-          sbom: false
-          build-args: |
-            BUILD_ID=${{ needs.generate-release-timestamp.outputs.releaseDate }}
-            NPM_TOKEN=${{ secrets.NPM_TOKEN }}
-          push: true
-          tags: |
-            ${{ steps.docker_meta_aphl.outputs.tags }}
-          labels: ${{ steps.docker_meta_aphl.outputs.labels }}
+  # NOTE: APHL ECR push is now handled by .github/workflows/_release_common.yml
+  # as part of the automated release process (release.yml / hotfix.yml).
+  # It was removed from this CI workflow to prevent double-building on
+  # release/** branch pushes and to keep APHL pushes tied to versioned releases.
 
   deploy-dev:
     name: Deploy to Dev AWS environment
@@ -262,22 +197,22 @@ jobs:
             echo "AWS_REGIONS not set, defaulting to us-east-1"
             AWS_REGIONS="us-east-1"
           fi
-          
+
           if [ -z "$ECS_DESIRED_COUNT" ]; then
             echo "ECS_DESIRED_COUNT not set, defaulting to 1"
             ECS_DESIRED_COUNT="1"
           fi
-          
+
           for region in $AWS_REGIONS; do
             echo "Update ECS services in $region (starting $ECS_DESIRED_COUNT containers)"
             aws ecs update-service --region $region --cluster xform-console-dev --service xform-console-dev --force-new-deployment --enable-execute-command --desired-count $ECS_DESIRED_COUNT | jq ".service.deployments[].id" &
           done
-          
+
           wait
-          
+
           for region in $AWS_REGIONS; do
             echo "Wait for ECS service stability in $region"
             aws ecs wait services-stable --region $region --cluster xform-console-dev --service xform-console-dev &
           done
-          
+
           wait

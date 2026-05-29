@@ -106,6 +106,7 @@
     "handlebars": "^4.7.9",
     "js-yaml": "^4.1.1",
     "picomatch": "^2.3.2",
+    "postcss": "^8.5.15",
     "prismjs": "^1.30.0",
     "sha.js": "^2.4.12",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",

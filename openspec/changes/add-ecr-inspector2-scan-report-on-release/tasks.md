@@ -7,24 +7,24 @@
 
 ## 2. Add scan jobs to `_release_common.yml`
 
-- [ ] 2.1 Add a `wait-for-inspector2-scan` job: `needs` the image-push job, `if: inputs.dry-run == false`, `continue-on-error: true`, permissions `id-token: write` + `contents: read`
-- [ ] 2.2 In `wait-for-inspector2-scan`, assume the OIDC role via `aws-actions/configure-aws-credentials` with `role-to-assume: ${{ vars.AWS_ROLE_ARN }}` and `aws-region: us-east-1`
-- [ ] 2.3 In `wait-for-inspector2-scan`, poll `aws inspector2 list-coverage` filtered by repo `izg-transformation-ui` and image tag `<VERSION>`, looping (~30s) until `scanStatus.statusCode` is terminal/complete or ~20 min elapses, then exit 0 regardless
-- [ ] 2.4 Add a `scan-report` job: `uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1`, `needs: [<image-push-job>, wait-for-inspector2-scan]`, `if: inputs.dry-run == false`, `continue-on-error: true`, permissions `id-token: write` + `contents: read`
-- [ ] 2.5 Wire `scan-report` inputs: `ecr-repository: izg-transformation-ui`, `image-tag: <VERSION>`, `gh-pkg-name: izgw-transf-ui`, `release-date: <current UTC date>`, `aws-region: us-east-1`
-- [ ] 2.6 Compute `release-date` as `date -u +%Y-%m-%d` (e.g. a small step output consumed by 2.5)
-- [ ] 2.7 Verify the new jobs are NOT in the `needs` chain of any job that gates "release succeeded" (advisory, never blocks)
+- [x] 2.1 Add a `wait-for-inspector2-scan` job: `if: inputs.dry-run == false`, `continue-on-error: true`, permissions `id-token: write` + `contents: read`. (Deviation: the release is a single monolithic `release` job — there is no separate image-push job — so the new jobs use `needs: release`.)
+- [x] 2.2 In `wait-for-inspector2-scan`, assume the OIDC role via `aws-actions/configure-aws-credentials@v6` with `role-to-assume: ${{ vars.AWS_ROLE_ARN }}` and `aws-region: us-east-1`
+- [x] 2.3 In `wait-for-inspector2-scan`, poll `aws inspector2 list-coverage` filtered by repo `izg-transformation-ui` and image tag `<VERSION>`, looping (~30s) until `scanStatus.reason == SUCCESSFUL` or ~20 min elapses, then exit 0 regardless. (Exact terminal enum value to be confirmed against the live API in 6.1-6.3.)
+- [x] 2.4 Add a `scan-report` job: `uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1`, `needs: [release, wait-for-inspector2-scan]`, `if: inputs.dry-run == false`, permissions `id-token: write` + `contents: read`. (Deviation: `continue-on-error` is NOT a supported key on a `uses:` job; advisory behavior comes from the upstream reusable workflow being internally `continue-on-error` plus the release job already having completed.)
+- [x] 2.5 Wire `scan-report` inputs: `ecr-repository: izg-transformation-ui`, `image-tag: <VERSION>`, `gh-pkg-name: izgw-transf-ui`, `release-date: <current UTC date>`, `aws-region: us-east-1`
+- [x] 2.6 Compute `release-date` as `date -u +%Y-%m-%d` (step output `release-date` on `wait-for-inspector2-scan`, consumed by 2.5)
+- [x] 2.7 Verify the new jobs are NOT in the `needs` chain of any job that gates "release succeeded" (advisory, never blocks) — nothing `needs` them; they `needs: release`
 
 ## 3. Propagate OIDC permission from the callers
 
-- [ ] 3.1 In `release.yml`, add `permissions: { id-token: write, contents: read }` to the job that calls `_release_common.yml`
-- [ ] 3.2 In `hotfix.yml`, add `permissions: { id-token: write, contents: read }` to the job that calls `_release_common.yml`
-- [ ] 3.3 Confirm the existing access-key-based steps (image build/push, APHL push, deploy) are unchanged
+- [x] 3.1 In `release.yml`, added `id-token: write` to the workflow `permissions` block (alongside existing `contents: write`, `packages: write`, `pull-requests: read`)
+- [x] 3.2 In `hotfix.yml`, added `id-token: write` to the workflow `permissions` block (same set)
+- [x] 3.3 Confirmed the existing access-key-based steps in `_release_common.yml` (ECR/APHL logins, build/push) are unchanged
 
 ## 4. Static validation
 
-- [ ] 4.1 Lint/validate the workflow YAML (e.g. `actionlint` or GitHub's workflow parser) for all three edited files
-- [ ] 4.2 Confirm reusable-workflow nesting depth stays within GitHub's 4-level limit (`release.yml → _release_common.yml → ecr-scan-report.yml` = 3)
+- [x] 4.1 Validated all three workflow files parse as YAML (`python3 -c yaml.safe_load`); jobs resolve to `release`, `wait-for-inspector2-scan`, `scan-report`. (`actionlint` not installed locally — recommend running it in CI for full semantic linting.)
+- [x] 4.2 Confirmed reusable-workflow nesting depth stays within GitHub's 4-level limit (`release.yml → _release_common.yml → ecr-scan-report.yml` = 3)
 
 ## 5. Dry-run validation
 
@@ -41,5 +41,5 @@
 
 ## 7. Documentation
 
-- [ ] 7.1 Note the new release-time Inspector2 scan + its prerequisites in the relevant CI docs (`.github/WORKFLOW_TRIGGERS.md` or equivalent)
-- [ ] 7.2 Record the `AWS_ROLE_ARN` variable and required Inspector2 IAM permissions where env/secret expectations are documented
+- [x] 7.1 Documented the release-time Inspector2 scan (both paths, advisory, dry-run skip, artifact) in `.github/WORKFLOW_TRIGGERS.md`
+- [x] 7.2 Recorded the `AWS_ROLE_ARN` repo variable and required `inspector2:ListFindings`/`inspector2:ListCoverage` IAM permissions in the same `.github/WORKFLOW_TRIGGERS.md` section (CI variable, not a runtime app env var, so not CONFIGURATION.md)

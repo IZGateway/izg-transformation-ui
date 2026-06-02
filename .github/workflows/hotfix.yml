@@ -45,6 +45,7 @@ permissions:
   contents: write
   packages: write
   pull-requests: read
+  id-token: write # OIDC for the advisory Inspector2 scan jobs in _release_common.yml
 
 jobs:
   hotfix:

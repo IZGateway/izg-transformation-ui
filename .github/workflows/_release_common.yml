@@ -666,3 +666,90 @@ jobs:
             echo ""
             echo "_Pushed Docker images (GHCR / ECR / APHL ECR) are NOT deleted by this cleanup. Remove manually if needed._"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── Vulnerability scan (advisory, real releases only) ───────────────────
+  # After a real release pushes izg-transformation-ui:<version> to AWS ECR,
+  # Inspector2 scans the image ASYNCHRONOUSLY. These two jobs wait for that
+  # scan to finish, then generate a CDC-named Inspector2 report (JSON/CSV/HTML)
+  # via the shared reusable workflow in izg-dependency-scripts.
+  #
+  # ADVISORY by design — a scan that errors, times out, or returns nothing must
+  # never fail the release. The release job has already merged/tagged/published
+  # by the time these run, and `wait-for-inspector2-scan` is continue-on-error;
+  # `scan-report` relies on the upstream reusable workflow being internally
+  # advisory (continue-on-error is not a supported key on a `uses:` job).
+  #
+  # Skipped on dry-run (no image is pushed). Authenticate via OIDC using the
+  # role in `vars.AWS_ROLE_ARN`; the role needs inspector2:ListCoverage (poll)
+  # and inspector2:ListFindings (report). See OpenSpec change
+  # add-ecr-inspector2-scan-report-on-release / IGDD-2151. The existing
+  # access-key-based logins above are intentionally left unchanged.
+
+  wait-for-inspector2-scan:
+    name: Wait for Inspector2 scan
+    needs: release
+    if: inputs.dry-run == false
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      release-date: ${{ steps.meta.outputs.release-date }}
+    steps:
+      - name: Compute release date (UTC)
+        id: meta
+        run: echo "release-date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Poll Inspector2 until the image scan completes
+        env:
+          ECR_REPOSITORY: izg-transformation-ui
+          IMAGE_TAG: ${{ inputs.release-version }}
+        run: |
+          set -uo pipefail
+          # ~20-minute cap; exit early as soon as the scan reports complete.
+          DEADLINE=$(( $(date +%s) + 20 * 60 ))
+          FILTER="{\"ecrRepositoryName\":[{\"comparison\":\"EQUALS\",\"value\":\"${ECR_REPOSITORY}\"}],\"ecrImageTags\":[{\"comparison\":\"EQUALS\",\"value\":\"${IMAGE_TAG}\"}]}"
+          echo "Waiting for Inspector2 to finish scanning ${ECR_REPOSITORY}:${IMAGE_TAG} (cap: ~20m)..."
+          while :; do
+            SCAN=$(aws inspector2 list-coverage \
+              --filter-criteria "$FILTER" \
+              --query 'coveredResources[0].scanStatus' \
+              --output json 2>/dev/null || echo 'null')
+            CODE=$(echo "$SCAN" | jq -r '.statusCode // "NONE"')
+            REASON=$(echo "$SCAN" | jq -r '.reason // "NONE"')
+            echo "  statusCode=${CODE} reason=${REASON}"
+            # reason=SUCCESSFUL => Inspector2 has completed assessing this image.
+            # NOTE: validate these enum values against the live API on the first
+            # real release (tasks 6.1-6.3); the loop is advisory and bounded.
+            if [[ "$REASON" == "SUCCESSFUL" ]]; then
+              echo "✓ Inspector2 scan complete."
+              exit 0
+            fi
+            if [[ "$(date +%s)" -ge "$DEADLINE" ]]; then
+              echo "::warning::Timed out (~20m) waiting for Inspector2 (last: ${CODE}/${REASON}); proceeding with whatever findings exist."
+              exit 0
+            fi
+            sleep 30
+          done
+
+  scan-report:
+    name: Inspector2 scan report
+    needs: [release, wait-for-inspector2-scan]
+    if: inputs.dry-run == false
+    permissions:
+      id-token: write
+      contents: read
+    uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1
+    with:
+      ecr-repository: izg-transformation-ui
+      image-tag: ${{ inputs.release-version }}
+      gh-pkg-name: izgw-transf-ui
+      release-date: ${{ needs.wait-for-inspector2-scan.outputs.release-date }}
+      aws-region: us-east-1

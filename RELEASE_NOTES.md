@@ -1,5 +1,34 @@
 # Release Notes
 
+## [0.16.0] - 2026-06-03
+
+### Changes
+- chore(deps): security and dependency updates ([#249](https://github.com/IZGateway/izg-transformation-ui/pull/249))
+- chore(deps): bump softprops/action-gh-release from 2 to 3 ([#248](https://github.com/IZGateway/izg-transformation-ui/pull/248))
+- chore(deps): bump actions/create-github-app-token from 1 to 3 ([#247](https://github.com/IZGateway/izg-transformation-ui/pull/247))
+- chore(deps): bump gitleaks/gitleaks-action from 2 to 3 ([#246](https://github.com/IZGateway/izg-transformation-ui/pull/246))
+- IGDD-2563 ecr scan on release ([#244](https://github.com/IZGateway/izg-transformation-ui/pull/244))
+- chore(deps): security and dependency updates ([#245](https://github.com/IZGateway/izg-transformation-ui/pull/245))
+- chore: Archive OpenSpec change for user guide ([#243](https://github.com/IZGateway/izg-transformation-ui/pull/243))
+- chore: Install OpenSpec skills, etc... for Claude Code ([#242](https://github.com/IZGateway/izg-transformation-ui/pull/242))
+- chore(deps): security and dependency updates ([#241](https://github.com/IZGateway/izg-transformation-ui/pull/241))
+- Igdd 2014 restrict access to pages ([#230](https://github.com/IZGateway/izg-transformation-ui/pull/230))
+- IGDD-2399 Release Automation ([#221](https://github.com/IZGateway/izg-transformation-ui/pull/221))
+- chore: Update Node 24 and add id ([#237](https://github.com/IZGateway/izg-transformation-ui/pull/237))
+- ci: upgrade GitHub Actions to Node.js 24 and add Dependabot config ([#233](https://github.com/IZGateway/izg-transformation-ui/pull/233))
+- Sync 0.15.2 hotfix release to develop ([#236](https://github.com/IZGateway/izg-transformation-ui/pull/236))
+- chore(deps): security and dependency updates ([#234](https://github.com/IZGateway/izg-transformation-ui/pull/234))
+- feat(IGDD-2517): Xform Console user guide — OpenSpec CR artifacts ([#219](https://github.com/IZGateway/izg-transformation-ui/pull/219))
+- chore(deps): security and dependency updates ([#229](https://github.com/IZGateway/izg-transformation-ui/pull/229))
+- fix(ci): add dependency_scripts_channel input to security-updates workflow ([#228](https://github.com/IZGateway/izg-transformation-ui/pull/228))
+- chore(deps): security and dependency updates ([#224](https://github.com/IZGateway/izg-transformation-ui/pull/224))
+- chore: initialize OpenSpec for izg-transformation-ui (IGDD-2517) ([#218](https://github.com/IZGateway/izg-transformation-ui/pull/218))
+- fix: remediate uuid CVE GHSA-w5hq-g745-h8pq ([#197](https://github.com/IZGateway/izg-transformation-ui/pull/197))
+- chore(deps): security and dependency updates ([#213](https://github.com/IZGateway/izg-transformation-ui/pull/213))
+- chore(deps): security and dependency updates ([#207](https://github.com/IZGateway/izg-transformation-ui/pull/207))
+- Release 0.15.0 notes back to develop ([#205](https://github.com/IZGateway/izg-transformation-ui/pull/205))
+
+
 ## Release 0.15.2
 
 - Update dependencies and base Docker image

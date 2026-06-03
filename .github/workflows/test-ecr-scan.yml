@@ -48,6 +48,22 @@ jobs:
         id: meta
         run: echo "release-date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
 
+      # TEMPORARY debug — prints the OIDC claims AWS is actually evaluating, so
+      # we can diff job_workflow_ref/sub against the role trust policy patterns.
+      # job_workflow_ref is not sensitive. Remove with the rest of this file.
+      - name: Debug OIDC claims
+        run: |
+          TOKEN=$(curl -sH "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
+          PAYLOAD=$(echo "$TOKEN" | cut -d. -f2)
+          python3 - "$PAYLOAD" <<'PY'
+          import sys, base64, json
+          p = sys.argv[1]; p += "=" * (-len(p) % 4)
+          d = json.loads(base64.urlsafe_b64decode(p))
+          print(json.dumps({k: d.get(k) for k in
+            ["aud", "sub", "repository", "repository_owner", "job_workflow_ref", "ref"]}, indent=2))
+          PY
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v6
         with:

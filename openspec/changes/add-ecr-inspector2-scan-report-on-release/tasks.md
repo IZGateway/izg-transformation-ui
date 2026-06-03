@@ -43,3 +43,11 @@
 
 - [x] 7.1 Documented the release-time Inspector2 scan (both paths, advisory, dry-run skip, artifact) in `.github/WORKFLOW_TRIGGERS.md`
 - [x] 7.2 Recorded the `AWS_ROLE_ARN` repo variable and required `inspector2:ListFindings`/`inspector2:ListCoverage` IAM permissions in the same `.github/WORKFLOW_TRIGGERS.md` section (CI variable, not a runtime app env var, so not CONFIGURATION.md)
+
+## 8. Live-debugging findings (2026-06-03) — must reflect before archiving
+
+- [x] 8.1 `AWS_ROLE_ARN` must be a repo **variable** (`vars.`), not a secret — the workflow and the upstream reusable workflow both read `vars.AWS_ROLE_ARN`
+- [x] 8.2 IAM trust policy: scope by **`sub`** (`repo:IZGateway/izg-transformation-ui:*`), NOT `job_workflow_ref`. `job_workflow_ref` is a valid/recognized key but would not evaluate true for GitHub OIDC in this account even when present/matching; `sub` works (matches the existing `github-actions-ecr-push` role pattern). Update proposal.md/design.md/spec.md which currently describe `job_workflow_ref`.
+- [ ] 8.3 **UPSTREAM BLOCKER:** `izg-dependency-scripts/.github/scripts/ecr-scan-report.sh:94` fails `jq: Argument list too long` (exit 126) on images with many findings (0.16.0 reproduces). Fix in izg-dependency-scripts (pipe findings via stdin/file, not argv) and ensure the `@v1` ref gets it. See `~/Downloads/fix-jq-ecr-scan.md`.
+- [ ] 8.4 After the upstream fix ships to `@v1`: re-run `test-ecr-scan.yml` against `0.16.0`, confirm full path green + real `izgw-transf-ui_v0.16.0_InspectorScan` artifact.
+- [ ] 8.5 **CLEANUP:** delete the temporary `.github/workflows/test-ecr-scan.yml` (contains the workflow + the debug-OIDC-claims step) from `develop` once 8.4 passes. It's `workflow_dispatch`-only and safe to leave meanwhile; no trust-policy entry references it (we moved to `sub` scoping).

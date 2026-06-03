@@ -1,0 +1,60 @@
+# Hotfix Release Workflow
+# Run this from a 'hotfix/<version>' branch to release an emergency patch.
+# For standard planned releases from develop, use release.yml instead.
+#
+# Hotfix process:
+#   1. Create a hotfix branch from main:
+#        git checkout main && git pull
+#        git checkout -b hotfix/0.15.1
+#        git push -u origin hotfix/0.15.1
+#   2. Developers branch off hotfix/0.15.1, fix the issue, open PRs back to it.
+#   3. Once all fixes are merged, run THIS workflow from hotfix/0.15.1.
+
+name: Release - Hotfix
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: 'Hotfix release version (e.g., 0.15.1)'
+        required: true
+        type: string
+      develop-branch:
+        description: 'Develop branch name. Default: develop.'
+        required: false
+        type: string
+        default: 'develop'
+      main-branch:
+        description: 'Main branch name. Default: main.'
+
+        required: false
+        type: string
+        default: 'main'
+      dry-run:
+        description: 'Dry run: build Docker image but skip push, create draft GitHub Release only.'
+        required: false
+        type: boolean
+        default: false
+      skip-aphl:
+        description: 'Skip APHL ECR push only. Useful for testing without APHL credentials.'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
+  id-token: write # OIDC for the advisory Inspector2 scan jobs in _release_common.yml
+
+jobs:
+  hotfix:
+    uses: ./.github/workflows/_release_common.yml
+    secrets: inherit
+    with:
+      release-version: ${{ inputs.release-version }}
+      release-type: hotfix
+      develop-branch: ${{ inputs.develop-branch }}
+      main-branch: ${{ inputs.main-branch }}
+      skip-aphl: ${{ inputs.skip-aphl }}
+      dry-run: ${{ inputs.dry-run }}

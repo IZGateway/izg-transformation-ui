@@ -24,6 +24,13 @@ jest.mock('@mui/x-data-grid', () => ({
   GridToolbar: () => <div data-testid="grid-toolbar" />,
 }))
 
+jest.mock('next-auth/react', () => ({
+  useSession: () => ({
+    data: { user: { roles: ['pipeline-writer'] } },
+    status: 'authenticated',
+  }),
+}))
+
 // Mock next/link
 jest.mock('next/link', () => {
   return ({ children, href }: any) => (

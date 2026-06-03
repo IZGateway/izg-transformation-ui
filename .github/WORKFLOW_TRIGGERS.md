@@ -58,6 +58,40 @@ This means:
 - ✅ `.github/workflows/create-release-branch.yml`
 - ✅ `.github/workflows/gitleaks.yml`
 
+## Release-time Inspector2 Vulnerability Scan
+
+Every real release (both `release.yml` and `hotfix.yml`, via the shared
+`_release_common.yml`) generates an AWS Inspector2 vulnerability scan report for the
+image it just pushed to the dev-account ECR repo `izg-transformation-ui`. Two jobs run
+after the release job:
+
+- `wait-for-inspector2-scan` — waits (up to ~20 min, exiting early) for Inspector2 to
+  finish scanning `izg-transformation-ui:<version>`, since Inspector2 scans asynchronously.
+- `scan-report` — calls the reusable workflow
+  `IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1` to produce a
+  CDC-named JSON/CSV/HTML report (`YYYYMMDD_izgw-transf-ui_v<version>_InspectorScan.*`),
+  uploaded as a GitHub Actions artifact.
+
+The scan is **advisory**: it never blocks or fails a release, and it is **skipped on
+dry-run** (no image is pushed). A green release does not guarantee a populated report —
+download and inspect the artifact (an empty report usually means a tag/credential mismatch).
+
+### CI prerequisites (admin-owned — see IGDD-2151)
+
+These are environmental and are NOT created by the workflow code:
+
+- **`AWS_ROLE_ARN` repository variable** — the OIDC role the scan jobs assume
+  (`gh variable set AWS_ROLE_ARN --body "arn:aws:iam::<acct>:role/<role>"`). Read via
+  `vars.AWS_ROLE_ARN`, not a secret.
+- **GitHub OIDC IAM role** in the dev AWS account, trust policy scoped to this repo's
+  release workflows, with IAM permissions **`inspector2:ListFindings`** *and*
+  **`inspector2:ListCoverage`**.
+- **Cross-repo workflow access** — `izg-dependency-scripts` must allow this repo to call
+  its reusable workflow.
+
+The release jobs that build/push images keep using the existing
+`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` secrets; OIDC is used only by the scan jobs.
+
 ## Benefits
 
 1. **Prevents Infinite Loops** - Automated workflows creating PRs don't trigger endless builds

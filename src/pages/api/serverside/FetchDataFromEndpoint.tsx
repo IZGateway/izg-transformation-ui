@@ -67,12 +67,21 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
 
 const fetchDataFromEndpoint = async (endpoint: string, request: any) => {
   const token = await getToken({ req: request })
-  if (!token?.sub) {
-    throw new Error('No user ID available')
+  if (!token) {
+    throw new Error('No auth token available')
   }
 
-  const store = getTokenStore()
-  const access_token = store.get(token.sub)
+  let access_token: string | undefined
+
+  if (typeof token.access_token === 'string') {
+    access_token = token.access_token
+  }
+
+  if (!access_token && token.sub) {
+    const store = getTokenStore()
+    access_token = store.get(token.sub)
+  }
+
   if (!access_token) {
     throw new Error('No access token available')
   }

@@ -65,7 +65,11 @@ vendor that script; we call the reusable workflow and supply this repo's image c
 - **AWS (dev account — same account the current `AWS_ACCESS_KEY_ID` targets):**
   - ECR repo `izg-transformation-ui` and Inspector2 findings live here.
   - **External prerequisites (admin-owned, blockers — IGDD-2151):**
-    1. A GitHub OIDC IAM role whose trust policy is scoped to this repo's release workflows.
+    1. A GitHub OIDC IAM role whose trust policy is scoped by the **`sub`** claim to this repo
+       (`repo:IZGateway/izg-transformation-ui:*`), matching the account's existing
+       `github-actions-ecr-push` role. (Scoping by `job_workflow_ref` was attempted but does
+       **not** evaluate true for GitHub OIDC in this account even when the claim is present and
+       matches; `sub` scoping is what works.)
     2. Role IAM policy must include **`inspector2:ListFindings`** *and* **`inspector2:ListCoverage`**
        (the latter for the poll step).
     3. Repo (or environment) variable **`AWS_ROLE_ARN`** set to that role's ARN

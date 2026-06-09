@@ -35,14 +35,19 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 RUN apk add bash
 
-# Install Nginx, gettext (for envsubst), and tini
-RUN apk add --no-cache nginx tini
+# Install tini
+RUN apk add --no-cache tini
 
 COPY package.json package-lock.json ./
 
+# nginx is no longer installed here (IGDD-3010) — it is provided by the base image.
+# Fail the build fast if a future base image stops shipping nginx, rather than
+# discovering it at container runtime when run_and_monitor.sh tries to start it.
+RUN command -v nginx >/dev/null || { echo "ERROR: nginx not found, should be installed in base image."; exit 1; }
+
 # Install Dependencies and cleanup yarn.lock if present
 ARG NPM_TOKEN
-RUN apk add --no-cache bash nginx gettext tini curl libc6-compat \
+RUN apk add --no-cache curl libc6-compat \
     && npm config set @izgateway:registry https://npm.pkg.github.com/ \
     && npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN} \
     && npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
@@ -55,10 +60,7 @@ COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
 COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
-# Install filebeat
-RUN apk add curl libc6-compat
-
-# Replace default filebeat config with custom config file 
+# Replace default filebeat config with custom config file
  RUN cd ../filebeat && \
      rm -rf /filebeat.yml && \
      cp ../app/filebeat.yml ./filebeat.yml

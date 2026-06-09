@@ -1,7 +1,7 @@
 # izg-transformation-ui (Xform Console) — Project Instructions
 
 Next.js web app for managing IZ Gateway transformation pipelines. Package name: `izg-transformation-console`.
-AWS ECS (Fargate) + nginx + Docker.
+AWS ECS (Fargate) + nginx (provided by the base image) + Docker.
 
 **Public repo** — follow IZ Gateway Public Repo Policy (in global CLAUDE.md).
 

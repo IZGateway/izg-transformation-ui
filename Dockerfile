@@ -61,7 +61,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-var
 COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
 # Replace default filebeat config with custom config file
- RUN cd ../filebeat && \
+RUN cd ../filebeat && \
      rm -rf /filebeat.yml && \
      cp ../app/filebeat.yml ./filebeat.yml
 

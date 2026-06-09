@@ -40,6 +40,11 @@ RUN apk add --no-cache tini
 
 COPY package.json package-lock.json ./
 
+# nginx is no longer installed here (IGDD-3010) — it is provided by the base image.
+# Fail the build fast if a future base image stops shipping nginx, rather than
+# discovering it at container runtime when run_and_monitor.sh tries to start it.
+RUN command -v nginx >/dev/null || { echo "ERROR: nginx not found, should be installed in base image."; exit 1; }
+
 # Install Dependencies and cleanup yarn.lock if present
 ARG NPM_TOKEN
 RUN apk add --no-cache curl libc6-compat \

@@ -106,15 +106,12 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    # TEMPORARY: pinned to the IGDD-2563 PR branch to validate the jq fix before it
-    # ships to @v1. scripts-ref makes the reusable workflow load the scan script from
-    # the same branch (its internal checkout otherwise hardcodes v1). Revert both to
-    # @v1 / drop scripts-ref once the upstream PR merges and v1 is re-pointed.
-    uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@IGDD-2563_ecr-scan-jq-change
+    # Production config — identical to the scan-report call in _release_common.yml
+    # (@v1, no scripts-ref). v1 now carries the merged jq + dedup fix.
+    uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1
     with:
       ecr-repository: izg-transformation-ui
       image-tag: ${{ inputs.image-tag }}
       gh-pkg-name: izgw-transf-ui
       release-date: ${{ needs.wait-for-inspector2-scan.outputs.release-date }}
       aws-region: us-east-1
-      scripts-ref: IGDD-2563_ecr-scan-jq-change

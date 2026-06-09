@@ -6,7 +6,7 @@
 
 - **Package name:** `izg-transformation-console`
 - **Version cadence:** semantic versioning; see `RELEASE_NOTES.md`
-- **Deployed on:** AWS ECS (Fargate), behind nginx, using Docker
+- **Deployed on:** AWS ECS (Fargate), behind nginx (provided by the Docker base image, not installed in this repo's Dockerfile), using Docker
 - **Jira component:** `Transformation Console`
 - **OpenSpec repo:** CRs live in this repo under `openspec/changes/`
 

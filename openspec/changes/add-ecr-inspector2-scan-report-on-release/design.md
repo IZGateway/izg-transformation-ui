@@ -164,7 +164,8 @@ nesting, within GitHub's limit of 4. ✅
   `357442695278`; trust scoped by `sub` = `repo:IZGateway/izg-transformation-ui:*`
   (`job_workflow_ref` scoping does not evaluate true for GitHub OIDC in this account); repo-level
   **variable** `AWS_ROLE_ARN` (must be a variable, not a secret — `vars.` is read on both sides).
-- **Exact Inspector2 `scanStatus` terminal values** to treat as "done" vs "still scanning" —
-  to be pinned in `tasks.md`/implementation against the live API (`list-coverage` status enum).
+- ~~**Exact Inspector2 `scanStatus` terminal values** to treat as "done" vs "still scanning"~~
+  **RESOLVED (2026-06-09):** `list-coverage` reports `scanStatus.reason == SUCCESSFUL` when the image
+  scan is complete; the poll exits on that value (confirmed against the live API in the `@v1` proxy run).
 - **Whether to also fail-fast (non-advisory) later** once OIDC/timing prove reliable — deferred;
   advisory for the initial rollout.

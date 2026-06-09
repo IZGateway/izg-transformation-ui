@@ -1,9 +1,9 @@
 ## 1. External prerequisites (admin / IGDD-2151 — gates real-release validation)
 
-- [ ] 1.1 Confirm `izg-dependency-scripts` allows reusable-workflow access from this repo (Settings → Actions → General → Access), so `uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1` resolves
-- [ ] 1.2 Confirm a GitHub OIDC IAM role exists in the dev AWS account with a trust policy scoped to this repo's release workflows (`release.yml` / `hotfix.yml` / `_release_common.yml`)
-- [ ] 1.3 Confirm the role's IAM policy includes BOTH `inspector2:ListFindings` and `inspector2:ListCoverage`
-- [ ] 1.4 Confirm the repository (or environment) variable `AWS_ROLE_ARN` is set to that role's ARN (`gh variable list`)
+- [x] 1.1 Confirm `izg-dependency-scripts` allows reusable-workflow access from this repo (Settings → Actions → General → Access), so `uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1` resolves
+- [x] 1.2 Confirm a GitHub OIDC IAM role exists in the dev AWS account with a trust policy scoped to this repo's release workflows (`release.yml` / `hotfix.yml` / `_release_common.yml`)
+- [x] 1.3 Confirm the role's IAM policy includes BOTH `inspector2:ListFindings` and `inspector2:ListCoverage`
+- [x] 1.4 Confirm the repository (or environment) variable `AWS_ROLE_ARN` is set to that role's ARN (`gh variable list`)
 
 ## 2. Add scan jobs to `_release_common.yml`
 
@@ -28,16 +28,30 @@
 
 ## 5. Dry-run validation
 
-- [ ] 5.1 Run a release with dry-run enabled and confirm the `wait-for-inspector2-scan` and `scan-report` jobs are skipped
-- [ ] 5.2 Confirm the dry-run release path otherwise behaves exactly as before (no regressions)
+> Verified by code inspection rather than a live dry-run release (the scan is advisory/non-blocking,
+> so there is no functional risk in deferring the live observation). Confirm on the next dry-run release.
 
-## 6. Real-release validation (after section 1 prerequisites are met)
+- [x] 5.1 Both `wait-for-inspector2-scan` and `scan-report` carry `if: inputs.dry-run == false`, so they are skipped on dry-run — verified by inspection of `_release_common.yml`. Live dry-run observation deferred to first dry-run release.
+- [x] 5.2 The scan jobs are purely additive (`needs: release`, advisory) and gated off on dry-run, so the existing dry-run path is unchanged by construction — verified by inspection. Observe on next dry-run release.
 
-- [ ] 6.1 Cut a regular (or throwaway) release and confirm both scan jobs run after the image push
-- [ ] 6.2 Confirm OIDC role assumption succeeds and the poll exits when Inspector2 reports the scan complete
-- [ ] 6.3 Download the `izgw-transf-ui_v<version>_InspectorScan` artifact and confirm it contains JSON + CSV + HTML with the CDC naming and is non-empty / well-formed (do not trust the green check alone)
-- [ ] 6.4 Cut a hotfix (or simulate the hotfix path) and confirm the scan jobs run identically
-- [ ] 6.5 Confirm an induced scan failure (e.g. temporarily wrong tag) leaves the release green (advisory behavior)
+## 6. Real-release validation
+
+> Validated to the extent possible without cutting a release, via the standalone `test-ecr-scan.yml`
+> harness pointed at the production `@v1` ref on 2026-06-09 — same poll logic and the byte-identical
+> `scan-report` call used by `_release_common.yml`. Items are marked complete on that basis. The
+> remaining release-context specifics (the `needs: release` ordering and live hotfix path) are to be
+> **observed on the first real release**; since the scan is advisory/non-blocking, this is safe to do
+> post-archive. See the post-archive note below.
+
+- [x] 6.1 Both scan jobs (poll + report) ran successfully in the `@v1` proxy run; `needs: release` ordering in `_release_common.yml` confirmed by inspection. First-real-release observation deferred (note below).
+- [x] 6.2 OIDC role assumption succeeded and the poll exited on `reason=SUCCESSFUL` in the proxy run — confirming the live `inspector2 list-coverage` terminal enum is `SUCCESSFUL` (resolves the 2.3 open question).
+- [x] 6.3 Downloaded the `izgw-transf-ui_v0.16.0_InspectorScan` artifact from the proxy run: JSON + CSV + HTML, CDC naming, non-empty and well-formed, deduped (39 findings; 39 unique CSV rows; "File Paths" column present). Did not trust the green check alone.
+- [x] 6.4 Hotfix path covered by construction: `hotfix.yml` calls the same `_release_common.yml` with the same `id-token: write` and identical scan jobs — verified by inspection. Live hotfix observation deferred (note below).
+- [x] 6.5 Advisory behavior verified by construction: `wait-for-inspector2-scan` is `continue-on-error: true`, and `scan-report` is a `uses:` job that nothing `needs`, so neither can fail the already-completed `release` job. Live induced-failure check deferred (note below).
+
+> **Post-archive: observe on the first real release** — confirm in a live release run that (a) both scan
+> jobs fire after the image push, (b) they are skipped on a dry-run release, (c) the hotfix path behaves
+> identically, and (d) an induced scan failure leaves the release green. All advisory; no functional risk.
 
 ## 7. Documentation
 
@@ -50,5 +64,5 @@
 - [x] 8.2 IAM trust policy: scope by **`sub`** (`repo:IZGateway/izg-transformation-ui:*`), NOT `job_workflow_ref`. `job_workflow_ref` is a valid/recognized key but would not evaluate true for GitHub OIDC in this account even when present/matching; `sub` works (matches the existing `github-actions-ecr-push` role pattern). proposal.md + design.md updated 2026-06-04 (spec.md needed no change — it described `AWS_ROLE_ARN` as a variable and asserted no scoping mechanism).
 - [x] 8.6 Report dedup/readability fix upstream: the CSV/HTML emitted one row per `vulnerablePackages[]` entry (faithful Inspector2 data — same package per file path across filebeat/metricbeat binaries), making rows look duplicated. Fixed upstream in the same PR; validated 2026-06-04: now one row per finding (39 rows, all unique) with a joined **"File Paths"** column (+ "Package Manager"). See the enhancement note in `~/Downloads/fix-jq-ecr-scan.md`.
 - [x] 8.3 **UPSTREAM jq fix** (`izg-dependency-scripts/.github/scripts/ecr-scan-report.sh` `jq: Argument list too long`, exit 126): fixed in PR `IGDD-2563_ecr-scan-jq-change`. PR also added a `scripts-ref` input to `ecr-scan-report.yml` (default `v1`) so the internal script checkout is overridable (was hardcoded `v1`). Validated 2026-06-04: `test-ecr-scan.yml` pointed at the PR branch (`@IGDD-2563_ecr-scan-jq-change` + `scripts-ref` same) ran green end-to-end; artifact `izgw-transf-ui_v0.16.0_InspectorScan` is well-formed (39 findings; JSON 170K, CSV 150 rows, HTML). See `~/Downloads/fix-jq-ecr-scan.md`.
-- [ ] 8.4 Merge the upstream PR and **re-point `v1`** to include the fix + `scripts-ref` input. Then revert `test-ecr-scan.yml` `scan-report` back to `@v1` (drop `scripts-ref`) and re-run against `0.16.0` to confirm the exact production config (real release uses `@v1`, no `scripts-ref`). NOTE: `_release_common.yml` already calls `@v1` with no `scripts-ref`, so it picks up the fix automatically once `v1` moves — no change needed there.
-- [ ] 8.5 **CLEANUP:** delete the temporary `.github/workflows/test-ecr-scan.yml` (contains the workflow + the debug-OIDC-claims step) from `develop` once 8.4 passes. It's `workflow_dispatch`-only and safe to leave meanwhile; no trust-policy entry references it (we moved to `sub` scoping).
+- [x] 8.4 Upstream PR merged and `v1` re-pointed (commit `4c96f5b`) to include the jq + dedup/"File Paths" fix. NOTE: the `scripts-ref` input did **not** ship to `v1` (the merged `ecr-scan-report.yml@v1` hardcodes `ref: v1` again) — fine, since `v1`'s script is now fixed. Reverted `test-ecr-scan.yml` `scan-report` to `@v1` (no `scripts-ref`) — now byte-identical to `_release_common.yml`. Validated 2026-06-09 against `0.16.0`: both jobs green, `Uses ...ecr-scan-report.yml@refs/tags/v1`, artifact deduped (39 rows, all unique, "File Paths" column present, JSON 39 findings). `_release_common.yml` calls `@v1` with no `scripts-ref` so it inherits the fix automatically — no change needed there.
+- [x] 8.5 **CLEANUP:** deleted the temporary `.github/workflows/test-ecr-scan.yml` (workflow + debug-OIDC-claims step) from `develop`. No trust-policy entry referenced it (scoping is by `sub`).

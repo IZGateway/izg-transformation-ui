@@ -684,7 +684,7 @@ jobs:
   # inspector2:ListFindings); id-token: write is granted below and must also be
   # declared by release.yml/hotfix.yml so it propagates down the call chain. The
   # existing access-key-based logins above are intentionally left unchanged.
-  # See OpenSpec change extract-manual-ecr-scan-workflow / IGDD-2151.
+  # See OpenSpec change extract-manual-ecr-scan-workflow / IGDD-2563.
   #
   # NESTING: this completes a 4-level chain (GitHub's max) —
   #   release.yml/hotfix.yml -> _release_common.yml -> scan-ecr-image.yml -> ecr-scan-report.yml

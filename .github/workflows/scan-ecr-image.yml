@@ -85,8 +85,8 @@ jobs:
             REASON=$(echo "$SCAN" | jq -r '.reason // "NONE"')
             echo "  statusCode=${CODE} reason=${REASON}"
             # reason=SUCCESSFUL => Inspector2 has completed assessing this image.
-            # NOTE: validate these enum values against the live API on the first
-            # manual run or real release; the loop is advisory and bounded.
+            # (Confirmed against the live API in run 27300586350: statusCode=ACTIVE,
+            # reason=SUCCESSFUL.) The loop is advisory and bounded.
             if [[ "$REASON" == "SUCCESSFUL" ]]; then
               echo "✓ Inspector2 scan complete."
               exit 0

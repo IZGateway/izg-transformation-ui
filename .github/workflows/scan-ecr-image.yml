@@ -1,0 +1,113 @@
+# ECR Image Vulnerability Scan (advisory)
+#
+# Waits for Amazon Inspector2 to finish scanning izg-transformation-ui:<image-tag>
+# in the dev account, then generates a CDC-named Inspector2 report (JSON/CSV/HTML)
+# via the shared reusable workflow in izg-dependency-scripts.
+#
+# Two entry points, one definition:
+#   • workflow_dispatch — run manually against any tag (test the scanner without
+#     cutting a release).
+#   • workflow_call     — invoked by _release_common.yml on real releases, passing
+#     the release version as image-tag.
+#
+# ADVISORY by design — a scan that errors, times out, or returns nothing must
+# never fail the caller. Because _release_common.yml invokes this as a single
+# `uses:` job (which cannot carry continue-on-error), the advisory guarantee is
+# upheld HERE: `wait-for-inspector2-scan` is continue-on-error, and `scan-report`
+# relies on the upstream reusable workflow being internally advisory.
+#
+# NESTING: on the release path this is level 3 of 4 —
+#   release.yml/hotfix.yml -> _release_common.yml -> scan-ecr-image.yml -> ecr-scan-report.yml
+# GitHub allows a maximum of 4 connected workflow levels; do NOT insert another
+# level or the release path will break.
+#
+# Authenticates via OIDC using the role in `vars.AWS_ROLE_ARN`; the role needs
+# inspector2:ListCoverage (poll) and inspector2:ListFindings (report). See
+# OpenSpec change extract-manual-ecr-scan-workflow.
+
+name: Scan ECR Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: 'Image tag to scan in ECR repo izg-transformation-ui (e.g. 0.16.0)'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      image-tag:
+        description: 'Image tag to scan in ECR repo izg-transformation-ui (e.g. 0.16.0)'
+        required: true
+        type: string
+
+permissions:
+  id-token: write # OIDC for the AWS role assumed by the scan jobs
+  contents: read
+
+jobs:
+  wait-for-inspector2-scan:
+    name: Wait for Inspector2 scan
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      release-date: ${{ steps.meta.outputs.release-date }}
+    steps:
+      - name: Compute release date (UTC)
+        id: meta
+        run: echo "release-date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Poll Inspector2 until the image scan completes
+        env:
+          ECR_REPOSITORY: izg-transformation-ui
+          IMAGE_TAG: ${{ inputs.image-tag }}
+        run: |
+          set -uo pipefail
+          # ~20-minute cap; exit early as soon as the scan reports complete.
+          DEADLINE=$(( $(date +%s) + 20 * 60 ))
+          FILTER="{\"ecrRepositoryName\":[{\"comparison\":\"EQUALS\",\"value\":\"${ECR_REPOSITORY}\"}],\"ecrImageTags\":[{\"comparison\":\"EQUALS\",\"value\":\"${IMAGE_TAG}\"}]}"
+          echo "Waiting for Inspector2 to finish scanning ${ECR_REPOSITORY}:${IMAGE_TAG} (cap: ~20m)..."
+          while :; do
+            SCAN=$(aws inspector2 list-coverage \
+              --filter-criteria "$FILTER" \
+              --query 'coveredResources[0].scanStatus' \
+              --output json 2>/dev/null || echo 'null')
+            CODE=$(echo "$SCAN" | jq -r '.statusCode // "NONE"')
+            REASON=$(echo "$SCAN" | jq -r '.reason // "NONE"')
+            echo "  statusCode=${CODE} reason=${REASON}"
+            # reason=SUCCESSFUL => Inspector2 has completed assessing this image.
+            # NOTE: validate these enum values against the live API on the first
+            # manual run or real release; the loop is advisory and bounded.
+            if [[ "$REASON" == "SUCCESSFUL" ]]; then
+              echo "✓ Inspector2 scan complete."
+              exit 0
+            fi
+            if [[ "$(date +%s)" -ge "$DEADLINE" ]]; then
+              echo "::warning::Timed out (~20m) waiting for Inspector2 (last: ${CODE}/${REASON}); proceeding with whatever findings exist."
+              exit 0
+            fi
+            sleep 30
+          done
+
+  scan-report:
+    name: Inspector2 scan report
+    needs: wait-for-inspector2-scan
+    permissions:
+      id-token: write
+      contents: read
+    uses: IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1
+    with:
+      ecr-repository: izg-transformation-ui
+      image-tag: ${{ inputs.image-tag }}
+      gh-pkg-name: izgw-transf-ui
+      release-date: ${{ needs.wait-for-inspector2-scan.outputs.release-date }}
+      aws-region: us-east-1

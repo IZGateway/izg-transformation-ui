@@ -58,23 +58,32 @@ This means:
 - ✅ `.github/workflows/create-release-branch.yml`
 - ✅ `.github/workflows/gitleaks.yml`
 
-## Release-time Inspector2 Vulnerability Scan
+## Inspector2 Vulnerability Scan (`scan-ecr-image.yml`)
 
-Every real release (both `release.yml` and `hotfix.yml`, via the shared
-`_release_common.yml`) generates an AWS Inspector2 vulnerability scan report for the
-image it just pushed to the dev-account ECR repo `izg-transformation-ui`. Two jobs run
-after the release job:
+The scan/report logic lives in the reusable workflow `scan-ecr-image.yml`, which can be
+run **manually** (`workflow_dispatch`, supplying an `image-tag`) to scan any published
+image in the dev-account ECR repo `izg-transformation-ui` without cutting a release, and
+is also invoked by the release pipeline (`workflow_call`). It runs two jobs:
 
 - `wait-for-inspector2-scan` — waits (up to ~20 min, exiting early) for Inspector2 to
-  finish scanning `izg-transformation-ui:<version>`, since Inspector2 scans asynchronously.
+  finish scanning `izg-transformation-ui:<image-tag>`, since Inspector2 scans asynchronously.
 - `scan-report` — calls the reusable workflow
   `IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1` to produce a
   CDC-named JSON/CSV/HTML report (`YYYYMMDD_izgw-transf-ui_v<version>_InspectorScan.*`),
   uploaded as a GitHub Actions artifact.
 
-The scan is **advisory**: it never blocks or fails a release, and it is **skipped on
-dry-run** (no image is pushed). A green release does not guarantee a populated report —
-download and inspect the artifact (an empty report usually means a tag/credential mismatch).
+On every real release (both `release.yml` and `hotfix.yml`, via the shared
+`_release_common.yml`), `_release_common.yml` calls `scan-ecr-image.yml` as a single job
+(`needs: release`, gated on non-dry-run), passing the release version as `image-tag`. This
+forms a 4-level workflow chain — `release.yml`/`hotfix.yml` → `_release_common.yml` →
+`scan-ecr-image.yml` → `ecr-scan-report.yml` — which is GitHub's maximum nesting depth, so
+no further intermediate workflow can be inserted.
+
+The scan is **advisory**: it never blocks or fails a release, and on the release path it is
+**skipped on dry-run** (no image is pushed). Because the release invokes it as a `uses:` job
+(which cannot carry `continue-on-error`), the advisory guarantee is upheld inside
+`scan-ecr-image.yml` itself. A green run does not guarantee a populated report — download and
+inspect the artifact (an empty report usually means a tag/credential mismatch).
 
 ### CI prerequisites (admin-owned — see IGDD-2151)
 

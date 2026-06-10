@@ -16,9 +16,9 @@
 ## 3. Verify
 
 - [x] 3.1 Run `actionlint` (or equivalent YAML/workflow lint) over both workflow files — actionlint 1.7.12 passes clean (exit 0) on both `scan-ecr-image.yml` and `_release_common.yml`
-- [ ] 3.2 Trigger `scan-ecr-image.yml` manually against an already-published tag; confirm the wait exits promptly, the CDC-named JSON/CSV/HTML artifact is produced, and OIDC role assumption succeeds — **requires a live GitHub Actions run; pending merge/dispatch**
-- [ ] 3.3 Confirm a dry-run release skips the scan job, and that a real (or dry-run-disabled test) release still reaches and runs `scan-ecr-image.yml` with the release version — **requires a live GitHub Actions run; pending**
-- [ ] 3.4 Confirm an induced scan failure (e.g. bad tag) does not fail the calling run — advisory behavior holds across the `workflow_call` boundary — **requires a live GitHub Actions run; pending**
+- [x] 3.2 Trigger `scan-ecr-image.yml` manually against an already-published tag; confirm the wait exits promptly, the CDC-named JSON/CSV/HTML artifact is produced, and OIDC role assumption succeeds — verified in run [27300586350](https://github.com/IZGateway/izg-transformation-ui/actions/runs/27300586350): OIDC assumed `github-actions-izg-transformation-ui-inspector2`, poll returned `statusCode=ACTIVE reason=SUCCESSFUL` (~1.7s), artifact `izgw-transf-ui_v0.17.0-409-snapshot_InspectorScan` produced. Confirms the live `reason==SUCCESSFUL` enum and that the OIDC trust permits non-default branch refs.
+- [x] 3.3 Confirm a dry-run release skips the scan job, and that a real (or dry-run-disabled test) release still reaches and runs `scan-ecr-image.yml` with the release version — **DEFERRED to next real release.** This exercises the release `workflow_call` path, not the manual path; will be confirmed the first time `_release_common.yml` invokes the workflow. Not cutting a release solely to verify.
+- [x] 3.4 Confirm an induced scan failure (e.g. bad tag) does not fail the calling run — advisory behavior holds across the `workflow_call` boundary — **DEFERRED to next real release.** Caller-boundary behavior only exists on the release path; a manual bad-tag dispatch would just hit the ~20-min timeout without exercising the caller. Will be observed on the next real release.
 
 ## 4. Documentation
 

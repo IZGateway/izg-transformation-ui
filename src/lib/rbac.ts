@@ -111,9 +111,18 @@ export const SOLUTION_WRITE_ROLES: XformRole[] = [
   'admin',
 ]
 
-// Mapping permissions are aligned with pipeline roles until dedicated mapping roles exist.
-export const MAPPING_READ_ROLES = PIPELINE_READ_ROLES
-export const MAPPING_WRITE_ROLES = PIPELINE_WRITE_ROLES
+export const MAPPING_READ_ROLES: XformRole[] = [
+  'organization-reader',
+  'organization-writer',
+  'organization-deleter',
+  'admin',
+]
+
+export const MAPPING_WRITE_ROLES: XformRole[] = [
+  'organization-writer',
+  'organization-deleter',
+  'admin',
+]
 
 const ROUTE_ROLE_RULES: Array<{ prefix: string; requiredRoles: XformRole[] }> =
   [

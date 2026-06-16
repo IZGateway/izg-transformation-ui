@@ -101,16 +101,9 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "fast-uri": "^3.1.2",
-    "follow-redirects": "^1.16.0",
-    "handlebars": "^4.7.9",
     "js-yaml": "^4.2.0",
-    "picomatch": "^2.3.2",
     "postcss": "^8.5.15",
-    "prismjs": "^1.30.0",
-    "sha.js": "^2.4.12",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
-    "xmlbuilder2": "^4.0.3",
-    "yaml": "^1.10.3"
+    "xmlbuilder2": "^4.0.3"
   }
 }

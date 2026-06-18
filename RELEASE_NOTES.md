@@ -1,5 +1,10 @@
 # Release Notes
 
+## [0.16.1] - 2026-06-17
+
+### Changes
+- Release 0.16.1
+
 ## [0.16.0] - 2026-06-03
 
 ### Changes

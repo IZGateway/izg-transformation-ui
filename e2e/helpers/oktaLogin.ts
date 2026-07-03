@@ -33,6 +33,9 @@ export const loginToOkta = async (
     await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 30000 })
   }).toPass({ timeout: 60000, intervals: [2000] })
 
+  const signInWithOktaButton = page.getByRole('button', {
+    name: /sign in with okta/i,
+  })
   const identifierInput = page.locator(
     'input[name="identifier"], input#okta-signin-username'
   )
@@ -45,6 +48,19 @@ export const loginToOkta = async (
     await page.goto('/')
     await page.waitForLoadState('networkidle')
     return
+  }
+
+  // Wait for either the NextAuth "Sign in with Okta" button or the Okta
+  // identifier field to appear, then proceed accordingly.
+  await expect(async () => {
+    const hasButton = await signInWithOktaButton.isVisible().catch(() => false)
+    const hasIdentifier = await identifierInput.first().isVisible().catch(() => false)
+    expect(hasButton || hasIdentifier).toBeTruthy()
+  }).toPass({ timeout: 45000 })
+
+  // NextAuth shows a "Sign in with Okta" button before redirecting to Okta.
+  if (await signInWithOktaButton.isVisible().catch(() => false)) {
+    await signInWithOktaButton.click()
   }
 
   // Wait for the Okta identifier field.

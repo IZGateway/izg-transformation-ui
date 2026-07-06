@@ -1,0 +1,56 @@
+# Standard Release Workflow
+# Trigger this from the 'develop' branch.
+# For hotfix releases from a hotfix/* branch, use hotfix.yml instead.
+
+name: Release - Standard
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-version:
+        description: 'Release version (e.g., 0.16.0)'
+        required: true
+        type: string
+      app-version:
+        description: 'Next app version after release (e.g., 0.17.0). Leave blank to auto-increment minor.'
+        required: false
+        type: string
+      develop-branch:
+        description: 'Develop branch name. Default: develop.'
+        required: false
+        type: string
+        default: 'develop'
+      main-branch:
+        description: 'Main branch name. Default: main.'
+        required: false
+        type: string
+        default: 'main'
+      dry-run:
+        description: 'Dry run: build Docker image but skip push, create draft GitHub Release only.'
+        required: false
+        type: boolean
+        default: false
+      skip-aphl:
+        description: 'Skip APHL ECR push only. Useful for testing without APHL credentials.'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
+  id-token: write # OIDC for the advisory Inspector2 scan jobs in _release_common.yml
+
+jobs:
+  release:
+    uses: ./.github/workflows/_release_common.yml
+    secrets: inherit
+    with:
+      release-version: ${{ inputs.release-version }}
+      app-version: ${{ inputs.app-version }}
+      release-type: standard
+      develop-branch: ${{ inputs.develop-branch }}
+      main-branch: ${{ inputs.main-branch }}
+      dry-run: ${{ inputs.dry-run }}
+      skip-aphl: ${{ inputs.skip-aphl }}

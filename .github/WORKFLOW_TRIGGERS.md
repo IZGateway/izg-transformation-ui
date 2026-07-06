@@ -58,6 +58,49 @@ This means:
 - ✅ `.github/workflows/create-release-branch.yml`
 - ✅ `.github/workflows/gitleaks.yml`
 
+## Inspector2 Vulnerability Scan (`scan-ecr-image.yml`)
+
+The scan/report logic lives in the reusable workflow `scan-ecr-image.yml`, which can be
+run **manually** (`workflow_dispatch`, supplying an `image-tag`) to scan any published
+image in the dev-account ECR repo `izg-transformation-ui` without cutting a release, and
+is also invoked by the release pipeline (`workflow_call`). It runs two jobs:
+
+- `wait-for-inspector2-scan` — waits (up to ~20 min, exiting early) for Inspector2 to
+  finish scanning `izg-transformation-ui:<image-tag>`, since Inspector2 scans asynchronously.
+- `scan-report` — calls the reusable workflow
+  `IZGateway/izg-dependency-scripts/.github/workflows/ecr-scan-report.yml@v1` to produce a
+  CDC-named JSON/CSV/HTML report (`YYYYMMDD_izgw-transf-ui_v<version>_InspectorScan.*`),
+  uploaded as a GitHub Actions artifact.
+
+On every real release (both `release.yml` and `hotfix.yml`, via the shared
+`_release_common.yml`), `_release_common.yml` calls `scan-ecr-image.yml` as a single job
+(`needs: release`, gated on non-dry-run), passing the release version as `image-tag`. This
+forms a 4-level workflow chain — `release.yml`/`hotfix.yml` → `_release_common.yml` →
+`scan-ecr-image.yml` → `ecr-scan-report.yml` — which is GitHub's maximum nesting depth, so
+no further intermediate workflow can be inserted.
+
+The scan is **advisory**: it never blocks or fails a release, and on the release path it is
+**skipped on dry-run** (no image is pushed). Because the release invokes it as a `uses:` job
+(which cannot carry `continue-on-error`), the advisory guarantee is upheld inside
+`scan-ecr-image.yml` itself. A green run does not guarantee a populated report — download and
+inspect the artifact (an empty report usually means a tag/credential mismatch).
+
+### CI prerequisites (admin-owned — see IGDD-2151)
+
+These are environmental and are NOT created by the workflow code:
+
+- **`AWS_ROLE_ARN` repository variable** — the OIDC role the scan jobs assume
+  (`gh variable set AWS_ROLE_ARN --body "arn:aws:iam::<acct>:role/<role>"`). Read via
+  `vars.AWS_ROLE_ARN`, not a secret.
+- **GitHub OIDC IAM role** in the dev AWS account, trust policy scoped to this repo's
+  release workflows, with IAM permissions **`inspector2:ListFindings`** *and*
+  **`inspector2:ListCoverage`**.
+- **Cross-repo workflow access** — `izg-dependency-scripts` must allow this repo to call
+  its reusable workflow.
+
+The release jobs that build/push images keep using the existing
+`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` secrets; OIDC is used only by the scan jobs.
+
 ## Benefits
 
 1. **Prevents Infinite Loops** - Automated workflows creating PRs don't trigger endless builds

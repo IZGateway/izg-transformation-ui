@@ -107,7 +107,7 @@ jobs:
         run: npx playwright install chrome
 
       - name: Run Playwright e2e tests (Chrome, Firefox, WebKit — headless)
-        run: npx playwright test --reporter=html
+        run: npx playwright test --project=Chrome --project=Firefox --project=WebKit --reporter=html
 
       - name: Upload HTML Report
         if: always()

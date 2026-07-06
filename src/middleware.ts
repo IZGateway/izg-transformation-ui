@@ -21,7 +21,7 @@ export default withAuth(
     }
 
     if (!canAccessPath(pathname, roles)) {
-      return NextResponse.redirect(new URL('/404', req.url))
+      return NextResponse.redirect(new URL('/api/auth/error?error=AccessDenied', req.url))
     }
 
     return NextResponse.next()

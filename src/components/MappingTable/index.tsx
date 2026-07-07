@@ -272,8 +272,8 @@ const MappingTable = (props) => {
         pagination
         slots={{
           footer: () => <CustomFooter canManageMappings={canManageMappings} />,
+          toolbar: GridToolbar,
         }}
-        components={{ Toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
             showQuickFilter: true,

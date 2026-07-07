@@ -24,13 +24,69 @@ const GROUP_ROLE_MAPPING: Record<string, XformRole[]> = {
     'organization-deleter',
     'admin',
   ],
+  'IZG Transform Admin': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'solution-reader',
+    'solution-writer',
+    'solution-deleter',
+    'organization-reader',
+    'organization-writer',
+    'organization-deleter',
+    'admin',
+  ],
+  'IZG Transformation Services Admins': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'solution-reader',
+    'solution-writer',
+    'solution-deleter',
+    'organization-reader',
+    'organization-writer',
+    'organization-deleter',
+    'admin',
+  ],
   'Xform Business Analyst': [
     'pipeline-reader',
     'pipeline-writer',
     'pipeline-deleter',
     'organization-reader',
   ],
+  'IZG Transform Business Analyst': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'organization-reader',
+  ],
+  'IZG Transformation Services Business Analysts': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'organization-reader',
+  ],
   'Xform Solutions Engineer': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'solution-reader',
+    'solution-writer',
+    'solution-deleter',
+    'organization-reader',
+    'organization-writer',
+  ],
+  'IZG Transform Solutions Engineer': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'solution-reader',
+    'solution-writer',
+    'solution-deleter',
+    'organization-reader',
+    'organization-writer',
+  ],
+  'IZG Transformation Services Solutions Engineers': [
     'pipeline-reader',
     'pipeline-writer',
     'pipeline-deleter',
@@ -50,12 +106,44 @@ const GROUP_ROLE_MAPPING: Record<string, XformRole[]> = {
     'organization-reader',
     'organization-writer',
   ],
+  'IZG Transform Operations Staff': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'solution-reader',
+    'solution-writer',
+    'solution-deleter',
+    'organization-reader',
+    'organization-writer',
+  ],
+  'IZG Transformation Services Operations Staff': [
+    'pipeline-reader',
+    'pipeline-writer',
+    'pipeline-deleter',
+    'solution-reader',
+    'solution-writer',
+    'solution-deleter',
+    'organization-reader',
+    'organization-writer',
+  ],
   'Xform Onboarding Staff': [
     'pipeline-reader',
     'solution-reader',
     'organization-reader',
   ],
+  'IZG Transform Onboarding Staff': [
+    'pipeline-reader',
+    'solution-reader',
+    'organization-reader',
+  ],
+  'IZG Transformation Services Onboarding Staff': [
+    'pipeline-reader',
+    'solution-reader',
+    'organization-reader',
+  ],
   'Xform Sender': ['xform-sender'],
+  'IZG Transform Sender': ['xform-sender'],
+  'IZG Transformation Services Senders': ['xform-sender'],
 }
 
 const normalizeGroupName = (groupName: string) =>
@@ -111,9 +199,18 @@ export const SOLUTION_WRITE_ROLES: XformRole[] = [
   'admin',
 ]
 
-// Mapping permissions are aligned with pipeline roles until dedicated mapping roles exist.
-export const MAPPING_READ_ROLES = PIPELINE_READ_ROLES
-export const MAPPING_WRITE_ROLES = PIPELINE_WRITE_ROLES
+export const MAPPING_READ_ROLES: XformRole[] = [
+  'organization-reader',
+  'organization-writer',
+  'organization-deleter',
+  'admin',
+]
+
+export const MAPPING_WRITE_ROLES: XformRole[] = [
+  'organization-writer',
+  'organization-deleter',
+  'admin',
+]
 
 const ROUTE_ROLE_RULES: Array<{ prefix: string; requiredRoles: XformRole[] }> =
   [

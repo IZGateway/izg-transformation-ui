@@ -6,6 +6,10 @@ export default withAuth(
   function middleware(req) {
     const pathname = req.nextUrl.pathname
 
+    if (pathname.startsWith('/api')) {
+      return NextResponse.next()
+    }
+
     const rolesFromGroups = getRolesFromGroups(req.nextauth.token?.groups)
     const rolesFromToken = Array.isArray(req.nextauth.token?.roles)
       ? req.nextauth.token.roles

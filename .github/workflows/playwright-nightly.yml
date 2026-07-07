@@ -1,0 +1,142 @@
+name: Playwright E2E Tests (Dev)
+
+on:
+  schedule:
+    - cron: '0 7 * * 1-5' # Mon–Fri at 07:00 UTC
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: Run Playwright e2e against Dev
+    runs-on: ubuntu-latest
+
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+      OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
+      OKTA_PASSWORD: ${{ secrets.OKTA_PASSWORD }}
+      OKTA_EXPECTED_FULLNAME: ${{ secrets.OKTA_EXPECTED_FULLNAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Start XFORM Service (backend) in AWS Dev
+        env:
+          AWS_REGIONS: ${{ vars.AWS_REGIONS }}
+          ECS_DESIRED_COUNT: ${{ vars.ECS_DESIRED_COUNT }}
+        run: |
+          if [ -z "$AWS_REGIONS" ]; then
+            echo "AWS_REGIONS not set, defaulting to us-east-1"
+            AWS_REGIONS="us-east-1"
+          fi
+          if [ -z "$ECS_DESIRED_COUNT" ]; then
+            echo "ECS_DESIRED_COUNT not set, defaulting to 1"
+            ECS_DESIRED_COUNT="1"
+          fi
+          for region in $AWS_REGIONS; do
+            echo "Start XFORM Service in $region (starting $ECS_DESIRED_COUNT containers)"
+            aws ecs update-service --region $region \
+              --cluster xform-service-alb-dev --service xform-service-alb-dev \
+              --force-new-deployment --enable-execute-command \
+              --desired-count $ECS_DESIRED_COUNT | jq ".service.deployments[].id" &
+          done
+          wait
+          for region in $AWS_REGIONS; do
+            echo "Wait for XFORM Service stability in $region"
+            aws ecs wait services-stable --region $region \
+              --cluster xform-service-alb-dev --service xform-service-alb-dev &
+          done
+          wait
+
+      - name: Start Xform Console in AWS Dev
+        env:
+          AWS_REGIONS: ${{ vars.AWS_REGIONS }}
+          ECS_DESIRED_COUNT: ${{ vars.ECS_DESIRED_COUNT }}
+        run: |
+          if [ -z "$AWS_REGIONS" ]; then
+            echo "AWS_REGIONS not set, defaulting to us-east-1"
+            AWS_REGIONS="us-east-1"
+          fi
+          if [ -z "$ECS_DESIRED_COUNT" ]; then
+            echo "ECS_DESIRED_COUNT not set, defaulting to 1"
+            ECS_DESIRED_COUNT="1"
+          fi
+          for region in $AWS_REGIONS; do
+            echo "Start Xform Console in $region (starting $ECS_DESIRED_COUNT containers)"
+            aws ecs update-service --region $region \
+              --cluster xform-console-dev --service xform-console-dev \
+              --force-new-deployment --enable-execute-command \
+              --desired-count $ECS_DESIRED_COUNT | jq ".service.deployments[].id" &
+          done
+          wait
+          for region in $AWS_REGIONS; do
+            echo "Wait for Xform Console stability in $region"
+            aws ecs wait services-stable --region $region \
+              --cluster xform-console-dev --service xform-console-dev &
+          done
+          wait
+
+      - name: Configure npm authentication
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "Configuring npm authentication for GitHub Packages..."
+          npm config set @izgateway:registry https://npm.pkg.github.com/
+          npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN}
+          echo "✓ npm authentication configured"
+
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Ensure Google Chrome channel is available
+        run: npx playwright install chrome
+
+      - name: Run Playwright e2e tests (Chrome, Firefox, WebKit — headless)
+        run: npx playwright test --project=Chrome --project=Firefox --project=WebKit --reporter=html
+
+      - name: Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 1
+
+      - name: Stop Xform Console and XFORM Service in AWS Dev
+        if: always()
+        env:
+          AWS_REGIONS: ${{ vars.AWS_REGIONS }}
+        run: |
+          if [ -z "$AWS_REGIONS" ]; then
+            echo "AWS_REGIONS not set, defaulting to us-east-1"
+            AWS_REGIONS="us-east-1"
+          fi
+          for region in $AWS_REGIONS; do
+            echo "Stopping Xform Console in $region"
+            aws ecs update-service --region $region \
+              --cluster xform-console-dev --service xform-console-dev \
+              --force-new-deployment --enable-execute-command \
+              --desired-count 0 | jq ".service.deployments[].id" &
+
+            echo "Stopping XFORM Service in $region"
+            aws ecs update-service --region $region \
+              --cluster xform-service-alb-dev --service xform-service-alb-dev \
+              --force-new-deployment --enable-execute-command \
+              --desired-count 0 | jq ".service.deployments[].id" &
+          done
+          wait

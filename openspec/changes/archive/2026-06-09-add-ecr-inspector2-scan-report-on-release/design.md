@@ -118,9 +118,9 @@ nesting, within GitHub's limit of 4. ✅
 ## Risks / Trade-offs
 
 - **OIDC infra doesn't exist yet (hard blocker)** → Implementation lands the workflow code, but
-  it is non-functional until an admin creates the OIDC role (trust scoped to this repo's release
-  workflows), attaches IAM perms, and sets `vars.AWS_ROLE_ARN`. A gating verification task
-  precedes any real release test. (IGDD-2151.)
+  it is non-functional until an admin creates the OIDC role (trust scoped by the `sub` claim to
+  this repo, `repo:IZGateway/izg-transformation-ui:*`), attaches IAM perms, and sets
+  `vars.AWS_ROLE_ARN`. A gating verification task precedes any real release test. (IGDD-2151.)
 - **Poll needs an extra IAM permission** → The role needs **both** `inspector2:ListFindings`
   (report) **and** `inspector2:ListCoverage` (poll). If `ListCoverage` is omitted, the poll job
   errors; being advisory, that would surface as a non-blocking job failure, not a release failure.
@@ -142,9 +142,10 @@ nesting, within GitHub's limit of 4. ✅
 
 ## Migration Plan
 
-1. **Prereqs (admin / IGDD-2151, blocking):** create OIDC role + trust policy scoped to this
-   repo's release workflows; attach `inspector2:ListFindings` + `inspector2:ListCoverage`; set
-   repo variable `AWS_ROLE_ARN`; confirm `izg-dependency-scripts` allows workflow access.
+1. **Prereqs (admin / IGDD-2151, blocking):** create OIDC role + trust policy scoped by the
+   `sub` claim to this repo (`repo:IZGateway/izg-transformation-ui:*`); attach
+   `inspector2:ListFindings` + `inspector2:ListCoverage`; set repo **variable** (not secret)
+   `AWS_ROLE_ARN`; confirm `izg-dependency-scripts` allows workflow access.
 2. Add the `wait-for-inspector2-scan` + `scan-report` jobs to `_release_common.yml`
    (advisory, dry-run-skipped, OIDC).
 3. Add `permissions: { id-token: write, contents: read }` to the `_release_common`-calling jobs
@@ -158,9 +159,13 @@ nesting, within GitHub's limit of 4. ✅
 
 ## Open Questions
 
-- **OIDC role specifics** (exact ARN, trust `sub` condition, whether repo- or environment-scoped
-  variable) — owned by the admin provisioning the role (IGDD-2151).
-- **Exact Inspector2 `scanStatus` terminal values** to treat as "done" vs "still scanning" —
-  to be pinned in `tasks.md`/implementation against the live API (`list-coverage` status enum).
+- ~~**OIDC role specifics** (exact ARN, trust condition, repo- vs environment-scoped variable)~~
+  **RESOLVED (2026-06-04):** role `github-actions-izg-transformation-ui-inspector2` in account
+  `357442695278`; trust scoped by `sub` = `repo:IZGateway/izg-transformation-ui:*`
+  (`job_workflow_ref` scoping does not evaluate true for GitHub OIDC in this account); repo-level
+  **variable** `AWS_ROLE_ARN` (must be a variable, not a secret — `vars.` is read on both sides).
+- ~~**Exact Inspector2 `scanStatus` terminal values** to treat as "done" vs "still scanning"~~
+  **RESOLVED (2026-06-09):** `list-coverage` reports `scanStatus.reason == SUCCESSFUL` when the image
+  scan is complete; the poll exits on that value (confirmed against the live API in the `@v1` proxy run).
 - **Whether to also fail-fast (non-advisory) later** once OIDC/timing prove reliable — deferred;
   advisory for the initial rollout.

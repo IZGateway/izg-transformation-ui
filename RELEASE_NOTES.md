@@ -1,5 +1,30 @@
 # Release Notes
 
+## [0.17.0] - 2026-07-07
+
+### Changes
+- IGDD-2887 ([#279](https://github.com/IZGateway/izg-transformation-ui/pull/279))
+- Change mapping access to organization permissions ([#259](https://github.com/IZGateway/izg-transformation-ui/pull/259))
+- Align auth RBAC changes with PR 259 ([#222](https://github.com/IZGateway/izg-transformation-ui/pull/222))
+- chore(deps): security and dependency updates ([#278](https://github.com/IZGateway/izg-transformation-ui/pull/278))
+- chore(deps): bump actions/cache from 5 to 6 ([#273](https://github.com/IZGateway/izg-transformation-ui/pull/273))
+- chore(deps): security and dependency updates ([#272](https://github.com/IZGateway/izg-transformation-ui/pull/272))
+- chore(deps): security and dependency updates ([#269](https://github.com/IZGateway/izg-transformation-ui/pull/269))
+- chore(deps): security and dependency updates ([#268](https://github.com/IZGateway/izg-transformation-ui/pull/268))
+- chore(deps): bump actions/checkout from 6 to 7 ([#267](https://github.com/IZGateway/izg-transformation-ui/pull/267))
+- chore(deps): security and dependency updates ([#266](https://github.com/IZGateway/izg-transformation-ui/pull/266))
+- Eliminate deprecated packages ([#262](https://github.com/IZGateway/izg-transformation-ui/pull/262))
+- chore(deps): security and dependency updates ([#261](https://github.com/IZGateway/izg-transformation-ui/pull/261))
+- chore(deps): security and dependency updates ([#258](https://github.com/IZGateway/izg-transformation-ui/pull/258))
+- IGDD-2563 split out scanner ([#257](https://github.com/IZGateway/izg-transformation-ui/pull/257))
+- chore: No longer install nginx in xform console Dockerfile ([#255](https://github.com/IZGateway/izg-transformation-ui/pull/255))
+- chore(deps): security and dependency updates ([#256](https://github.com/IZGateway/izg-transformation-ui/pull/256))
+- chore(deps): security and dependency updates ([#254](https://github.com/IZGateway/izg-transformation-ui/pull/254))
+- chore(deps): security and dependency updates ([#252](https://github.com/IZGateway/izg-transformation-ui/pull/252))
+- ci: pin Docker actions to commit SHAs for supply-chain security ([#253](https://github.com/IZGateway/izg-transformation-ui/pull/253))
+- chore(deps): security and dependency updates ([#250](https://github.com/IZGateway/izg-transformation-ui/pull/250))
+
+
 ## [0.16.1] - 2026-06-17
 
 ### Changes

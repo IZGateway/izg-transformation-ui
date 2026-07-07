@@ -26,7 +26,7 @@ jest.mock('@mui/x-data-grid', () => ({
 
 jest.mock('next-auth/react', () => ({
   useSession: () => ({
-    data: { user: { roles: ['pipeline-writer'] } },
+    data: { user: { roles: ['organization-writer'] } },
     status: 'authenticated',
   }),
 }))

@@ -296,8 +296,8 @@ const SolutionsTable = (props) => {
         pagination
         slots={{
           footer: () => <CustomFooter canManageSolutions={canManageSolutions} />,
+          toolbar: GridToolbar,
         }}
-        components={{ Toolbar: GridToolbar }}
         slotProps={{
           toolbar: {
             showQuickFilter: true,

@@ -33,10 +33,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN apk add bash
-
-# Install gettext (for envsubst), and tini
-RUN apk add --no-cache tini
+# Install bash and tini
+RUN apk add --no-cache bash tini
 
 COPY package.json package-lock.json ./
 
@@ -44,12 +42,12 @@ COPY package.json package-lock.json ./
 # Fail the build fast if a future base image stops shipping the nginx binary or the
 # 'nginx' user that nginx.conf's `user nginx;` directive requires, rather than
 # discovering it at container runtime when run_and_monitor.sh tries to start nginx.
-RUN command -v nginx >/dev/null 2>&1 || { echo "ERROR: nginx binary not found; must be provided by the base image."; exit 1; } \
-    && id -u nginx >/dev/null 2>&1 || { echo "ERROR: 'nginx' user not found; required by 'user nginx;' in nginx.conf."; exit 1; }
+RUN if ! command -v nginx >/dev/null 2>&1; then echo "ERROR: nginx binary not found; must be provided by the base image."; exit 1; fi \
+    && if ! id -u nginx >/dev/null 2>&1; then echo "ERROR: 'nginx' user not found; required by 'user nginx;' in nginx.conf."; exit 1; fi
 
 # Install Dependencies and cleanup yarn.lock if present
 ARG NPM_TOKEN
-RUN apk add --no-cache bash gettext tini curl libc6-compat \
+RUN apk add --no-cache curl libc6-compat \
     && npm config set @izgateway:registry https://npm.pkg.github.com/ \
     && npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN} \
     && npm ci --omit=dev && find . -type f -name 'yarn.lock' -delete
@@ -62,11 +60,8 @@ COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-variable.sh
 COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
-# Install filebeat
-RUN apk add curl libc6-compat
-
-# Replace default filebeat config with custom config file 
- RUN cd ../filebeat && \
+# Replace default filebeat config with custom config file
+RUN cd ../filebeat && \
      rm -rf /filebeat.yml && \
      cp ../app/filebeat.yml ./filebeat.yml
 

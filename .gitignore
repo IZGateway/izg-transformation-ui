@@ -36,6 +36,9 @@ yarn-error.log*
 # Playwright
 playwright-report/
 .playwright-auth.json
+/e2e/.auth
+/playwright/.cache
+/test-results
 
 # typescript
 *.tsbuildinfo

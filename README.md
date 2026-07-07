@@ -63,7 +63,7 @@ solutions within a pipeline, across Chrome, Firefox and WebKit.
 ### Setup
 
 1. Install dependencies: `npm install --force`
-2. Install the browsers: `npx playwright install --with-deps`
+2. Install the browsers: `npx playwright install --with-deps && npx playwright install chrome`
 3. Copy `.env.test.example` to `.env.test` (git-ignored) and fill in:
    - `BASE_URL` — the environment to test against (defaults to `https://dev.xform-ui.izgateway.org`)
    - `OKTA_USERNAME` / `OKTA_PASSWORD` — an Okta account assigned to the Xform app

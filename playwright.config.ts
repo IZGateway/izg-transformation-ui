@@ -18,7 +18,7 @@ export default defineConfig({
     timeout: 15000,
   },
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://dev.xform-ui.izgateway.org',
+    baseURL: process.env.BASE_URL || 'https://dev.xform-ui.izgateway.org',
     headless: true,
     ignoreHTTPSErrors: true,
     viewport: { width: 1440, height: 900 },
@@ -33,7 +33,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   projects: [
-    // Logs in via Okta once per browser and saves the session to STORAGE_STATE.
+    // Logs in via Okta once per test run and saves the session to STORAGE_STATE.
     // testDir is set to ./e2e (not ./e2e/tests) because auth.setup.ts lives there.
     {
       name: 'setup',

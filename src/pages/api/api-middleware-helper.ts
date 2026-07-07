@@ -1,9 +1,10 @@
 import { label, Middleware } from 'next-api-middleware'
 import { authOptions } from './auth/[...nextauth]'
 import { getServerSession } from 'next-auth'
-import { decode } from 'next-auth/jwt'
 import logger from '../../../logger'
 import hasAccessToDestId from '../../lib/accesshelper'
+
+const LOG_LEVEL = process.env.LOG_LEVEL || 'info'
 
 // Catch any errors
 const captureErrors: Middleware = async (req, res, next) => {
@@ -18,18 +19,26 @@ const captureErrors: Middleware = async (req, res, next) => {
 
 // log the api requests and response code
 const logRequest: Middleware = async (req, res, next) => {
-  const sessionToken =
-    req.cookies['next-auth.session-token'] ||
-    req.cookies['__Secure-next-auth.session-token']
-  const session = await decode({
-    token: sessionToken,
-    secret: process.env.NEXTAUTH_SECRET,
-  })
-  logger.debug('Api request ' + req.url, {
-    req,
-    res,
-    user: session.email || null,
-  })
+  const session = await getServerSession(req, res, authOptions)
+  const user = session?.user?.email || null
+  if (LOG_LEVEL.toLocaleLowerCase() === 'debug') {
+    logger.warn(
+      'WARNING: LOG_LEVEL is set to DEBUG, this will log sensitive information for every API request'
+    )
+    logger.info('API Request ' + req.url, {
+      req,
+      res,
+      user,
+      'x-forwarded-for': req.headers['x-forwarded-for'] || null,
+      'user-agent': req.headers['user-agent'] || null,
+    })
+  } else {
+    logger.info('API Request ' + req.url, {
+      user,
+      'x-forwarded-for': req.headers['x-forwarded-for'] || null,
+      'user-agent': req.headers['user-agent'] || null,
+    })
+  }
   await next()
 }
 
@@ -39,18 +48,12 @@ const checkAccessToDestId: Middleware = async (req, res, next) => {
   const session = await getServerSession(req, res, authOptions)
   const hasAccess = hasAccessToDestId(destId, session)
   if (hasAccess) {
-    logger.debug('Api request ' + req.url, {
-      req,
-      res,
-      user: session.user.email,
-    })
     await next()
   } else {
     res.status(401).send('unauthorized')
-    logger.debug('Api request ' + req.url, {
-      req,
-      res,
-      user: session.user.email,
+    logger.warn('Unauthorized access attempt', {
+      url: req.url,
+      user: session?.user?.email || null,
     })
   }
 }
@@ -60,18 +63,12 @@ const checkAccessToDestIdSlug: Middleware = async (req, res, next) => {
   const session = await getServerSession(req, res, authOptions)
   const hasAccess = hasAccessToDestId(destId, session)
   if (hasAccess) {
-    logger.debug('Api request ' + req.url, {
-      req,
-      res,
-      user: session.user.email,
-    })
     await next()
   } else {
     res.status(401).send('unauthorized')
-    logger.debug('Api request ' + req.url, {
-      req,
-      res,
-      user: session.user.email,
+    logger.warn('Unauthorized access attempt', {
+      url: req.url,
+      user: session?.user?.email || null,
     })
   }
 }

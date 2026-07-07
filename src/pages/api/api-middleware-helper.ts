@@ -5,6 +5,7 @@ import logger from '../../../logger'
 import hasAccessToDestId from '../../lib/accesshelper'
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info'
+let hasLoggedDebugWarning = false
 
 // Catch any errors
 const captureErrors: Middleware = async (req, res, next) => {
@@ -21,25 +22,34 @@ const captureErrors: Middleware = async (req, res, next) => {
 const logRequest: Middleware = async (req, res, next) => {
   const session = await getServerSession(req, res, authOptions)
   const user = session?.user?.email || null
-  if (LOG_LEVEL.toLocaleLowerCase() === 'debug') {
+  const isDebug = LOG_LEVEL.toLowerCase() === 'debug'
+
+  if (isDebug && !hasLoggedDebugWarning) {
     logger.warn(
       'WARNING: LOG_LEVEL is set to DEBUG, this will log sensitive information for every API request'
     )
+    hasLoggedDebugWarning = true
+  }
+
+  await next()
+
+  if (isDebug) {
     logger.info('API Request ' + req.url, {
       req,
       res,
+      statusCode: res.statusCode,
       user,
       'x-forwarded-for': req.headers['x-forwarded-for'] || null,
       'user-agent': req.headers['user-agent'] || null,
     })
   } else {
     logger.info('API Request ' + req.url, {
+      statusCode: res.statusCode,
       user,
       'x-forwarded-for': req.headers['x-forwarded-for'] || null,
       'user-agent': req.headers['user-agent'] || null,
     })
   }
-  await next()
 }
 
 // check access to destination

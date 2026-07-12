@@ -90,7 +90,7 @@
     "@typescript-eslint/parser": "^8.57.1",
     "concurrently": "^8.2.2",
     "dotenv": "^17.4.2",
-    "eslint": "^9.39.4",
+    "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
     "eslint-config-prettier": "^9.1.2",
     "husky": "^8.0.3",
@@ -109,7 +109,7 @@
     "glob": "^13.0.6",
     "js-yaml": "4.3.0",
     "jsdom": "^28.1.0",
-    "postcss": "8.5.16",
+    "postcss": "8.5.17",
     "swagger-jsdoc": "^6.3.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"

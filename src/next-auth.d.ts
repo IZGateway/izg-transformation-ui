@@ -22,5 +22,8 @@ declare module 'next-auth/jwt' {
     groups?: string[]
     jurisdictions?: string[]
     roles?: XformRole[]
+    sessionId?: string
+    authTime?: number
+    jti?: string
   }
 }

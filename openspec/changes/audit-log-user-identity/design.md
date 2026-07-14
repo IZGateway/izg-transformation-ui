@@ -55,10 +55,11 @@ Add `src/lib/requestContext.ts` with `buildRequestContext(req, res): Promise<Con
 
 - **Import note:** the helper imports `authOptions` from `src/pages/api/auth/[...nextauth]` (as `withMiddleware` already does). If an import cycle appears, pass `authOptions` in as a parameter.
 
-### D4 — Establish context for API routes via an always-on default middleware
+### D4 — Establish context for API routes by wrapping the whole composed chain
 
-Add an `establishContext` middleware to `withMiddleware` and make it a **default** (placed **before** `captureErrors` so it is the outermost wrapper): `establishContext` builds the `Context` and returns `asyncRequestContext.run(context, () => next())`, so the entire downstream chain (including `captureErrors`, `checkAccessToDestId*`, `logRequest`, and the handler) runs inside the context. This attributes **every** API route, not just the ones that opt into `logRequest`. `next-api-middleware` composes the default list in order (first = outermost), which gives the required nesting.
+Wrap the **entire** `next-api-middleware` composition in `asyncRequestContext.run(...)` at the `withMiddleware` level, rather than adding an inner context middleware. `withMiddleware(...labels)(handler)` builds the `Context` via `buildRequestContext(req, res)` and returns `asyncRequestContext.run(context, () => composed(req, res))`, where `composed` is the underlying labeled executor. This attributes **every** API route (all middleware + the handler) regardless of whether the route opts into `logRequest`.
 
+- **Why not an inner `establishContext` middleware (approach rejected during implementation):** `next-api-middleware`'s `next()` does **not** invoke the downstream chain synchronously — it resolves a cleanup promise and schedules the remaining middleware via `queueMicrotask` **outside** the calling middleware's execution. So `asyncRequestContext.run(ctx, () => next())` inside a middleware would tear its store down before the handler runs, and `getStore()` in the handler returns `undefined` (verified by a failing test). Wrapping the whole composed chain keeps the store active across the library's internal deferral.
 - The existing `logRequest`/`captureErrors`/`checkAccessToDestId*` bodies are unchanged; their existing `user` field stays exactly as-is (D6).
 
 ### D5 — Establish context for page renders via `withRequestContext(getServerSideProps)`
@@ -96,7 +97,7 @@ Okta group membership is mutable, so reconstructing "what was this user authoriz
 ## Risks / Trade-offs
 
 - **`ecsFormat` could transform/drop a custom field** → `sessionUser` is a custom (non-ECS-reserved) key; passthrough expected. Mitigation: a unit test asserting the serialized output contains the `sessionUser` object (no prior custom field exists here to lean on).
-- **`AsyncLocalStorage` + `next-api-middleware` composition** → the `run()` must wrap `next()` and be the outermost default so all downstream logs see the store. Mitigation: place `establishContext` first in the defaults; cover with a middleware test asserting a logged line inside a wrapped handler carries `sessionUser`.
+- **`AsyncLocalStorage` + `next-api-middleware` composition** → `next-api-middleware` defers downstream execution via `queueMicrotask`, so an inner `run(ctx, () => next())` middleware does not keep the store active for the handler. Mitigation (implemented): wrap the whole composed chain in `run()` at the `withMiddleware` level (D4); covered by a middleware test asserting a real logged line inside a wrapped handler carries `sessionUser`.
 - **No request context on some paths** (startup, background, unauthenticated) → `sessionUser` is omitted; the format must never throw on an empty store. Covered by spec scenarios/tests.
 - **Refactor of the API hot path** → `establishContext` runs on every API request; keep it minimal (one `getServerSession` + one `getToken`, already the cost `logRequest`/`checkAccess*` pay). The existing `logRequest` behavior is unchanged.
 - **`groups`/`roles` are authorization metadata** → logged only once per session, in a record that should be access-controlled like any identity-bearing log. Not a credential; not replayable.

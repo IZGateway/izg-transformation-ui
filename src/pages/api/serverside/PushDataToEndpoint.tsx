@@ -63,13 +63,14 @@ const pushWithToken = async (
   } catch (error) {
     // Redact before logging/propagating: the raw AxiosError carries the bearer
     // token and mTLS key material in its config (IGDD-3108).
-    console.error('Error pushing data:', redactHttpError(error))
+    const redactedError = redactHttpError(error)
+    console.error('Error pushing data:', redactedError)
     if (isServiceUnavailableError(error)) {
       throw new ServiceUnavailableError(
         error instanceof Error ? error.message : undefined
       )
     }
-    throw redactHttpError(error)
+    throw redactedError
   }
 }
 

@@ -22,6 +22,7 @@ const makeAxiosError = (status: number, message: string) =>
     request: { some: 'thing' },
     response: {
       status,
+      data: { message: 'Pipeline name already exists' },
       config: { headers: { Authorization: 'Bearer eyJSECRET_ACCESS_TOKEN' } },
     },
   })
@@ -65,6 +66,14 @@ describe('redactHttpError (IGDD-3108)', () => {
     expect(redacted.code).toBe('ERR_BAD_RESPONSE')
     expect(redacted.status).toBe(404)
     expect(redacted.response?.status).toBe(404)
+  })
+
+  it('preserves response.data (backend error body) while dropping response.config', () => {
+    const redacted = redactHttpError(makeAxiosError(400, 'Request failed with status code 400'))
+
+    // downstream API routes read error.response.data.message for user-facing errors
+    expect(redacted.response?.data).toEqual({ message: 'Pipeline name already exists' })
+    expect((redacted.response as any)?.config).toBeUndefined()
   })
 
   it('preserves service-unavailable detection for 503', () => {

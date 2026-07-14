@@ -57,13 +57,14 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
   } catch (error) {
     // Redact before logging/propagating: the raw AxiosError carries the bearer
     // token and mTLS key material in its config (IGDD-3108).
-    console.error('Error fetching data:', redactHttpError(error))
+    const redactedError = redactHttpError(error)
+    console.error('Error fetching data:', redactedError)
     if (isServiceUnavailableError(error)) {
       throw new ServiceUnavailableError(
         error instanceof Error ? error.message : undefined
       )
     }
-    throw redactHttpError(error)
+    throw redactedError
   }
 }
 

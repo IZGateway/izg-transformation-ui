@@ -16,7 +16,10 @@
 export interface RedactedHttpError extends Error {
   code?: string
   status?: number
-  response?: { status?: number }
+  // `data` is the backend's response body (not credential material, which lives
+  // in config/request); downstream API routes surface it as the user-facing
+  // error message, so it is retained.
+  response?: { status?: number; data?: unknown }
 }
 
 export function redactHttpError(error: unknown): RedactedHttpError {
@@ -34,7 +37,7 @@ export function redactHttpError(error: unknown): RedactedHttpError {
   const source = error as Error & {
     code?: unknown
     status?: unknown
-    response?: { status?: unknown }
+    response?: { status?: unknown; data?: unknown }
   }
 
   const redacted: RedactedHttpError = new Error(error.message)
@@ -45,18 +48,34 @@ export function redactHttpError(error: unknown): RedactedHttpError {
     redacted.code = source.code
   }
 
+  const response =
+    source.response && typeof source.response === 'object'
+      ? source.response
+      : undefined
+
   const responseStatus =
-    source.response && typeof source.response.status === 'number'
-      ? source.response.status
+    response && typeof response.status === 'number'
+      ? response.status
       : typeof source.status === 'number'
         ? source.status
         : undefined
 
-  if (typeof responseStatus === 'number') {
+  // Rebuild `response` with only the safe fields downstream needs — the HTTP
+  // status (also used by isServiceUnavailableError for 502/503) and the backend
+  // response body (`data`). Deliberately omit `config`/`request`/`headers`,
+  // which is where the bearer token and mTLS key material live.
+  if (responseStatus !== undefined || (response && 'data' in response)) {
+    redacted.response = {}
+    if (responseStatus !== undefined) {
+      redacted.response.status = responseStatus
+    }
+    if (response && 'data' in response) {
+      redacted.response.data = response.data
+    }
+  }
+
+  if (responseStatus !== undefined) {
     redacted.status = responseStatus
-    // Preserve the minimal shape downstream code reads (`error.response?.status`)
-    // and that isServiceUnavailableError() uses for 502/503 detection.
-    redacted.response = { status: responseStatus }
   }
 
   return redacted

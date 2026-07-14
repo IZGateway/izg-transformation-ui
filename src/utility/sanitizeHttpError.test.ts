@@ -87,6 +87,18 @@ describe('redactHttpError (IGDD-3108)', () => {
     expect(dumpAllProps(redacted)).not.toContain('Bearer')
   })
 
+  it('still redacts a non-ServiceUnavailableError even if it carries an isServiceUnavailable marker', () => {
+    const spoofed = Object.assign(
+      makeAxiosError(500, 'Request failed with status code 500'),
+      { isServiceUnavailable: true }
+    )
+    const redacted = redactHttpError(spoofed)
+    expect((redacted as any).config).toBeUndefined()
+    for (const secret of SECRETS) {
+      expect(dumpAllProps(redacted)).not.toContain(secret)
+    }
+  })
+
   it('handles non-Error input without leaking', () => {
     expect(redactHttpError('plain string').message).toBe('plain string')
     expect(redactHttpError(undefined).message).toBe('Unknown error')

@@ -13,6 +13,8 @@
  * Returns an `Error` instance so callers' existing `instanceof Error` handling
  * and `isServiceUnavailableError(...)` detection continue to work.
  */
+import { ServiceUnavailableError } from './serviceUnavailable'
+
 export interface RedactedHttpError extends Error {
   code?: string
   status?: number
@@ -27,10 +29,12 @@ export function redactHttpError(error: unknown): RedactedHttpError {
     return new Error(typeof error === 'string' ? error : 'Unknown error')
   }
 
-  // ServiceUnavailableError (and anything already flagged) carries no request
-  // config/credentials — pass it through so its class/marker survive for
-  // isServiceUnavailableError() and downstream instanceof checks.
-  if ((error as { isServiceUnavailable?: unknown }).isServiceUnavailable === true) {
+  // ServiceUnavailableError carries no request config/credentials — pass it
+  // through so its class/marker survive for isServiceUnavailableError() and
+  // downstream instanceof checks. Restricted to the known-safe class (not a
+  // permissive `isServiceUnavailable` marker check) so nothing carrying a
+  // config/request can slip past redaction.
+  if (error instanceof ServiceUnavailableError) {
     return error as RedactedHttpError
   }
 

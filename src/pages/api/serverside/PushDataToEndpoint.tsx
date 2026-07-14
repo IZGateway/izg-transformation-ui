@@ -4,6 +4,11 @@ import axios from 'axios'
 import https from 'https'
 import { getToken } from 'next-auth/jwt'
 import { getTokenStore } from '../../../lib/tokenStore'
+import {
+  ServiceUnavailableError,
+  isServiceUnavailableError,
+} from '../../../utility/serviceUnavailable'
+import { redactHttpError } from '../../../utility/sanitizeHttpError'
 
 const pushWithToken = async (
   endpoint,
@@ -56,8 +61,17 @@ const pushWithToken = async (
     })
     return response.data
   } catch (error) {
-    console.error('Error pushing data:', error)
-    throw error
+    // Redact before logging/propagating: the raw AxiosError carries the bearer
+    // token and mTLS key material in its config (IGDD-3108).
+    const redactedError = redactHttpError(error)
+    console.error('Error pushing data:', redactedError)
+    if (isServiceUnavailableError(error)) {
+      throw new ServiceUnavailableError(
+        error instanceof Error ? error.message : undefined,
+        redactedError.status
+      )
+    }
+    throw redactedError
   }
 }
 

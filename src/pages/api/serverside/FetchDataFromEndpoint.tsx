@@ -8,6 +8,7 @@ import {
   ServiceUnavailableError,
   isServiceUnavailableError,
 } from '../../../utility/serviceUnavailable'
+import { redactHttpError } from '../../../utility/sanitizeHttpError'
 
 const fetchWithToken = async (endpoint: string, access_token: unknown) => {
   if (typeof access_token !== 'string') {
@@ -54,14 +55,15 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
     })
     return response.data
   } catch (error) {
-    console.error('Error fetching data:', error)
+    // Redact before logging/propagating: the raw AxiosError carries the bearer
+    // token and mTLS key material in its config (IGDD-3108).
+    console.error('Error fetching data:', redactHttpError(error))
     if (isServiceUnavailableError(error)) {
       throw new ServiceUnavailableError(
         error instanceof Error ? error.message : undefined
       )
     }
-    if (error instanceof Error) throw error
-    throw new Error(String(error))
+    throw redactHttpError(error)
   }
 }
 

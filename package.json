@@ -109,7 +109,7 @@
     "glob": "^13.0.6",
     "js-yaml": "4.3.0",
     "jsdom": "^28.1.0",
-    "postcss": "8.5.18",
+    "postcss": "8.5.19",
     "swagger-jsdoc": "^6.3.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"

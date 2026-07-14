@@ -26,7 +26,17 @@ export interface RedactedHttpError extends Error {
 
 export function redactHttpError(error: unknown): RedactedHttpError {
   if (!(error instanceof Error)) {
-    return new Error(typeof error === 'string' ? error : 'Unknown error')
+    // Surface a useful message for non-Error throws (matches the helpers' prior
+    // `String(error)` behavior). Safe from leaks: a thrown plain object
+    // stringifies to "[object Object]", and real Axios errors are Error
+    // instances handled below.
+    const message =
+      typeof error === 'string'
+        ? error
+        : error == null
+          ? 'Unknown error'
+          : String(error)
+    return new Error(message)
   }
 
   // ServiceUnavailableError carries no request config/credentials — pass it

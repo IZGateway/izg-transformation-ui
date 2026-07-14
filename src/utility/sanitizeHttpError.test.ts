@@ -101,6 +101,10 @@ describe('redactHttpError (IGDD-3108)', () => {
 
   it('handles non-Error input without leaking', () => {
     expect(redactHttpError('plain string').message).toBe('plain string')
+    expect(redactHttpError(42).message).toBe('42')
     expect(redactHttpError(undefined).message).toBe('Unknown error')
+    expect(redactHttpError(null).message).toBe('Unknown error')
+    // a thrown plain object stringifies without exposing its contents
+    expect(redactHttpError({ secret: 'x' }).message).toBe('[object Object]')
   })
 })

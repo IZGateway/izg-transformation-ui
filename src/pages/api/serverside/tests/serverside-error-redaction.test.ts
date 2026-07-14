@@ -9,9 +9,9 @@ jest.mock('next-auth/jwt', () => ({
 
 import axios from 'axios'
 import { getToken } from 'next-auth/jwt'
-import fetchDataFromEndpoint from './FetchDataFromEndpoint'
-import pushDataToEndpoint from './PushDataToEndpoint'
-import { isServiceUnavailableError } from '../../../utility/serviceUnavailable'
+import fetchDataFromEndpoint from '../FetchDataFromEndpoint'
+import pushDataToEndpoint from '../PushDataToEndpoint'
+import { isServiceUnavailableError } from '../../../../utility/serviceUnavailable'
 
 const BEARER = 'Bearer eyJSECRET_ACCESS_TOKEN'
 
@@ -73,12 +73,14 @@ describe('proxy helper error redaction (IGDD-3108)', () => {
       expect((thrown as any).response?.status).toBe(404)
     })
 
-    it('still throws ServiceUnavailableError on 503, secret-free', async () => {
+    it('still throws ServiceUnavailableError on 503, secret-free, preserving status', async () => {
       ;(axios.get as jest.Mock).mockRejectedValue(
         makeAxiosError(503, 'Request failed with status code 503')
       )
       const thrown = await fetchDataFromEndpoint('https://svc/x', {}).catch((e) => e)
       expect(isServiceUnavailableError(thrown)).toBe(true)
+      expect((thrown as any).response?.status).toBe(503)
+      expect((thrown as any).status).toBe(503)
       expect(loggedContains(errSpy, 'Bearer')).toBe(false)
     })
   })
@@ -96,12 +98,14 @@ describe('proxy helper error redaction (IGDD-3108)', () => {
       expect(loggedContains(errSpy, 'PRIVATE_KEY_MATERIAL')).toBe(false)
     })
 
-    it('still throws ServiceUnavailableError on 503, secret-free', async () => {
+    it('still throws ServiceUnavailableError on 503, secret-free, preserving status', async () => {
       ;(axios.request as jest.Mock).mockRejectedValue(
         makeAxiosError(503, 'Request failed with status code 503')
       )
       const thrown = await pushDataToEndpoint('https://svc/x', {}, {}, 'POST').catch((e) => e)
       expect(isServiceUnavailableError(thrown)).toBe(true)
+      expect((thrown as any).response?.status).toBe(503)
+      expect((thrown as any).status).toBe(503)
       expect(loggedContains(errSpy, 'Bearer')).toBe(false)
     })
   })

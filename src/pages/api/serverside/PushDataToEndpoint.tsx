@@ -67,7 +67,8 @@ const pushWithToken = async (
     console.error('Error pushing data:', redactedError)
     if (isServiceUnavailableError(error)) {
       throw new ServiceUnavailableError(
-        error instanceof Error ? error.message : undefined
+        error instanceof Error ? error.message : undefined,
+        redactedError.status
       )
     }
     throw redactedError

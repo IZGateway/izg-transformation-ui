@@ -61,7 +61,8 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
     console.error('Error fetching data:', redactedError)
     if (isServiceUnavailableError(error)) {
       throw new ServiceUnavailableError(
-        error instanceof Error ? error.message : undefined
+        error instanceof Error ? error.message : undefined,
+        redactedError.status
       )
     }
     throw redactedError

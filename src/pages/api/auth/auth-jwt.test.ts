@@ -46,7 +46,9 @@ describe('jwt callback audit identity (IGDD-2223)', () => {
 
     expect(result.sessionId).toMatch(UUID_RE)
     expect(result.authTime).toBe(1782755733)
-    expect(result.jti).toBe('ID.jti1')
+    // Persisted under oktaJti, not the reserved `jti` (which NextAuth's encode
+    // overwrites with its own UUID on the session cookie).
+    expect(result.oktaJti).toBe('ID.jti1')
   })
 
   it('logs exactly one Session established record with groups + roles', async () => {
@@ -58,6 +60,7 @@ describe('jwt callback audit identity (IGDD-2223)', () => {
     const payload = calls[0][1]
     expect(payload.sessionUser.sessionId).toBe(result.sessionId)
     expect(payload.sessionUser.userId).toBe('00usub')
+    expect(payload.sessionUser.jti).toBe('ID.jti1')
     expect(Array.isArray(payload.groups)).toBe(true)
     expect(payload.groups).toContain('IZG Operations')
     expect(Array.isArray(payload.roles)).toBe(true)

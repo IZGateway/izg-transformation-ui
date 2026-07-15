@@ -31,7 +31,7 @@ export async function buildRequestContext(
     email: session?.user?.email || undefined,
     name: session?.user?.name || undefined,
     sessionId: token?.sessionId,
-    jti: token?.jti,
+    jti: token?.oktaJti,
     authTime: token?.authTime,
     session,
   }

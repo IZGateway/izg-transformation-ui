@@ -8,7 +8,7 @@ Every log event generated while handling an authenticated user interaction SHALL
 "sessionUser": { "name": "...", "userId": "...", "email": "...", "sessionId": "...", "jti": "...", "authTime": 0, "ip": "..." }
 ```
 
-`sessionUser` SHALL be sourced from the active request context (an `AsyncLocalStorage` populated for the request) and injected automatically by the logging layer, not by each individual call site. The request context SHALL be established both for API routes (by a default middleware in `withMiddleware`, for every route regardless of whether it opts into request logging) and for server-side page renders (by a shared wrapper around `getServerSideProps`).
+`sessionUser` SHALL be sourced from the active request context (an `AsyncLocalStorage` populated for the request) and injected automatically by the logging layer, not by each individual call site. The request context SHALL be established both for API routes (by `withMiddleware`, which wraps the entire composed middleware chain so every route it wraps runs inside the context regardless of whether it opts into request logging) and for server-side page renders (by a shared wrapper around `getServerSideProps`).
 
 #### Scenario: Authenticated API request log carries sessionUser
 
@@ -43,6 +43,8 @@ This capability SHALL be additive only. It SHALL NOT modify, rename, retype, or 
 
 - **WHEN** a `checkAccessToDestId` / `checkAccessToDestIdSlug` "Unauthorized access attempt" warning is emitted
 - **THEN** its existing `user` (email string) field is still present, with `sessionUser` added alongside it
+
+> Note: as of this change no route opts into `checkAccessToDestId`/`checkAccessToDestIdSlug`, so this warning is not emitted in practice and the scenario is not exercised by a test or live verification. The requirement holds structurally — this change leaves those middleware bodies (and their `user` field) untouched, and because `withMiddleware` establishes the request context around the whole chain, any future route that opts in will emit `sessionUser` alongside the preserved `user` field automatically.
 
 ### Requirement: Session identifier and token reference
 

@@ -13,13 +13,14 @@
 
 - [x] 3.1 In `src/pages/api/api-middleware-helper.ts` wrap the composed `next-api-middleware` chain so `withMiddleware(...labels)(handler)` builds the context via `buildRequestContext(req, res)` and returns `asyncRequestContext.run(context, () => composed(req, res))`. (Wrapping the whole chain — not an inner middleware — because next-api-middleware defers downstream execution via queueMicrotask, which would escape an inner run() scope.)
 - [x] 3.2 Ensure every API route runs inside the context regardless of opting into `logRequest`. Leave `logRequest`, `captureErrors`, `checkAccessToDestId`, `checkAccessToDestIdSlug` bodies unchanged (existing `user` field preserved).
+- [x] 3.3 Wrap the data API routes with `withMiddleware('logRequest')(handler)` — `mappings`, `pipelines`, `solutions`, `organizations`, `preconditions/{available,fields}`, `operations/{available,fields}`. Found in manual verification: only the healthchecks used `withMiddleware`, so client-initiated calls logged anonymously (no `sessionUser`) and successful activity was not logged at all. Opting into `logRequest` (a) establishes the audit context so every line carries `sessionUser`, and (b) emits an `API Request <url>` info line per request (success and failure) carrying the existing `user` field + `statusCode` alongside `sessionUser` — matching the Configuration Console, where request logging is a default middleware on every route. Healthchecks are intentionally left as bare `withMiddleware()` (no `logRequest`) to avoid logging orchestrator poll spam. (Does NOT add `checkAccessToDestId` — the separate, pre-existing jurisdiction-enforcement gap is out of scope for this change.)
 
 ## 4. Sign-in: sessionId, token references, authorization snapshot
 
 - [x] 4.1 In the `jwt` callback (`src/pages/api/auth/[...nextauth].ts`) `if (account)` block, generate `token.sessionId = crypto.randomUUID()`.
-- [x] 4.2 Decode `account.id_token` (reuse `base64UrlDecode`) and persist `token.authTime` (`auth_time`) and `token.jti` (`jti`).
+- [x] 4.2 Decode `account.id_token` (reuse `base64UrlDecode`) and persist `token.authTime` (`auth_time`) and the Okta ID-token `jti` as `token.oktaJti` (NOT `token.jti` — NextAuth's JWT encode overwrites the reserved `jti` claim with its own UUID; `buildRequestContext` reads `oktaJti` → `sessionUser.jti`).
 - [x] 4.3 Emit exactly one `Session established` log record per login containing the `sessionUser` identity (minus `ip`) plus `groups` and derived `roles` (from `getRolesFromGroups`). Ordinary log lines must NOT repeat `groups`/`roles`.
-- [x] 4.4 Augment `src/next-auth.d.ts` `JWT` interface with `sessionId?: string`, `authTime?: number`, `jti?: string`.
+- [x] 4.4 Augment `src/next-auth.d.ts` `JWT` interface with `sessionId?: string`, `authTime?: number`, `oktaJti?: string`.
 
 ## 5. Server-side page render coverage
 
@@ -33,7 +34,7 @@
 
 - [x] 6.1 Unit test the logger format: serialized output for a line emitted inside a populated context contains the `sessionUser` object (proves `ecsFormat` passthrough); a line emitted with no store omits `sessionUser` and does not throw.
 - [x] 6.2 Test `establishContext`/`withMiddleware`: a log emitted by a handler wrapped by `withMiddleware` carries `sessionUser`, including a route that does NOT opt into `logRequest`; existing `user` field remains on the `logRequest` line.
-- [x] 6.3 Test the `jwt` callback: `sessionId` is generated (UUID) and stable across calls within a login, a new login yields a new `sessionId`, `authTime`/`jti` are captured, and exactly one `Session established` record (with `groups` + `roles`) is emitted per login; no raw JWT/access/ID token or cookie is logged.
+- [x] 6.3 Test the `jwt` callback: `sessionId` is generated (UUID) and stable across calls within a login, a new login yields a new `sessionId`, `authTime`/`oktaJti` are captured, and exactly one `Session established` record (with `groups` + `roles`, `sessionUser.jti` = the Okta jti) is emitted per login; no raw JWT/access/ID token or cookie is logged. Regression: `buildRequestContext` maps `token.oktaJti` (not the reserved `jti`, which NextAuth clobbers) to `sessionUser.jti`.
 - [x] 6.4 Test `withRequestContext`: a log emitted inside a wrapped `getServerSideProps` carries `sessionUser`; no session → no fabricated identity.
 
 ## 7. Verification

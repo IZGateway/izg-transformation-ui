@@ -131,7 +131,9 @@ export const authOptions = {
           jurisdictions: getJurisdictionsFromUserInfo(userInfo),
           sessionId,
           authTime,
-          jti
+          // Stored under oktaJti (not the reserved `jti`) because NextAuth's JWT
+          // encode overwrites `jti` with its own UUID on every session cookie write.
+          oktaJti: jti
         }
       }
       return token

@@ -79,8 +79,9 @@ Apply it uniformly to all five SSR pages (`manage`, `solutions`, `mapping`, `edi
 
 ### D6 — `sessionId` (console-generated) + `jti`/`authTime` (token references); indirect correlation
 
-In the `jwt` callback's `if (account)` block: generate `token.sessionId = crypto.randomUUID()`, and decode `account.id_token` (reusing the existing `base64UrlDecode` helper) to capture `token.authTime` (`auth_time`) and `token.jti` (`jti`). Persisting all three on the token makes them available cheaply via `getToken()` without re-decoding per request.
+In the `jwt` callback's `if (account)` block: generate `token.sessionId = crypto.randomUUID()`, and decode `account.id_token` (reusing the existing `base64UrlDecode` helper) to capture `token.authTime` (`auth_time`) and the Okta ID-token `jti`. Persisting these on the token makes them available cheaply via `getToken()` without re-decoding per request.
 
+- **Reserved-claim gotcha (found in manual verification):** the Okta jti must be stored under a **non-reserved** key — `token.oktaJti`, not `token.jti`. NextAuth's JWT `encode` unconditionally runs `.setJti(uuid())` when it writes the session cookie, so anything placed in the reserved `jti` claim is overwritten by a fresh NextAuth UUID (and rotates on re-encode). `buildRequestContext` reads `token.oktaJti` and maps it to `sessionUser.jti`. `sessionId`/`authTime` are unaffected because they are custom keys. The once-per-login `Session established` record was already correct because it logs the local variable before encoding.
 - **`sessionId`** (UUID) is the stable, console-owned per-login correlator: non-replayable, not a secret, survives token refresh.
 - **`jti`/`authTime`** are token references logged inside `sessionUser`.
 - **Indirect Okta correlation** uses `userId` (`sub`) + `authTime` + `ip`.
@@ -92,7 +93,15 @@ Okta group membership is mutable, so reconstructing "what was this user authoriz
 
 ### D8 — Field shape & naming
 
-`sessionUser` is a custom (non-ECS) field, chosen to avoid colliding with ECS's reserved `user` object **and** with the existing `user` string field. Sub-fields are camelCase: `name`, `userId`, `email`, `sessionId`, `jti`, `authTime`, `ip`. Shape is identical to the Configuration Console for cross-app consistency in Elastic. Type augmentation for `sessionId`/`authTime`/`jti` goes in `src/next-auth.d.ts`'s `JWT` interface.
+`sessionUser` is a custom (non-ECS) field, chosen to avoid colliding with ECS's reserved `user` object **and** with the existing `user` string field. Sub-fields are camelCase: `name`, `userId`, `email`, `sessionId`, `jti`, `authTime`, `ip`. Shape is identical to the Configuration Console for cross-app consistency in Elastic. Type augmentation for `sessionId`/`authTime`/`oktaJti` goes in `src/next-auth.d.ts`'s `JWT` interface (`oktaJti`, not `jti` — see D6's reserved-claim note).
+
+### D9 — Activity logging scope (decided during manual verification)
+
+The data API routes opt into `logRequest` (`withMiddleware('logRequest')`), so every authenticated `/api/*` request emits an `API Request <url>` info line carrying `user` + `statusCode` + `sessionUser` — matching the Configuration Console, where request logging is a default middleware. This covers all writes (create/edit/delete of mappings, pipelines, solutions) and all client-side reads (e.g. `/add/mapping`'s org fetch, `/add|edit/solution`'s operations/preconditions).
+
+Scope decisions made deliberately here:
+- **Healthchecks stay quiet** (bare `withMiddleware()`, no `logRequest`) to avoid logging orchestrator poll spam — a deliberate improvement over CC, which logs its healthchecks.
+- **Server-rendered read pages are NOT separately logged.** `/manage`, `/solutions`, `/mapping`, `/add|edit/pipeline` fetch via `getServerSideProps` → `fetchDataFromEndpoint` directly (never hitting an `/api` route), so a successful render logs nothing. This **matches CC** — CC's `withRequestContext` also only establishes context and emits no page-load line; CC merely appears chattier because more of its reads flow through client-side `/api` calls. Adding per-page-view logging (an info line in `withRequestContext`) was considered and declined to stay aligned with CC; it can be a follow-up if navigation auditing is ever required.
 
 ## Risks / Trade-offs
 

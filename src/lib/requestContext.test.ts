@@ -33,7 +33,10 @@ describe('withRequestContext (IGDD-2223)', () => {
     ;(getToken as jest.Mock).mockResolvedValue({
       sub: '00usub',
       sessionId: 'sess-1',
-      jti: 'ID.jti1',
+      // Mirrors the real token: NextAuth's encode overwrites the reserved `jti`
+      // with its own UUID, while the Okta ID-token jti lives under oktaJti.
+      jti: '7ed8d833-1c9e-463a-b0fb-f306ce78bd4c',
+      oktaJti: 'ID.jti1',
       authTime: 1782755733,
     })
 
@@ -50,6 +53,9 @@ describe('withRequestContext (IGDD-2223)', () => {
       email: 'a@b.com',
       name: 'Austin Moody',
       sessionId: 'sess-1',
+      // sessionUser.jti must be the Okta ID-token jti, not NextAuth's reserved UUID.
+      jti: 'ID.jti1',
+      authTime: 1782755733,
       ipAddress: '203.0.113.7',
     })
   })

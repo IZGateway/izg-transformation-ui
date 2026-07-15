@@ -31,7 +31,9 @@ describe('withMiddleware establishContext (IGDD-2223)', () => {
     ;(getToken as jest.Mock).mockResolvedValue({
       sub: '00usub',
       sessionId: 'sess-1',
-      jti: 'ID.jti1',
+      // Reserved `jti` carries NextAuth's own UUID; the Okta jti lives in oktaJti.
+      jti: '7ed8d833-1c9e-463a-b0fb-f306ce78bd4c',
+      oktaJti: 'ID.jti1',
       authTime: 1782755733,
     })
   })
@@ -88,8 +90,19 @@ describe('withMiddleware establishContext (IGDD-2223)', () => {
     logSpy.mockRestore()
   })
 
-  it('preserves the existing user (email) field on the API Request line', async () => {
-    const infoSpy = jest.spyOn(logger, 'info')
+  it('emits an API Request line carrying BOTH the existing user field and sessionUser', async () => {
+    // Capture the fully-formatted line the transport receives so we can assert
+    // the existing `user` (email) field and the injected `sessionUser` object
+    // coexist on the same logRequest line (task 7.2).
+    const captured: any[] = []
+    const transport = logger.transports[0]
+    const logSpy = jest
+      .spyOn(transport as any, 'log')
+      .mockImplementation((info: any, cb: any) => {
+        captured.push(info)
+        if (typeof cb === 'function') cb()
+      })
+
     const handler = withMiddleware('logRequest')(async (_req: any, res: any) => {
       res.status(200).end()
     })
@@ -97,11 +110,17 @@ describe('withMiddleware establishContext (IGDD-2223)', () => {
     const { req, res } = createMocks({ method: 'GET' })
     await handler(req, res)
 
-    const apiReqCall = infoSpy.mock.calls.find((c) =>
-      String(c[0]).startsWith('API Request')
+    const apiReqLine = captured.find((i) =>
+      String(i.message).startsWith('API Request')
     )
-    expect(apiReqCall).toBeDefined()
-    expect((apiReqCall as any[])[1].user).toBe('a@b.com')
-    infoSpy.mockRestore()
+    expect(apiReqLine).toBeDefined()
+    expect(apiReqLine.user).toBe('a@b.com')
+    expect(apiReqLine.sessionUser).toMatchObject({
+      userId: '00usub',
+      email: 'a@b.com',
+      sessionId: 'sess-1',
+      jti: 'ID.jti1',
+    })
+    logSpy.mockRestore()
   })
 })

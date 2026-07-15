@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import withMiddleware from '../api-middleware-helper'
 import pushDataToEndpoint from '../serverside/PushDataToEndpoint'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -27,4 +28,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }, 400)
 }
 
-export default handler
+export default withMiddleware('logRequest')(handler)

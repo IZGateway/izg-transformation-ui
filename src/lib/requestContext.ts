@@ -17,7 +17,13 @@ export async function buildRequestContext(
   const token = await getToken({ req })
   const sub = token?.sub
 
-  const forwardedFor = req?.headers?.['x-forwarded-for'] as string | undefined
+  const forwardedForHeader = req?.headers?.['x-forwarded-for'] as
+    | string
+    | string[]
+    | undefined
+  const forwardedFor = Array.isArray(forwardedForHeader)
+    ? forwardedForHeader[0]
+    : forwardedForHeader
   const ipAddress =
     forwardedFor?.split(',')[0]?.trim() ||
     req?.socket?.remoteAddress ||

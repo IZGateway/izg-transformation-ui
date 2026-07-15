@@ -115,7 +115,18 @@ const withMiddleware =
   (handler: Parameters<ReturnType<typeof baseMiddleware>>[0]) => {
     const composed = baseMiddleware(...chosenMiddleware)(handler)
     return async (req: any, res: any) => {
-      const context = await buildRequestContext(req, res)
+      // Audit context is additive: never let its establishment fail the
+      // request. If buildRequestContext throws (e.g. session/token
+      // resolution), warn-log and run the chain without a store. The
+      // middleware's resolveSession() falls back to getServerSession in
+      // that case, so access control is unaffected.
+      let context
+      try {
+        context = await buildRequestContext(req, res)
+      } catch (err) {
+        logger.warn('Failed to establish audit request context', { err })
+        return composed(req, res)
+      }
       return asyncRequestContext.run(context, () => composed(req, res))
     }
   }

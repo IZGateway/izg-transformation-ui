@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { getToken } from 'next-auth/jwt'
 import { authOptions } from '../pages/api/auth/[...nextauth]'
 import { asyncRequestContext, Context } from './Context'
+import logger from '../../logger'
 
 /**
  * Build the per-request audit context from the authenticated session and JWT.
@@ -52,7 +53,16 @@ export function withRequestContext(
   handler: (context: GetServerSidePropsContext) => Promise<any>
 ) {
   return async (context: GetServerSidePropsContext): Promise<any> => {
-    const requestContext = await buildRequestContext(context.req, context.res)
+    // Audit context is additive: never let its establishment break SSR.
+    // If buildRequestContext throws (e.g. next-auth token/session
+    // resolution), warn-log and render without a store.
+    let requestContext
+    try {
+      requestContext = await buildRequestContext(context.req, context.res)
+    } catch (err) {
+      logger.warn('Failed to establish audit request context for SSR', { err })
+      return handler(context)
+    }
     return asyncRequestContext.run(requestContext, () => handler(context))
   }
 }

@@ -45,7 +45,10 @@ describe('withMiddleware establishContext (IGDD-2223)', () => {
       res.status(200).end()
     })
 
-    const { req, res } = createMocks({ method: 'GET' })
+    const { req, res } = createMocks({
+      method: 'GET',
+      headers: { cookie: 'next-auth.session-token=test' },
+    })
     await handler(req, res)
 
     expect(res._getStatusCode()).toBe(200)
@@ -75,12 +78,13 @@ describe('withMiddleware establishContext (IGDD-2223)', () => {
       logger.info('downstream log line')
       res.status(200).end()
     })
-    const { req, res } = createMocks({ method: 'GET' })
+    const { req, res } = createMocks({
+      method: 'GET',
+      headers: { cookie: 'next-auth.session-token=test' },
+    })
     await handler(req, res)
 
-    const line = captured.find(
-      (i) => i.message === 'downstream log line'
-    )
+    const line = captured.find((i) => i.message === 'downstream log line')
     expect(line).toBeDefined()
     expect(line.sessionUser).toMatchObject({
       userId: '00usub',
@@ -103,11 +107,16 @@ describe('withMiddleware establishContext (IGDD-2223)', () => {
         if (typeof cb === 'function') cb()
       })
 
-    const handler = withMiddleware('logRequest')(async (_req: any, res: any) => {
-      res.status(200).end()
-    })
+    const handler = withMiddleware('logRequest')(
+      async (_req: any, res: any) => {
+        res.status(200).end()
+      }
+    )
 
-    const { req, res } = createMocks({ method: 'GET' })
+    const { req, res } = createMocks({
+      method: 'GET',
+      headers: { cookie: 'next-auth.session-token=test' },
+    })
     await handler(req, res)
 
     const apiReqLine = captured.find((i) =>

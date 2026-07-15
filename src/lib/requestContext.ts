@@ -14,10 +14,6 @@ export async function buildRequestContext(
   req: any,
   res: any
 ): Promise<Context> {
-  const session = await getServerSession(req, res, authOptions)
-  const token = await getToken({ req })
-  const sub = token?.sub
-
   const forwardedForHeader = req?.headers?.['x-forwarded-for'] as
     | string
     | string[]
@@ -29,6 +25,18 @@ export async function buildRequestContext(
     forwardedFor?.split(',')[0]?.trim() ||
     req?.socket?.remoteAddress ||
     undefined
+
+  // A NextAuth session/JWT is only ever present via cookies. With no cookie
+  // header there can be no authenticated identity, so skip the getServerSession
+  // + getToken parsing cost. This matters for unauthenticated high-frequency
+  // endpoints (e.g. health checks polled by load balancers without cookies).
+  if (!req?.headers?.cookie) {
+    return { ipAddress, session: null }
+  }
+
+  const session = await getServerSession(req, res, authOptions)
+  const token = await getToken({ req })
+  const sub = token?.sub
 
   return {
     user: session?.user?.email || undefined,

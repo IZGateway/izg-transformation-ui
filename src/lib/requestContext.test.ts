@@ -19,7 +19,13 @@ import { asyncRequestContext } from './Context'
 
 const makeCtx = () =>
   ({
-    req: { headers: { 'x-forwarded-for': '203.0.113.7' }, socket: {} },
+    req: {
+      headers: {
+        'x-forwarded-for': '203.0.113.7',
+        cookie: 'next-auth.session-token=test',
+      },
+      socket: {},
+    },
     res: {},
   } as any)
 
@@ -75,5 +81,31 @@ describe('withRequestContext (IGDD-2223)', () => {
     expect(seen.userId).toBeUndefined()
     expect(seen.email).toBeUndefined()
     expect(seen.sessionId).toBeUndefined()
+  })
+
+  it('skips next-auth resolution when the request has no cookie', async () => {
+    ;(getServerSession as jest.Mock).mockResolvedValue({
+      user: { name: 'Austin Moody', email: 'a@b.com' },
+    })
+    ;(getToken as jest.Mock).mockResolvedValue({ sub: '00usub' })
+
+    const ctx = {
+      req: { headers: { 'x-forwarded-for': '203.0.113.7' }, socket: {} },
+      res: {},
+    } as any
+
+    let seen: any
+    const wrapped = withRequestContext(async () => {
+      seen = asyncRequestContext.getStore()
+      return { props: {} }
+    })
+
+    await wrapped(ctx)
+
+    expect(getServerSession).not.toHaveBeenCalled()
+    expect(getToken).not.toHaveBeenCalled()
+    expect(seen.userId).toBeUndefined()
+    expect(seen.email).toBeUndefined()
+    expect(seen.ipAddress).toBe('203.0.113.7')
   })
 })

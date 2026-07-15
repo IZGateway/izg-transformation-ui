@@ -3,6 +3,19 @@ import handler from '../index'
 
 jest.mock('../../serverside/FetchDataFromEndpoint', () => jest.fn())
 jest.mock('../../serverside/PushDataToEndpoint', () => jest.fn())
+// The route's default export now flows through withMiddleware → authOptions,
+// which pulls in next-auth (and ESM-only jose). Mock next-auth so the route
+// under test loads without the real auth stack.
+jest.mock('next-auth', () => ({
+  __esModule: true,
+  default: jest.fn(() => jest.fn()),
+  getServerSession: jest.fn(),
+}))
+jest.mock('next-auth/jwt', () => ({ __esModule: true, getToken: jest.fn() }))
+jest.mock('next-auth/providers/okta', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({})),
+}))
 
 import fetchDataFromEndpoint from '../../serverside/FetchDataFromEndpoint'
 import pushDataToEndpoint from '../../serverside/PushDataToEndpoint'

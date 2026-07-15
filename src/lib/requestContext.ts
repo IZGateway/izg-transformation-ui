@@ -27,7 +27,7 @@ export async function buildRequestContext(
   const ipAddress =
     forwardedFor?.split(',')[0]?.trim() ||
     req?.socket?.remoteAddress ||
-    'unknown'
+    undefined
 
   return {
     user: session?.user?.email || undefined,

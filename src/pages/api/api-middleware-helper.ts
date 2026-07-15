@@ -20,9 +20,18 @@ const captureErrors: Middleware = async (req, res, next) => {
   }
 }
 
+// Resolve the session from the per-request audit context established by
+// withMiddleware (IGDD-2223), avoiding a redundant getServerSession call.
+// Falls back to getServerSession only if no context store is present (e.g. a
+// middleware used outside withMiddleware).
+const resolveSession = async (req: any, res: any) => {
+  const store = asyncRequestContext.getStore()
+  return store ? store.session ?? null : getServerSession(req, res, authOptions)
+}
+
 // log the api requests and response code
 const logRequest: Middleware = async (req, res, next) => {
-  const session = await getServerSession(req, res, authOptions)
+  const session = await resolveSession(req, res)
   const user = session?.user?.email || null
   const isDebug = LOG_LEVEL.toLowerCase() === 'debug'
 
@@ -57,7 +66,7 @@ const logRequest: Middleware = async (req, res, next) => {
 // check access to destination
 const checkAccessToDestId: Middleware = async (req, res, next) => {
   const destId = req.query.id.toString()
-  const session = await getServerSession(req, res, authOptions)
+  const session = await resolveSession(req, res)
   const hasAccess = hasAccessToDestId(destId, session)
   if (hasAccess) {
     await next()
@@ -72,7 +81,7 @@ const checkAccessToDestId: Middleware = async (req, res, next) => {
 const checkAccessToDestIdSlug: Middleware = async (req, res, next) => {
   const { slug } = req.query
   const destId = slug[1]
-  const session = await getServerSession(req, res, authOptions)
+  const session = await resolveSession(req, res)
   const hasAccess = hasAccessToDestId(destId, session)
   if (hasAccess) {
     await next()

@@ -1,5 +1,10 @@
 # Release Notes
 
+## [0.17.1] - 2026-07-22
+
+### Changes
+- Release 0.17.1
+
 ## [0.17.0] - 2026-07-07
 
 ### Changes

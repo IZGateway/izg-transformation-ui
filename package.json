@@ -65,7 +65,7 @@
     "react-dom": "^18.3.1",
     "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
-    "swagger-ui-react": "^5.32.10",
+    "swagger-ui-react": "^5.32.11",
     "swr": "^2.4.2",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "waait": "^1.0.5",

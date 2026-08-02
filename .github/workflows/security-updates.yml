@@ -127,7 +127,13 @@ jobs:
         run: |
           echo "Fixing all security vulnerabilities (updates direct deps + adds overrides)..."
           node node_modules/@izgateway/dependency-scripts/fix-all-vulnerabilities.js
-          
+
+          # Regenerate the lock so it reflects the ncu/override/security edits before
+          # test-overrides.js runs. That script judges an override "necessary" only if the
+          # CONSUMER lock already shows a protected (>= floor) resolution; without this it
+          # sees the stale pre-edit lock and strips freshly-added overrides (e.g. sharp).
+          npm install --package-lock-only
+
           if git diff --quiet package.json; then
             echo "has_security_changes=false" >> $GITHUB_OUTPUT
             echo "✓ No security fixes needed"

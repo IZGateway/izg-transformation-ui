@@ -118,6 +118,7 @@
     "js-yaml": "4.3.1",
     "jsdom": "^28.1.0",
     "postcss": "8.5.25",
+    "sharp": "^0.35.3",
     "swagger-jsdoc": "^6.3.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"

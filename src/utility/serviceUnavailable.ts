@@ -42,14 +42,23 @@ const getErrorCause = (err: Error) => {
 
 export class ServiceUnavailableError extends Error {
   readonly isServiceUnavailable = true
+  readonly status?: number
+  readonly response?: { status: number }
 
-  constructor(cause?: string) {
+  constructor(cause?: string, status?: number) {
     super(
       cause
         ? `Transformation service is unavailable: ${cause}`
         : 'Transformation service is unavailable'
     )
     this.name = 'ServiceUnavailableError'
+    // Carry the upstream HTTP status (when known) so API routes that read
+    // error.response.status still propagate a 502/503 to the client instead of
+    // defaulting to 500. Status is a number — no credential material.
+    if (typeof status === 'number') {
+      this.status = status
+      this.response = { status }
+    }
   }
 }
 

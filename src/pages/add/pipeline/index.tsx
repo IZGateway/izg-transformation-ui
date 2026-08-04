@@ -14,6 +14,7 @@ import SolutionsDataProvider from '../../../contexts/EditPipeline/solutionsDataC
 import UpdatePipelineDataProvider from '../../../contexts/EditPipeline/updatePipeDataContext'
 import ServiceUnavailablePage from '../../../components/ServiceUnavailablePage'
 import { isServiceUnavailableError } from '../../../utility/serviceUnavailable'
+import { withRequestContext } from '../../../lib/requestContext'
 
 const AddPipeline = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -64,7 +65,7 @@ const AddPipeline = (
 
 export default AddPipeline
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps = withRequestContext(async (context) => {
   const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
   try {
     const organizationsResponse = await fetchDataFromEndpoint(
@@ -101,4 +102,4 @@ export const getServerSideProps = async (context) => {
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }
-}
+})

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import NextAuth from 'next-auth'
 import OktaProvider from 'next-auth/providers/okta'
+import { randomUUID } from 'crypto'
 import logger from '../../../../logger'
 import _ from 'lodash'
 import { getTokenStore } from '../../../lib/tokenStore'
@@ -93,13 +94,46 @@ export const authOptions = {
           store.set(token.sub, accessToken)
         }
 
+        // Audit identity (IGDD-2223): a console-generated session id stable for
+        // the life of this login, plus the Okta id-token jti/auth_time as token
+        // references for indirect Okta System Log correlation.
+        const sessionId = randomUUID()
+        const idTokenClaims = getClaimsFromJwtToken(account?.id_token)
+        const authTime =
+          typeof idTokenClaims?.auth_time === 'number'
+            ? idTokenClaims.auth_time
+            : undefined
+        const jti =
+          typeof idTokenClaims?.jti === 'string' ? idTokenClaims.jti : undefined
+
+        // Once-per-login point-in-time authorization snapshot. groups/roles are
+        // logged here only (not on every line); recover them for any line by
+        // joining on sessionUser.sessionId.
+        logger.info('Session established', {
+          sessionUser: {
+            name: token.name || user?.name,
+            userId: token.sub,
+            email: token.email || user?.email,
+            sessionId,
+            jti,
+            authTime,
+          },
+          groups,
+          roles,
+        })
+
         // Include access_token in JWT so API routes can read it even if in-memory map is empty.
         return {
           ...token,
           access_token: accessToken,
           groups,
           roles,
-          jurisdictions: getJurisdictionsFromUserInfo(userInfo)
+          jurisdictions: getJurisdictionsFromUserInfo(userInfo),
+          sessionId,
+          authTime,
+          // Stored under oktaJti (not the reserved `jti`) because NextAuth's JWT
+          // encode overwrites `jti` with its own UUID on every session cookie write.
+          oktaJti: jti
         }
       }
       return token
@@ -141,20 +175,24 @@ function getGroupsFromAccessToken(rawAccessToken: unknown): string[] {
 }
 
 function getGroupsFromJwtToken(rawToken: unknown): string[] {
+  const payload = getClaimsFromJwtToken(rawToken)
+  return payload ? getGroupsFromClaims(payload) : []
+}
+
+function getClaimsFromJwtToken(rawToken: unknown): any | null {
   if (typeof rawToken !== 'string' || !rawToken.includes('.')) {
-    return []
+    return null
   }
 
   const segments = rawToken.split('.')
   if (segments.length < 2) {
-    return []
+    return null
   }
 
   try {
-    const payload = JSON.parse(base64UrlDecode(segments[1]))
-    return getGroupsFromClaims(payload)
+    return JSON.parse(base64UrlDecode(segments[1]))
   } catch {
-    return []
+    return null
   }
 }
 

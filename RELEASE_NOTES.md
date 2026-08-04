@@ -1,5 +1,35 @@
 # Release Notes
 
+## [0.18.0] - 2026-08-04
+
+### Changes
+- chore(deps-dev): bump undici from 7.28.0 to 7.29.0 ([#311](https://github.com/IZGateway/izg-transformation-ui/pull/311))
+- chore(deps): security and dependency updates ([#310](https://github.com/IZGateway/izg-transformation-ui/pull/310))
+- chore(deps): security and dependency updates ([#309](https://github.com/IZGateway/izg-transformation-ui/pull/309))
+- chore(deps): security and dependency updates ([#308](https://github.com/IZGateway/izg-transformation-ui/pull/308))
+- chore(deps): security and dependency updates ([#306](https://github.com/IZGateway/izg-transformation-ui/pull/306))
+- chore(deps): security and dependency updates ([#305](https://github.com/IZGateway/izg-transformation-ui/pull/305))
+- chore(deps): security and dependency updates ([#304](https://github.com/IZGateway/izg-transformation-ui/pull/304))
+- chore(deps): security and dependency updates ([#301](https://github.com/IZGateway/izg-transformation-ui/pull/301))
+- chore(deps): security and dependency updates ([#300](https://github.com/IZGateway/izg-transformation-ui/pull/300))
+- chore: sync lockfile to unblock `update-dependencies` npm ci on Node 24/npm 11 ([#299](https://github.com/IZGateway/izg-transformation-ui/pull/299))
+- chore(deps): security and dependency updates ([#298](https://github.com/IZGateway/izg-transformation-ui/pull/298))
+- chore(deps): bump immutable and swagger-ui-react ([#297](https://github.com/IZGateway/izg-transformation-ui/pull/297))
+- chore(deps): security and dependency updates ([#296](https://github.com/IZGateway/izg-transformation-ui/pull/296))
+- chore(deps): security and dependency updates ([#295](https://github.com/IZGateway/izg-transformation-ui/pull/295))
+- chore(deps): security and dependency updates ([#293](https://github.com/IZGateway/izg-transformation-ui/pull/293))
+- chore(deps): bump actions/setup-node from 6 to 7 ([#294](https://github.com/IZGateway/izg-transformation-ui/pull/294))
+- chore(deps): security and dependency updates ([#290](https://github.com/IZGateway/izg-transformation-ui/pull/290))
+- fix: correct sessionUser jti and log audit identity on API routes (IGDD-2223) ([#289](https://github.com/IZGateway/izg-transformation-ui/pull/289))
+- fix: harden error handling in Transformation Service proxy helpers (IGDD-3108) ([#288](https://github.com/IZGateway/izg-transformation-ui/pull/288))
+- chore(deps): security and dependency updates ([#287](https://github.com/IZGateway/izg-transformation-ui/pull/287))
+- chore(deps): bump actions/checkout from 6 to 7 ([#286](https://github.com/IZGateway/izg-transformation-ui/pull/286))
+- chore(deps): security and dependency updates ([#285](https://github.com/IZGateway/izg-transformation-ui/pull/285))
+- chore(deps): security and dependency updates ([#284](https://github.com/IZGateway/izg-transformation-ui/pull/284))
+- fix(security): prevent full req/res objects from being logged (IGDD-2794) ([#280](https://github.com/IZGateway/izg-transformation-ui/pull/280))
+- chore(deps): security and dependency updates ([#282](https://github.com/IZGateway/izg-transformation-ui/pull/282))
+
+
 ## [0.17.1] - 2026-07-22
 
 ### Changes

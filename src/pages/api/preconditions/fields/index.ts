@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import fetchDataFromEndpoint from '../../serverside/FetchDataFromEndpoint'
+import withMiddleware from '../../api-middleware-helper'
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const baseUrl = process.env.XFORM_SERVICE_ENDPOINT || ''
 
   if (req.method === 'GET') {
@@ -23,3 +21,5 @@ export default async function handler(
     res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 }
+
+export default withMiddleware('logRequest')(handler)

@@ -12,6 +12,7 @@ import HelpButton from '../../components/HelpButton'
 import HelpPanel from '../../components/HelpPanel'
 import ServiceUnavailablePage from '../../components/ServiceUnavailablePage'
 import { isServiceUnavailableError } from '../../utility/serviceUnavailable'
+import { withRequestContext } from '../../lib/requestContext'
 
 const Solutions = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -51,7 +52,7 @@ const Solutions = (
 
 export default Solutions
 
-export const getServerSideProps = async (context) => {
+export const getServerSideProps = withRequestContext(async (context) => {
   const XFORM_SERVICE_ENDPOINT = process.env.XFORM_SERVICE_ENDPOINT || ''
   try {
     const solutionsResponse = await fetchDataFromEndpoint(
@@ -68,4 +69,4 @@ export const getServerSideProps = async (context) => {
     if (error instanceof Error) throw error
     throw new Error(String(error))
   }
-}
+})

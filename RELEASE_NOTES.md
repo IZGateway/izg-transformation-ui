@@ -1,5 +1,20 @@
 # Release Notes
 
+## [0.19.0] - 2026-09-09
+
+### Changes
+- chore(deps): security and dependency updates ([#335](https://github.com/IZGateway/izg-transformation-ui/pull/335))
+- chore(deps): bump @xmldom/xmldom from 0.8.13 to 0.8.15 ([#329](https://github.com/IZGateway/izg-transformation-ui/pull/329))
+- chore(deps): security and dependency updates ([#328](https://github.com/IZGateway/izg-transformation-ui/pull/328))
+- chore(deps): security and dependency updates ([#327](https://github.com/IZGateway/izg-transformation-ui/pull/327))
+- chore(deps): security and dependency updates ([#320](https://github.com/IZGateway/izg-transformation-ui/pull/320))
+- chore(deps): security and dependency updates ([#317](https://github.com/IZGateway/izg-transformation-ui/pull/317))
+- chore(deps): security and dependency updates ([#316](https://github.com/IZGateway/izg-transformation-ui/pull/316))
+- chore(deps): security and dependency updates ([#314](https://github.com/IZGateway/izg-transformation-ui/pull/314))
+- chore(deps): bump dompurify from 3.4.12 to 3.4.13 ([#313](https://github.com/IZGateway/izg-transformation-ui/pull/313))
+- chore(deps): security and dependency updates ([#312](https://github.com/IZGateway/izg-transformation-ui/pull/312))
+
+
 ## [0.18.0] - 2026-08-04
 
 ### Changes

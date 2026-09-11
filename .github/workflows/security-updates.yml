@@ -16,8 +16,7 @@ on:
           - dev
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
   packages: read
 
 jobs:
@@ -25,10 +24,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Generate Dependency Bot App Token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.DEPENDENCY_BOT_APP_ID }}
+          private-key: ${{ secrets.DEPENDENCY_BOT_APP_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-checks: read
+          permission-statuses: read
+
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -40,8 +50,8 @@ jobs:
       
       - name: Configure Git
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "izg-dependency-bot[bot]"
+          git config user.email "321530222+izg-dependency-bot[bot]@users.noreply.github.com"
       
       - name: Configure npm authentication
         env:
@@ -223,7 +233,6 @@ jobs:
         run: |
           echo "Running tests..."
           npm run test
-        continue-on-error: true
 
       - name: Build application
         if: steps.final_check.outputs.has_changes == 'true' && steps.commit_changes.outputs.has_committed_changes == 'true'
@@ -281,7 +290,7 @@ jobs:
       - name: Create Pull Request
         if: steps.final_check.outputs.has_changes == 'true' && steps.commit_changes.outputs.has_committed_changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.IZGW_ALL_REPO_ACCESS_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           PR_BODY=$(cat pr_body.md)
           PR_URL=$(gh pr create \
@@ -300,11 +309,37 @@ jobs:
 
       - name: Wait for PR checks, then merge if green
         if: steps.final_check.outputs.has_changes == 'true' && steps.commit_changes.outputs.has_committed_changes == 'true'
+        timeout-minutes: 20
         run: |
-          gh pr checks "$PR_URL" --watch --interval 30
+          set -euo pipefail
+
+          if [ -z "${PR_URL:-}" ]; then
+            echo "::error::PR_URL is empty; refusing to merge."
+            exit 1
+          fi
+
+          # --watch waits for existing checks, not for their initial registration.
+          for ATTEMPT in $(seq 1 20); do
+            CHECK_OUTPUT=$(gh pr checks "$PR_URL" 2>&1) && CHECK_STATUS=0 || CHECK_STATUS=$?
+            if [ "$CHECK_STATUS" -eq 1 ] && printf '%s' "$CHECK_OUTPUT" | grep -q '^no checks reported'; then
+              if [ "$ATTEMPT" -eq 20 ]; then
+                echo "::error::No PR checks registered within the polling limit; refusing to merge."
+                exit 1
+              fi
+              echo "No PR checks registered yet; waiting 15s."
+              sleep 15
+            elif [ "$CHECK_STATUS" -eq 0 ] || [ "$CHECK_STATUS" -eq 8 ]; then
+              break
+            else
+              printf '%s\n' "$CHECK_OUTPUT" >&2
+              exit "$CHECK_STATUS"
+            fi
+          done
+
+          gh pr checks "$PR_URL" --watch --fail-fast --interval 30
           gh pr merge "$PR_URL" --squash --delete-branch
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Upload npm logs on failure
         if: failure()

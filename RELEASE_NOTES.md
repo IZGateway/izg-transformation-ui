@@ -1,5 +1,12 @@
 # Release Notes
 
+## [0.20.0] - 2026-09-30
+
+### Changes
+- feat(ci): auto-merge dependency-update PRs once checks pass ([#337](https://github.com/IZGateway/izg-transformation-ui/pull/337))
+- chore(deps): security and dependency updates ([#336](https://github.com/IZGateway/izg-transformation-ui/pull/336))
+
+
 ## [0.19.0] - 2026-09-09
 
 ### Changes

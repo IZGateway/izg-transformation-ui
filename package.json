@@ -109,6 +109,7 @@
     "@eslint/eslintrc": {
       "ajv": "^6.14.0"
     },
+    "argparse": "^3.0.2",
     "chokidar": "^5.0.0",
     "eslint": {
       "ajv": "^6.14.0",
@@ -119,7 +120,7 @@
     "glob": "^13.0.6",
     "js-yaml": "4.3.2",
     "jsdom": "^28.1.0",
-    "postcss": "8.5.28",
+    "postcss": "8.5.29",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"
   }

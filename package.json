@@ -64,7 +64,7 @@
     "react-dom": "^18.3.1",
     "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
-    "swagger-ui-react": "^5.33.3",
+    "swagger-ui-react": "^5.34.0",
     "swr": "^2.5.1",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "waait": "^1.0.5",
@@ -115,7 +115,7 @@
       "brace-expansion": "^1.1.16"
     },
     "fast-glob": "^3.3.3",
-    "fast-uri": "4.2.2",
+    "fast-uri": "4.2.3",
     "glob": "^13.0.6",
     "js-yaml": "4.3.2",
     "jsdom": "^28.1.0",

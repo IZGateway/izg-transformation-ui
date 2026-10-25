@@ -108,7 +108,7 @@
     "@eslint/eslintrc": {
       "ajv": "^6.14.0"
     },
-    "argparse": "3.0.3",
+    "argparse": "3.0.4",
     "chokidar": "^5.0.0",
     "eslint": {
       "ajv": "^6.14.0",

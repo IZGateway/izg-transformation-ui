@@ -118,7 +118,7 @@ See `CONFIGURATION.md` for the full list. Copy `.env.example` to `.env` — neve
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `deploy.yml` | Push to `release/**` or PR to `develop` | Build Docker + deploy to Dev ECS |
+| `deploy.yml` | Push or PR to `develop`; weekdays 10:00 UTC | Build Docker + deploy to Dev ECS |
 | `create-image.yml` | Manual | Generate release timestamp |
 | `create-release-branch.yml` | Manual | Create release branch + build/push image |
 | `security-updates.yml` | Daily 3:15 AM UTC | CVE/dependency updates |

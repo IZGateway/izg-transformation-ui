@@ -119,7 +119,7 @@
     "glob": "^13.0.6",
     "js-yaml": "4.3.2",
     "jsdom": "^28.1.0",
-    "postcss": "8.5.31",
+    "postcss": "8.5.32",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"
   }

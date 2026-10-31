@@ -64,7 +64,7 @@
     "react-dom": "^18.3.1",
     "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
-    "swagger-ui-react": "^5.34.0",
+    "swagger-ui-react": "^5.34.1",
     "swr": "^2.5.1",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "waait": "^1.0.5",
@@ -85,8 +85,8 @@
     "@types/lodash": "^4.17.27",
     "@types/react": "^19.3.0",
     "@types/testing-library__jest-dom": "^5.14.9",
-    "@typescript-eslint/eslint-plugin": "^8.57.1",
-    "@typescript-eslint/parser": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
     "concurrently": "^8.2.2",
     "dotenv": "^17.4.2",
     "eslint": "^9.39.5",
@@ -105,6 +105,8 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
+    "@eslint-community/eslint-utils": "^4.10.1",
+    "@eslint/config-array": "^0.23.5",
     "@eslint/eslintrc": {
       "ajv": "^6.14.0"
     },
@@ -116,10 +118,12 @@
     },
     "fast-glob": "^3.3.3",
     "fast-uri": "4.2.3",
-    "glob": "^13.0.6",
+    "glob": "^14.0.3",
     "js-yaml": "4.3.2",
     "jsdom": "^28.1.0",
+    "minimatch": "^11.0.3",
     "postcss": "8.5.32",
+    "test-exclude": "^8.0.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"
   }

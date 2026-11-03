@@ -4,6 +4,12 @@ name: Test, Build and Publish to AWS DEV environment
 on:
   # push to release/** intentionally removed: release branches are fully managed
   # by _release_common.yml which runs its own quality gates and Docker build.
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - '.github/workflows/*'
+      - '!.github/workflows/deploy.yml'
   pull_request:
     branches:
       - develop

@@ -1,5 +1,13 @@
 # Release Notes
 
+## [0.21.0] - 2026-11-03
+
+### Changes
+- IGDD-3620: Deploy Xform UI to dev on push to develop ([#372](https://github.com/IZGateway/izg-transformation-ui/pull/372))
+- IGDD-3178 Code for /api/deephealthcheck now returns a limited set of fields. ([#366](https://github.com/IZGateway/izg-transformation-ui/pull/366))
+- chore(deps): remove unused node-forge dependency (IGDD-3559) ([#356](https://github.com/IZGateway/izg-transformation-ui/pull/356))
+
+
 ## [0.20.0] - 2026-09-30
 
 ### Changes

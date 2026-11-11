@@ -75,7 +75,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
-    "@izgateway/dependency-scripts": "^1.0.9",
+    "@izgateway/dependency-scripts": "^1.0.10",
     "@next/eslint-plugin-next": "^16.4.6",
     "@playwright/test": "^1.65.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -121,7 +121,7 @@
     "glob": "14.0.4",
     "js-yaml": "4.3.2",
     "jsdom": "^28.1.0",
-    "minimatch": "11.0.5",
+    "minimatch": "11.0.7",
     "postcss": "8.5.32",
     "test-exclude": "^8.0.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",

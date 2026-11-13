@@ -1,0 +1,55 @@
+{
+  "cookies": [
+    {
+      "name": "__Host-next-auth.csrf-token",
+      "value": "f25b1062ab21efa77c79a82ca276a1ff08b956c7c5b4a8bb1e97b666fb226b28%7C9fd9aa6ddecc2e61eb147112dcdffa35493ed0e38ea309cdf1de1041b7887f26",
+      "domain": "dev.xform-ui.izgateway.org",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Secure-next-auth.callback-url",
+      "value": "https%3A%2F%2Fdev.xform-ui.izgateway.org%2Fmanage",
+      "domain": "dev.xform-ui.izgateway.org",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Secure-next-auth.state",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..z6YlCr1mSXoMghzN._-RfxWxMQIhp5E44bpR7sa2LbVVfBM4fPK4wObewa2vgPkgp3U0G5oR_uvxi6Rx1zhF_KqGQ0mlY3JD2dq-Sz3ljyHsg9hCyOnT5k-nPmSP-anVY04jjthtuuV1GHHoOCBhHCqte5FzITLcZQC4JWgjrFiuIYxR4RrMKVgJGJHD5q3J_ln4.GWU_3Q4Qq4JdWlOp-i-vOQ",
+      "domain": "dev.xform-ui.izgateway.org",
+      "path": "/",
+      "expires": 1778808370.975363,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "DT",
+      "value": "DI1fPhrROXpQsCrBKcoa1dCpA",
+      "domain": "izgateway1.oktapreview.com",
+      "path": "/",
+      "expires": 1813367471.748735,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "JSESSIONID",
+      "value": "BC92736DB0B91EC3AE5A477986CE5368",
+      "domain": "izgateway1.oktapreview.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}

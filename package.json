@@ -64,7 +64,7 @@
     "react-dom": "^18.3.1",
     "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
-    "swagger-ui-react": "^5.34.1",
+    "swagger-ui-react": "^5.35.0",
     "swr": "^2.5.1",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "waait": "^1.0.5",
@@ -77,7 +77,7 @@
     "@commitlint/config-conventional": "^20.5.3",
     "@izgateway/dependency-scripts": "^1.0.10",
     "@next/eslint-plugin-next": "^16.4.6",
-    "@playwright/test": "^1.65.0",
+    "@playwright/test": "^1.65.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^14.3.1",
     "@types/gtag.js": "^0.0.20",
@@ -106,7 +106,7 @@
   },
   "overrides": {
     "@eslint-community/eslint-utils": "^4.10.1",
-    "@eslint/config-array": "^0.23.5",
+    "@eslint/config-array": "0.23.6",
     "@eslint/eslintrc": {
       "ajv": "^6.14.0"
     },
@@ -122,7 +122,7 @@
     "js-yaml": "4.3.2",
     "jsdom": "^28.1.0",
     "minimatch": "11.0.8",
-    "postcss": "8.5.32",
+    "postcss": "8.5.33",
     "test-exclude": "^8.0.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"

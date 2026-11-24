@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { SessionProvider } from 'next-auth/react'
 import { Session } from 'next-auth'
 import type { AppProps } from 'next/app'

@@ -78,7 +78,6 @@ const CreateMapping = ({
 
   const hasChanges = useMemo(
     () => !_.isEqual(currentMapping, initialMappingRef.current),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentMapping]
   )
 

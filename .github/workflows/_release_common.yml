@@ -64,6 +64,9 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
+          # Keep app-id. RELEASE_AUTOMATION_APP_ID holds the numeric App ID, which
+          # izg-configuration-console also passes to app-id. The client-id input needs the
+          # separate GitHub App Client ID value and a new secret to hold it.
           app-id: ${{ secrets.RELEASE_AUTOMATION_APP_ID }}
           private-key: ${{ secrets.RELEASE_AUTOMATION_APP_KEY }}
 

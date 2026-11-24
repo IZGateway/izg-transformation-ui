@@ -23,7 +23,7 @@
 | Data fetching | **SWR** + **axios** (API routes proxy to backend) |
 | Drag & drop | **@dnd-kit** (used for solution reordering in pipelines) |
 | Logging | **Winston** + `@elastic/ecs-winston-format` → Elasticsearch |
-| Testing | **Jest** + **@testing-library/react**; Cypress for E2E |
+| Testing | **Jest** + **@testing-library/react**; Playwright for E2E |
 | Linting | ESLint (`eslint.config.mjs`) + Prettier (`.prettierrc`) |
 | Commits | Conventional Commits enforced via commitlint + husky |
 

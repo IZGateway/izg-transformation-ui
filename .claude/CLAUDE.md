@@ -18,7 +18,7 @@ AWS ECS (Fargate) + nginx (provided by the base image) + Docker.
 | Data | **SWR** + **axios** (API routes proxy to backend) |
 | Drag & drop | **@dnd-kit** |
 | Logging | **Winston** + `@elastic/ecs-winston-format` → Elasticsearch |
-| Testing | **Jest** + **@testing-library/react**; Cypress for E2E |
+| Testing | **Jest** + **@testing-library/react**; Playwright for E2E |
 | Linting | ESLint (`eslint.config.mjs`) + Prettier (`.prettierrc`) |
 | Commits | Conventional Commits (commitlint + husky) |
 

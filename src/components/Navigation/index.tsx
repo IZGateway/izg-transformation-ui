@@ -228,6 +228,7 @@ const MiniDrawer = () => {
           variant="text"
           onClick={() => {
             signOut().then(() => {
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- the destination is the external Okta sign-out URL, not a Next.js page. The rule cannot resolve the env var, so it treats the URL as relative.
               return (window.location.href = `${process.env.NEXT_PUBLIC_OKTA_ISSUER}/login/signout`)
             })
           }}

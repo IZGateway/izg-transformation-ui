@@ -32,12 +32,12 @@ const fetchWithToken = async (endpoint: string, access_token: unknown) => {
 
   if (useCert) {
     httpsAgentOptions.cert = fs.readFileSync(
-      path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
+      path.resolve(/*turbopackIgnore: true*/ XFORM_SERVICE_ENDPOINT_CRT_PATH),
       'utf-8'
     )
 
     httpsAgentOptions.key = fs.readFileSync(
-      path.resolve(XFORM_SERVICE_ENDPOINT_KEY_PATH),
+      path.resolve(/*turbopackIgnore: true*/ XFORM_SERVICE_ENDPOINT_KEY_PATH),
       'utf-8'
     )
 

@@ -1,3 +1,7 @@
+# The base image uses the :latest tag on purpose. The base image rebuilds every day
+# with security patches, and :latest gives each build of this image those patches.
+# GHCR has no version tags for the base image. A digest pin stops the patches.
+# hadolint ignore=DL3007
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -10,12 +14,13 @@ RUN --mount=type=secret,id=npm_token,required=true \
     --mount=type=tmpfs,target=/run/npm-auth \
     printf '%s\n' \
         '@izgateway:registry=https://npm.pkg.github.com/' \
-        '//npm.pkg.github.com/:_authToken=${NPM_TOKEN}' > /run/npm-auth/.npmrc \
+        "//npm.pkg.github.com/:_authToken=\${NPM_TOKEN}" > /run/npm-auth/.npmrc \
     && NPM_TOKEN="$(cat /run/secrets/npm_token)" \
     && export NPM_TOKEN \
     && npm ci --userconfig=/run/npm-auth/.npmrc \
     && rm -rf /root/.npm/_logs
 
+# hadolint ignore=DL3007
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -26,7 +31,7 @@ RUN rm -rf .next && \
     mkdir -p /app/.next/cache && \
     chmod -R 777 /app/.next
 
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 ARG BUILD_ID=0.0.0
 ARG NEXT_PUBLIC_OKTA_ISSUER=BAKED_NEXT_PUBLIC_OKTA_ISSUER
 ARG NEXT_PUBLIC_GA_ID=BAKED_NEXT_PUBLIC_GA_ID
@@ -36,6 +41,7 @@ ENV NODE_ENV=production
 ENV NEXT_SHARP_PATH=/app/node_modules/sharp
 RUN npm run build
 
+# hadolint ignore=DL3007
 FROM ghcr.io/izgateway/alpine-node-openssl-fips:latest AS runner
 WORKDIR /app
 
@@ -43,8 +49,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-# Install bash and tini
-RUN apk add --no-cache bash tini
 
 COPY package.json package-lock.json ./
 
@@ -57,12 +61,14 @@ RUN if ! command -v nginx >/dev/null 2>&1; then echo "ERROR: nginx binary not fo
 
 # Install Dependencies and cleanup yarn.lock if present
 # The token is a BuildKit secret, as in the deps stage. This is the final image.
+# The base image supplies bash, curl, and libc6-compat (through gcompat).
+# This stage adds tini.
 RUN --mount=type=secret,id=npm_token,required=true \
     --mount=type=tmpfs,target=/run/npm-auth \
-    apk add --no-cache curl libc6-compat \
+    apk add --no-cache "tini>=0.19" \
     && printf '%s\n' \
         '@izgateway:registry=https://npm.pkg.github.com/' \
-        '//npm.pkg.github.com/:_authToken=${NPM_TOKEN}' > /run/npm-auth/.npmrc \
+        "//npm.pkg.github.com/:_authToken=\${NPM_TOKEN}" > /run/npm-auth/.npmrc \
     && NPM_TOKEN="$(cat /run/secrets/npm_token)" \
     && export NPM_TOKEN \
     && npm ci --omit=dev --userconfig=/run/npm-auth/.npmrc \
@@ -78,14 +84,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/replace-variable.sh ./replace-var
 COPY --from=builder /app/run_and_monitor.sh ./run_and_monitor.sh
 
 # Replace default filebeat config with custom config file
-RUN cd ../filebeat && \
-     rm -rf /filebeat.yml && \
-     cp ../app/filebeat.yml ./filebeat.yml
+RUN rm -rf /filebeat.yml \
+    && cp /app/filebeat.yml /filebeat/filebeat.yml
 
 # Replace default metricbeat config with custom config file
-RUN cd ../metricbeat && \
-    rm -rf /metricbeat/metricbeat.yml && \
-    cp ../app/metricbeat.yml ./metricbeat.yml
+RUN rm -rf /metricbeat/metricbeat.yml \
+    && cp /app/metricbeat.yml /metricbeat/metricbeat.yml
 
 # Configure Nginx
 RUN mkdir -p /etc/nginx/conf.d

@@ -24,6 +24,9 @@ yarn dev
 
 ## E2E tests
 
-1. Update cypress/config/cypress-dev-config.ts with credentials
-2. Run npm run cypress:open which will open cypress window -> choose E2E testing -> Choose browser to run the tests against -> choose test files to run
-3. Running test through cmd, npm cypress run
+The E2E tests use Playwright. The tests are in `e2e/`.
+
+```bash
+npm run test:e2e        # Chrome, Firefox, and WebKit
+npm run test:e2e:chrome # Chrome only
+```

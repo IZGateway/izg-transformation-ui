@@ -76,11 +76,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       process.env.XFORM_SERVICE_ENDPOINT_PASSCODE || undefined
     const httpsAgentOptions = {
       cert: fs.readFileSync(
-        path.resolve(XFORM_SERVICE_ENDPOINT_CRT_PATH),
+        path.resolve(/*turbopackIgnore: true*/ XFORM_SERVICE_ENDPOINT_CRT_PATH),
         'utf-8'
       ),
       key: fs.readFileSync(
-        path.resolve(XFORM_SERVICE_ENDPOINT_KEY_PATH),
+        path.resolve(/*turbopackIgnore: true*/ XFORM_SERVICE_ENDPOINT_KEY_PATH),
         'utf-8'
       ),
       passphrase: XFORM_SERVICE_ENDPOINT_PASSCODE,

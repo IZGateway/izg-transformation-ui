@@ -28,13 +28,10 @@
     "**/*.tsx",
     "./jest-setup.ts",
     "logger.ts",
-    ".next/types/**/*.ts",
-    "cypress/support/commands.ts"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
-    "cypress",
-    "**/*.cy.tsx",
     ".next"
   ]
 }

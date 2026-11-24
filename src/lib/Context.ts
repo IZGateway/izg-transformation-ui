@@ -27,7 +27,6 @@ export interface Context {
 // the logger's getStore(), and sessionUser would never be injected. Mirrors the
 // global.tokenStore pattern (single Node process per container).
 declare global {
-  // eslint-disable-next-line no-var
   var asyncRequestContext: AsyncLocalStorage<Context> | undefined
 }
 

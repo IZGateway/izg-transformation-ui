@@ -18,7 +18,7 @@ AWS ECS (Fargate) + nginx (provided by the base image) + Docker.
 | Data | **SWR** + **axios** (API routes proxy to backend) |
 | Drag & drop | **@dnd-kit** |
 | Logging | **Winston** + `@elastic/ecs-winston-format` → Elasticsearch |
-| Testing | **Jest** + **@testing-library/react**; Cypress for E2E |
+| Testing | **Jest** + **@testing-library/react**; Playwright for E2E |
 | Linting | ESLint (`eslint.config.mjs`) + Prettier (`.prettierrc`) |
 | Commits | Conventional Commits (commitlint + husky) |
 
@@ -142,7 +142,7 @@ Goal: zero `npm warn deprecated` on a fresh `npm install`. Mirrors the fixes in 
 - **whatwg-encoding (Xform-specific):** `whatwg-encoding@3.1.1` is the latest published version AND is deprecated (use `@exodus/bytes`). It was pulled by `jest-environment-jsdom@30 → jsdom@26`. Override `jsdom: ^28.1.0` (jsdom 28 dropped whatwg-encoding in favor of `@exodus/bytes`); proven compatible with jest-environment-jsdom@30.
   - **Test-env follow-on — known limitation:** jsdom@28 pulls `html-encoding-sniffer@6`, which does a CommonJS `require()` of the ESM-only `@exodus/bytes` (upstream packaging bug), so `npm test` fails jsdom suites with `ERR_REQUIRE_ESM`. CC (izg-configuration-console) hit the identical issue and confirmed it pre-dates the deprecation work there. `transpilePackages` does not fix it (the bad `require()` is at runtime inside untransformed node_modules). Tracked for a separate follow-up. If tests must pass before that, revert to `jsdom@26` (CJS `whatwg-encoding`, reintroduces that dev-only deprecation) or await an upstream fix.
 - **git-raw-commits:** bumped `@commitlint/cli` + `@commitlint/config-conventional` 17 → `^20.5.3`. commitlint ≤19 pulls `git-raw-commits@2`/`@4` (both deprecated); v20 uses `git-raw-commits@^5` (clean) while still allowing Node ≥18. (v21 requires Node ≥22.12.)
-- **@mui/base (CANNOT eliminate yet):** pulled transitively by `@mui/lab@5` and `@mui/x-date-pickers@6`. *Every* published `@mui/base` version is deprecated (renamed to `@base-ui-components/react`); no maintained version to override to. Removing it requires migrating the MUI stack off v5 (separate CR). This is the one expected residual deprecation warning.
+- **@mui/base:** eliminated (IGDD-2974). It came only from `@mui/lab@5` and `@mui/x-date-pickers@6`, and the app imported neither, so both were removed (with the unused `react-to-print`). *Every* published `@mui/base` version is deprecated, so do not add back a package that depends on it. The React 19 / MUI v7 upgrade is tracked in IGDD-3859.
 
 ## Active Work
 

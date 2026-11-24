@@ -22,7 +22,6 @@
     "test:e2e:dev": "playwright test --project=Chrome --headed",
     "test:e2e:report": "playwright show-report",
     "swagger:generate-doc": "npx next-swagger-doc-cli src/next-swagger-doc.json --output swaggerAPI.json",
-    "cypress:open": "cypress open --config-file cypress/config/cypress-dev-config.ts",
     "capture-screenshots": "playwright test e2e/tests/capture-screenshots.spec.ts",
     "validate-help-panel": "node scripts/validate-help-panel.js"
   },
@@ -41,10 +40,8 @@
     "@fontsource/roboto": "^5.3.0",
     "@fontsource/ubuntu": "^5.3.0",
     "@mui/icons-material": "^5.18.0",
-    "@mui/lab": "^5.0.0-alpha.177",
     "@mui/material": "^5.18.0",
     "@mui/x-data-grid": "^6.20.4",
-    "@mui/x-date-pickers": "^6.20.2",
     "@types/node": "^20.19.43",
     "@types/node-fetch": "^2.6.13",
     "@types/tcp-ping": "^0.1.6",
@@ -59,10 +56,8 @@
     "next-api-middleware": "^2.0.1",
     "next-auth": "^4.24.15",
     "next-swagger-doc": "^0.5.0",
-    "prisma": "^4.16.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-to-print": "^2.15.1",
     "saml2-js": "^4.0.4",
     "swagger-ui-react": "^5.36.0",
     "swr": "^2.5.1",
@@ -128,5 +123,15 @@
     "test-exclude": "^8.0.0",
     "uuid": "npm:@izgateway/uuid-cjs@^14.0.7",
     "xmlbuilder2": "^4.0.3"
+  },
+  "allowScripts": {
+    "@parcel/watcher": false,
+    "@scarf/scarf": false,
+    "core-js-pure": false,
+    "@tree-sitter-grammars/tree-sitter-yaml": true,
+    "fsevents": true,
+    "tree-sitter": true,
+    "tree-sitter-json": true,
+    "unrs-resolver": true
   }
 }

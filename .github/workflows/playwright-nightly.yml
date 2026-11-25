@@ -10,6 +10,11 @@ jobs:
     name: Run Playwright e2e against Dev
     runs-on: ubuntu-latest
 
+    # actions: the Jira report step looks up which step failed (IGDD-2768).
+    permissions:
+      contents: read
+      actions: read
+
     env:
       BASE_URL: ${{ secrets.BASE_URL }}
       OKTA_USERNAME: ${{ secrets.OKTA_USERNAME }}
@@ -105,6 +110,7 @@ jobs:
         run: npx playwright install chrome
 
       - name: Run Playwright e2e tests (Chrome, Firefox, WebKit — headless)
+        id: playwright
         run: npx playwright test --project=Chrome --project=Firefox --project=WebKit --reporter=html
 
       - name: Upload HTML Report
@@ -138,3 +144,18 @@ jobs:
               --desired-count 0 | jq ".service.deployments[].id" &
           done
           wait
+
+      # Files an IGDD Bug when the scheduled run fails (IGDD-2768). The same failure
+      # while that ticket is open adds a comment instead. Scheduled runs only, so
+      # manual runs never file tickets. Must stay the last step.
+      # reason: test failures always map to one ticket, even if stopping AWS Dev also
+      # fails. Any other failure, such as AWS Dev not starting, is named after the
+      # step that failed.
+      - name: Report failure to Jira
+        if: failure() && github.event_name == 'schedule'
+        uses: IZGateway/izg-dependency-scripts/.github/actions/report-ci-failure@v1
+        with:
+          component: Transformation Console
+          jira-api-url: ${{ secrets.JIRA_API_URL }}
+          jira-auth: ${{ secrets.JIRA_API_AUTH_BASE64 }}
+          reason: ${{ steps.playwright.outcome == 'failure' && 'Playwright tests failed' || '' }}
